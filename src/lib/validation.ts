@@ -104,6 +104,9 @@ export const utmSchema = z
       .max(12)
       .optional(),
   })
+  // null means "no UTM parameters" (the builder sends it when every field is empty, and
+  // on an edit it clears them); undefined leaves the stored value alone.
+  .nullable()
   .optional();
 
 export const smartRuleSchema = z.object({

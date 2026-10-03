@@ -148,3 +148,42 @@ describe('validateContentForType', () => {
     expect(result.content).not.toHaveProperty('evil');
   });
 });
+
+describe('builder payloads', () => {
+  // The builder sends explicit nulls for "nothing set" (no UTMs, no folder, no slug).
+  // A schema that only accepts undefined rejects the whole save with "Expected object,
+  // received null" — which is exactly what users hit on a plain static code.
+  it('accepts what the builder sends for a static code with nothing optional filled in', async () => {
+    const { qrCreateSchema } = await import('@/lib/validation');
+    const { DEFAULT_DESIGN } = await import('@/lib/qr/types');
+    const body = {
+      name: 'Plain text code',
+      kind: 'STATIC',
+      type: 'TEXT',
+      content: { text: 'hello' },
+      design: DEFAULT_DESIGN,
+      folderId: null,
+      customDomainId: null,
+      slug: null,
+      utm: null,
+      smartRules: undefined,
+      gates: {
+        password: null,
+        scheduleEnabled: false,
+        scheduleStart: null,
+        scheduleEnd: null,
+        scanLimitEnabled: false,
+        scanLimitMax: null,
+      },
+    };
+    const result = qrCreateSchema.safeParse(body);
+    expect(result.success ? 'ok' : result.error.issues).toBe('ok');
+  });
+
+  it('accepts the same shape as an edit, where null utm clears the parameters', async () => {
+    const { qrUpdateSchema } = await import('@/lib/validation');
+    const result = qrUpdateSchema.safeParse({ utm: null, folderId: null, slug: null });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data.utm).toBeNull();
+  });
+});
