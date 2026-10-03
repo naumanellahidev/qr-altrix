@@ -23,17 +23,31 @@ function arg(name: string): string | undefined {
 }
 
 /**
- * Readable but strong: four words, a number and a symbol. Easier to type correctly on a
- * phone than a random blob, and still far past any practical brute force.
+ * Readable but strong: four distinct words from a 64-word list, a number and a symbol.
+ * That is about 2^37 of word entropy alone, and bcrypt at cost 12 does the rest. Easier
+ * to type correctly on a phone than a random blob, which matters for a password someone
+ * has to use before their password manager knows about it.
  */
 function generatePassword(): string {
   const words = [
     'harbor', 'lantern', 'copper', 'meadow', 'cobalt', 'ember', 'quartz', 'willow',
     'summit', 'cascade', 'orchard', 'falcon', 'marble', 'cedar', 'nimbus', 'saffron',
     'juniper', 'onyx', 'pelican', 'thistle', 'velvet', 'zephyr', 'basalt', 'citrine',
+    'anchor', 'beacon', 'canyon', 'driftwood', 'estuary', 'fathom', 'granite', 'hollow',
+    'indigo', 'jasmine', 'kestrel', 'lagoon', 'mosaic', 'nectar', 'obsidian', 'prairie',
+    'quiver', 'rosewood', 'sandstone', 'tundra', 'umber', 'verbena', 'walnut', 'yarrow',
+    'alcove', 'bramble', 'cinder', 'dovetail', 'eclipse', 'fennel', 'glacier', 'heather',
+    'ivory', 'junction', 'kindling', 'lattice', 'mistral', 'noble', 'opaline', 'plinth',
   ];
   const symbols = '!@#$%&*?';
-  const picked = Array.from({ length: 4 }, () => words[randomInt(words.length)]);
+
+  // Distinct words: a repeat looks like a mistake and quietly costs entropy.
+  const picked: string[] = [];
+  while (picked.length < 4) {
+    const word = words[randomInt(words.length)];
+    if (!picked.includes(word)) picked.push(word);
+  }
+
   return `${picked.join('-')}-${randomInt(100, 1000)}${symbols[randomInt(symbols.length)]}`;
 }
 
