@@ -207,3 +207,19 @@ describe('upload safety', () => {
     expect(clean).toContain('<rect');
   });
 });
+
+describe('API auth failures', () => {
+  // Routes reuse the page helpers requireAuth()/requirePermission(), which call Next's
+  // redirect(). Inside withApi that has to become a JSON status, never a 500.
+  it('turns a redirect to /login into a 401 and any other redirect into a 403', async () => {
+    const { redirect } = await import('next/navigation');
+    const { withApi } = await import('@/lib/api/respond');
+
+    const signedOut = await withApi(async () => redirect('/login?next=%2Fdashboard'))();
+    expect(signedOut.status).toBe(401);
+    expect(await signedOut.json()).toMatchObject({ ok: false });
+
+    const forbidden = await withApi(async () => redirect('/dashboard'))();
+    expect(forbidden.status).toBe(403);
+  });
+});

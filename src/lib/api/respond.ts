@@ -43,6 +43,17 @@ export function withApi<Args extends unknown[]>(
     try {
       return await handler(...args);
     } catch (error) {
+      // Routes share requireAuth()/requirePermission() with pages, and those call Next's
+      // redirect(), which works by throwing. In an API route that must become a JSON
+      // status, not a 500: a redirect to /login means "not signed in", anything else
+      // means "signed in but not allowed".
+      const digest = (error as { digest?: unknown } | null)?.digest;
+      if (typeof digest === 'string' && digest.startsWith('NEXT_REDIRECT')) {
+        const target = digest.split(';')[2] ?? '';
+        return target.startsWith('/login')
+          ? fail('Sign in to continue', 401)
+          : fail('You do not have permission to do that', 403);
+      }
       if (error instanceof ZodError) {
         const fields = fieldErrors(error);
         return fail(Object.values(fields)[0] ?? 'Please check the highlighted fields', 400, { fields });
