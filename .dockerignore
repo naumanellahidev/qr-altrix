@@ -1,7 +1,10 @@
+# Keeping CI config and docs out of the build context means a change to either does not
+# invalidate the image layers.
 node_modules
 .next
 .git
 .github
+deploy
 storage
 backups
 coverage
