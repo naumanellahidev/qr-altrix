@@ -5,6 +5,7 @@ import type { Role } from '@prisma/client';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Topbar } from '@/components/dashboard/topbar';
 import { Alert } from '@/components/ui/feedback';
+import { ResendVerification } from '@/components/auth/resend-verification';
 
 export interface DashboardShellProps {
   user: { name: string | null; email: string; isPlatformAdmin: boolean; emailVerified: boolean };
@@ -13,6 +14,8 @@ export interface DashboardShellProps {
   codeCount: number;
   expiryEnabled?: boolean;
   maintenanceNote?: string | null;
+  /** Platform setting: unverified accounts cannot create dynamic codes until they confirm. */
+  emailVerificationRequired?: boolean;
   children: React.ReactNode;
 }
 
@@ -24,6 +27,7 @@ export function DashboardShell({
   codeCount,
   expiryEnabled,
   maintenanceNote,
+  emailVerificationRequired,
   children,
 }: DashboardShellProps) {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
@@ -51,6 +55,17 @@ export function DashboardShell({
           {maintenanceNote ? (
             <Alert tone="warning" title="Notice from your administrator" className="mb-5">
               {maintenanceNote}
+            </Alert>
+          ) : null}
+          {emailVerificationRequired && !user.emailVerified && !user.isPlatformAdmin ? (
+            <Alert
+              tone="info"
+              title="Confirm your email to unlock dynamic QR codes"
+              className="mb-5"
+              action={<ResendVerification variant="outline" />}
+            >
+              We sent a confirmation link to {user.email}. Static codes and downloads work
+              already; dynamic codes open up as soon as you click the link.
             </Alert>
           ) : null}
           {children}

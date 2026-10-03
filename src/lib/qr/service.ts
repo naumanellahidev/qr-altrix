@@ -10,6 +10,7 @@ import { buildStaticPayload } from './payload';
 import { DEFAULT_DESIGN } from './types';
 import { getTypeDef } from './catalog';
 import { deliverWebhookEvent } from '../jobs/webhook';
+import { getSettings } from '../settings';
 
 /**
  * One place where QR codes are created and changed, used by the dashboard, the public
@@ -148,12 +149,35 @@ export function encodedPayloadFor(qr: {
   return dynamicPayloadFor(qr);
 }
 
+/**
+ * "Require email verification" in platform settings. A dynamic code is a redirect that
+ * can be pointed anywhere later, which makes it the thing worth gating; static codes
+ * and the homepage hand-off (the draft someone designed before signing up) stay open,
+ * so the sign-up-to-download funnel keeps working. Platform admins are never blocked.
+ */
+async function assertMayCreateDynamic(ctx: QrServiceContext): Promise<void> {
+  if (!ctx.userId || ctx.source === 'homepage') return;
+  const settings = await getSettings().catch(() => null);
+  if (!settings?.requireEmailVerification) return;
+
+  const user = await prisma.user.findUnique({
+    where: { id: ctx.userId },
+    select: { emailVerifiedAt: true, isPlatformAdmin: true },
+  });
+  if (!user || user.emailVerifiedAt || user.isPlatformAdmin) return;
+
+  throw new QrValidationError({
+    kind: 'Confirm your email address to create dynamic QR codes. Use the link we sent you, or resend it from the banner at the top of your dashboard.',
+  });
+}
+
 export async function createQrCode(input: CreateQrInput, ctx: QrServiceContext): Promise<QrWithRelations> {
   const def = getTypeDef(input.type);
   if (!def) throw new QrValidationError({ type: 'Unknown QR code type' });
   if (def.kind !== input.kind) {
     throw new QrValidationError({ kind: `${def.label} codes are ${def.kind.toLowerCase()} codes` });
   }
+  if (input.kind === 'DYNAMIC') await assertMayCreateDynamic(ctx);
 
   const validated = validateContentForType(input.type, input.content);
   if (!validated.ok) throw new QrValidationError(validated.errors);

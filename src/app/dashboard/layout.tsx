@@ -36,6 +36,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       codeCount={codeCount}
       expiryEnabled={Boolean(settings?.expiryEnabled)}
       maintenanceNote={settings?.maintenanceNote || null}
+      emailVerificationRequired={Boolean(settings?.requireEmailVerification)}
     >
       {children}
     </DashboardShell>

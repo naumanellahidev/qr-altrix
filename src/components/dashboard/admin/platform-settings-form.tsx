@@ -83,8 +83,8 @@ export function PlatformSettingsForm({ initial }: { initial: PlatformSettings })
             onCheckedChange={(checked) => patch({ allowSignups: checked })}
           />
           <SwitchRow
-            label="Require a confirmed email before creating codes"
-            description="Reduces throwaway accounts, but adds a step for new users."
+            label="Require a confirmed email before creating dynamic codes"
+            description="Unconfirmed accounts can still make static codes and download the code they designed before signing up; new dynamic codes wait for the email link. Needs working email (SMTP)."
             checked={form.requireEmailVerification}
             onCheckedChange={(checked) => patch({ requireEmailVerification: checked })}
           />
