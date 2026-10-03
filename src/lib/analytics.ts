@@ -124,10 +124,43 @@ const GRANULARITY_SQL: Record<Granularity, string> = {
   month: 'month',
 };
 
-export async function scanSeries(filter: AnalyticsFilter, granularity: Granularity): Promise<SeriesPoint[]> {
-  const unit = GRANULARITY_SQL[granularity] ?? 'day';
-  const timezone = filter.timezone && /^[A-Za-z0-9_+\-/]{3,60}$/.test(filter.timezone) ? filter.timezone : 'UTC';
+/** The zone the viewer picked, if it is one the runtime knows; UTC otherwise. */
+export function safeTimezone(value: string | undefined | null): string {
+  if (!value || !/^[A-Za-z0-9_+\-/]{3,60}$/.test(value)) return 'UTC';
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: value });
+    return value;
+  } catch {
+    return 'UTC';
+  }
+}
 
+/**
+ * The wall-clock time in `timezone` for an instant, expressed as a UTC Date. Buckets
+ * from the database are wall-clock values too, so both live on the same grid.
+ */
+export function toWallClock(instant: Date, timezone: string): Date {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: timezone,
+    hourCycle: 'h23',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+  }).formatToParts(instant);
+  const get = (type: string) => Number(parts.find((part) => part.type === type)?.value ?? 0);
+  return new Date(Date.UTC(get('year'), get('month') - 1, get('day'), get('hour'), get('minute'), get('second')));
+}
+
+/**
+ * `ScanEvent.createdAt` is `timestamp without time zone` holding UTC. Postgres reads
+ * `ts AT TIME ZONE 'Asia/Karachi'` as "this wall-clock is Karachi time" — the reverse
+ * of what is wanted — so the value is first pinned to UTC, then converted:
+ * a scan at 20:30 UTC lands in the 01:00 Karachi bucket, not 15:00.
+ */
+function localTimeSql(timezone: string): Prisma.Sql {
+  return Prisma.sql`((s."createdAt" AT TIME ZONE 'UTC') AT TIME ZONE ${timezone})`;
+}
+
+function sqlConditions(filter: AnalyticsFilter): Prisma.Sql {
   const conditions: Prisma.Sql[] = [
     Prisma.sql`s."workspaceId" = ${filter.workspaceId}`,
     Prisma.sql`s."kind" = 'SCAN'::"ScanEventKind"`,
@@ -140,13 +173,19 @@ export async function scanSeries(filter: AnalyticsFilter, granularity: Granulari
       Prisma.sql`s."qrCodeId" IN (SELECT q."id" FROM "QRCode" q WHERE q."folderId" = ${filter.folderId})`,
     );
   }
+  return Prisma.join(conditions, ' AND ');
+}
+
+export async function scanSeries(filter: AnalyticsFilter, granularity: Granularity): Promise<SeriesPoint[]> {
+  const unit = GRANULARITY_SQL[granularity] ?? 'day';
+  const timezone = safeTimezone(filter.timezone);
 
   const rows = await prisma.$queryRaw<{ bucket: Date; scans: bigint; unique_scans: bigint }[]>(Prisma.sql`
-    SELECT date_trunc(${unit}, s."createdAt" AT TIME ZONE ${timezone}) AS bucket,
+    SELECT date_trunc(${unit}, ${localTimeSql(timezone)}) AS bucket,
            COUNT(*)::bigint AS scans,
            COUNT(*) FILTER (WHERE s."isUnique")::bigint AS unique_scans
     FROM "ScanEvent" s
-    WHERE ${Prisma.join(conditions, ' AND ')}
+    WHERE ${sqlConditions(filter)}
     GROUP BY 1
     ORDER BY 1 ASC
   `);
@@ -159,18 +198,28 @@ export async function scanSeries(filter: AnalyticsFilter, granularity: Granulari
 }
 
 /** Fills gaps so a chart shows zero-scan days instead of skipping them. */
-export function densifySeries(series: SeriesPoint[], range: AnalyticsRange, granularity: Granularity): SeriesPoint[] {
+export function densifySeries(
+  series: SeriesPoint[],
+  range: AnalyticsRange,
+  granularity: Granularity,
+  timezone = 'UTC',
+): SeriesPoint[] {
   const stepMs =
     granularity === 'hour' ? 36e5 : granularity === 'day' ? 864e5 : granularity === 'week' ? 6048e5 : 0;
   if (stepMs === 0) return series;
 
+  // The grid is built in the same wall-clock terms as the buckets (see toWallClock), and
+  // aligned the way date_trunc aligns: to the hour, to midnight, or to Monday.
   const map = new Map(series.map((point) => [new Date(point.bucket).getTime(), point]));
   const out: SeriesPoint[] = [];
-  const start = new Date(range.from);
-  if (granularity === 'hour') start.setMinutes(0, 0, 0);
-  else start.setHours(0, 0, 0, 0);
+  const zone = safeTimezone(timezone);
+  const start = toWallClock(range.from, zone);
+  const end = toWallClock(range.to, zone);
+  if (granularity === 'hour') start.setUTCMinutes(0, 0, 0);
+  else start.setUTCHours(0, 0, 0, 0);
+  if (granularity === 'week') start.setUTCDate(start.getUTCDate() - ((start.getUTCDay() + 6) % 7));
 
-  for (let t = start.getTime(); t <= range.to.getTime(); t += stepMs) {
+  for (let t = start.getTime(); t <= end.getTime(); t += stepMs) {
     const existing = map.get(t);
     out.push(existing ?? { bucket: new Date(t).toISOString(), scans: 0, unique: 0 });
   }
@@ -210,11 +259,15 @@ export async function analyticsOverview(filter: AnalyticsFilter): Promise<Analyt
       groupCount(filter, 'os'),
       groupCount(filter, 'language'),
       groupCount(filter, 'referrer'),
-      prisma.scanEvent.groupBy({
-        by: ['hourOfDay'],
-        where,
-        _count: { _all: true },
-      }),
+      // Hour of day in the zone the viewer picked. The stored `hourOfDay` column is UTC,
+      // which mislabelled the chart for anyone not on UTC.
+      prisma.$queryRaw<{ hour: number; scans: bigint }[]>(Prisma.sql`
+        SELECT EXTRACT(HOUR FROM ${localTimeSql(safeTimezone(filter.timezone))})::int AS hour,
+               COUNT(*)::bigint AS scans
+        FROM "ScanEvent" s
+        WHERE ${sqlConditions(filter)}
+        GROUP BY 1
+      `),
       prisma.scanEvent.groupBy({
         by: ['qrCodeId'],
         where,
@@ -237,7 +290,7 @@ export async function analyticsOverview(filter: AnalyticsFilter): Promise<Analyt
 
   const hours = Array.from({ length: 24 }, (_, hour) => ({
     hour,
-    scans: hourRows.find((row) => row.hourOfDay === hour)?._count._all ?? 0,
+    scans: Number(hourRows.find((row) => Number(row.hour) === hour)?.scans ?? 0),
   }));
 
   const changePercent =
@@ -250,7 +303,7 @@ export async function analyticsOverview(filter: AnalyticsFilter): Promise<Analyt
     changePercent,
     firstScanAt: bounds._min.createdAt ?? null,
     lastScanAt: bounds._max.createdAt ?? null,
-    series: densifySeries(series, filter.range, granularity),
+    series: densifySeries(series, filter.range, granularity, filter.timezone),
     countries: toBreakdown(countries, totalScans),
     cities: toBreakdown(cities, totalScans),
     devices: toBreakdown(devices, totalScans),

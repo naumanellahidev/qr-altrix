@@ -22,6 +22,7 @@ import { SectionHeader } from '@/components/ui/page-header';
 import { ConfirmDialog } from '@/components/ui/confirm';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { useDateFormat, DATE, DATE_TIME, TIME } from '@/lib/hooks/use-date-format';
 
 export interface Breakdown {
   label: string;
@@ -81,12 +82,23 @@ function rangeToDates(range: string): { from: string; to: string } {
   return { from: from.toISOString(), to: to.toISOString() };
 }
 
+/**
+ * Buckets come from `date_trunc(... AT TIME ZONE <chosen zone>)`: wall-clock values that
+ * are already in the zone picked above the chart. Formatting them in the browser's zone
+ * would shift them a second time (an hourly chart viewed from Karachi moved five hours),
+ * so they are printed in UTC, which leaves the wall-clock untouched — and renders the
+ * same on server and client.
+ */
 function formatBucket(bucket: string, granularity: 'hour' | 'day' | 'month'): string {
   const date = new Date(bucket);
   if (Number.isNaN(date.getTime())) return bucket;
-  if (granularity === 'hour') return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
-  if (granularity === 'month') return date.toLocaleDateString(undefined, { month: 'short', year: '2-digit' });
-  return date.toLocaleDateString(undefined, { day: '2-digit', month: 'short' });
+  const options: Intl.DateTimeFormatOptions =
+    granularity === 'hour'
+      ? { hour: '2-digit', minute: '2-digit', hour12: false }
+      : granularity === 'month'
+        ? { month: 'short', year: '2-digit' }
+        : { day: '2-digit', month: 'short' };
+  return date.toLocaleString('en-GB', { ...options, timeZone: 'UTC' });
 }
 
 /** Share list: a bar chart and its table reading in one, so values are never colour-only. */
@@ -162,6 +174,7 @@ export function AnalyticsView({
   canReset,
   timezone: initialTimezone,
 }: AnalyticsViewProps) {
+  const formatDate = useDateFormat();
   const palette = useVizPalette();
   const [data, setData] = React.useState<AnalyticsPayload>(initial);
   const [range, setRange] = React.useState('30');
@@ -370,11 +383,9 @@ export function AnalyticsView({
         <StatCard
           label="Last scan"
           value={
-            data.lastScanAt
-              ? new Date(data.lastScanAt).toLocaleDateString(undefined, { day: '2-digit', month: 'short' })
-              : '—'
+            formatDate(data.lastScanAt, { day: '2-digit', month: 'short' })
           }
-          hint={data.lastScanAt ? new Date(data.lastScanAt).toLocaleTimeString() : 'Waiting for the first scan'}
+          hint={data.lastScanAt ? formatDate(data.lastScanAt, TIME) : 'Waiting for the first scan'}
           icon={<Globe2 />}
           tone="accent"
         />

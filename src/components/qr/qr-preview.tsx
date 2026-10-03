@@ -85,8 +85,9 @@ export function QrPreview({
       className={cn('w-full', design.transparentBg && 'qa-checker rounded-2xl', className)}
       style={{ maxWidth: size }}
       // The markup comes from our own renderer, which escapes text and validates
-      // every colour and image source before it is written.
-      dangerouslySetInnerHTML={{ __html: result.rendered.svg.replace(/width="\d+" height="\d+"/, 'width="100%" height="auto"') }}
+      // every colour and image source before it is written. Height goes in CSS: the SVG
+      // `height` attribute takes a length, and "auto" there is an error in every browser.
+      dangerouslySetInnerHTML={{ __html: result.rendered.svg.replace(/width="\d+" height="\d+"/, 'width="100%" style="display:block;height:auto"') }}
     />
   );
 }

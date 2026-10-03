@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { parseCsv } from '@/lib/bulk/csv';
 import { QR_TYPES, getTypeDef } from '@/lib/qr/catalog';
-import { cn } from '@/lib/utils';
+import { cn, formatNumber } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -20,6 +20,7 @@ import { Alert, EmptyState } from '@/components/ui/feedback';
 import { Progress } from '@/components/ui/misc';
 import { SectionHeader } from '@/components/ui/page-header';
 import { toast } from 'sonner';
+import { useDateFormat, DATE, DATE_TIME, TIME } from '@/lib/hooks/use-date-format';
 
 interface ValidationField {
   name: string;
@@ -76,6 +77,7 @@ export function BulkWizard({
   jobs: BulkJobRow[];
   maxRows: number;
 }) {
+  const formatDate = useDateFormat();
   const router = useRouter();
   const fileRef = React.useRef<HTMLInputElement>(null);
 
@@ -196,7 +198,7 @@ export function BulkWizard({
   return (
     <div className="space-y-5">
       <Alert tone="success" title="No row limit beyond what your server can take">
-        This install accepts up to {maxRows.toLocaleString()} rows per import — an anti-abuse guard, not a plan limit.
+        This install accepts up to {formatNumber(maxRows)} rows per import — an anti-abuse guard, not a plan limit.
         Codes created here never expire.
       </Alert>
 
@@ -296,7 +298,7 @@ export function BulkWizard({
             <FileUp className="size-7 text-muted-foreground" />
             <p className="text-[14px] font-medium">Drop your CSV here</p>
             <p className="max-w-sm text-[12.5px] leading-5 text-muted-foreground">
-              Up to {maxRows.toLocaleString()} rows and 25 MB. Nothing is written until every row passes validation.
+              Up to {formatNumber(maxRows)} rows and 25 MB. Nothing is written until every row passes validation.
             </p>
             <Button variant="brand" loading={busy} onClick={() => fileRef.current?.click()}>
               <FileSpreadsheet /> Choose a file
@@ -317,7 +319,7 @@ export function BulkWizard({
           <Card className="p-5">
             <SectionHeader
               title="Map your columns"
-              description={`${fileName} · ${validation.rowCount.toLocaleString()} rows detected`}
+              description={`${fileName} · ${formatNumber(validation.rowCount)} rows detected`}
               actions={
                 <Button
                   variant="outline"
@@ -423,8 +425,8 @@ export function BulkWizard({
 
           {validation.overLimit ? (
             <Alert tone="error" title="Too many rows">
-              This file has {validation.rowCount.toLocaleString()} rows and the server accepts{' '}
-              {validation.maxRows.toLocaleString()}. Split it and run the import again.
+              This file has {formatNumber(validation.rowCount)} rows and the server accepts{' '}
+              {formatNumber(validation.maxRows)}. Split it and run the import again.
             </Alert>
           ) : null}
 
@@ -467,7 +469,7 @@ export function BulkWizard({
             </Card>
           ) : (
             <Alert tone="success" title="Every row passed validation">
-              {validation.rowCount.toLocaleString()} rows are ready to import.
+              {formatNumber(validation.rowCount)} rows are ready to import.
             </Alert>
           )}
 
@@ -577,7 +579,7 @@ export function BulkWizard({
               <ArrowLeft /> Back
             </Button>
             <Button variant="brand" loading={busy} onClick={() => void startImport()}>
-              <Play /> Create {rows.length.toLocaleString()} QR codes
+              <Play /> Create {formatNumber(rows.length)} QR codes
             </Button>
           </div>
         </Card>
@@ -598,7 +600,7 @@ export function BulkWizard({
             }
             description={
               activeJob
-                ? `${activeJob.processedRows.toLocaleString()} of ${activeJob.totalRows.toLocaleString()} rows processed`
+                ? `${formatNumber(activeJob.processedRows)} of ${formatNumber(activeJob.totalRows)} rows processed`
                 : 'Starting the job…'
             }
           />
@@ -679,7 +681,7 @@ export function BulkWizard({
               {jobs.map((job) => (
                 <TableRow key={job.id}>
                   <TableCell className="whitespace-nowrap text-[12.5px] text-muted-foreground">
-                    {new Date(job.createdAt).toLocaleString()}
+                    {formatDate(job.createdAt, DATE_TIME)}
                   </TableCell>
                   <TableCell className="text-[13px]">{getTypeDef(job.type)?.label ?? job.type}</TableCell>
                   <TableCell className="text-[13px] tabular-nums">

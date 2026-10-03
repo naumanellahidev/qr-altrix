@@ -25,7 +25,7 @@ import { ContentForm, type UploadedRef } from '@/components/qr/content-form';
 import { DesignEditor } from '@/components/qr/design-editor';
 import { QrPreview } from '@/components/qr/qr-preview';
 import { ScanSafety } from '@/components/qr/scan-safety';
-import { DownloadMenu } from '@/components/qr/download-menu';
+import { DownloadMenu, downloadQrFile } from '@/components/qr/download-menu';
 import { CopyField } from '@/components/ui/copy-button';
 import { toast } from 'sonner';
 
@@ -290,6 +290,16 @@ export function Builder({
       if (!editing) {
         setStep('save');
         router.refresh();
+      }
+      // The button promises a download, so deliver one: a 1024 px PNG, rendered by the
+      // server from the saved record. Other formats stay in the Download menu that now
+      // sits where this button was.
+      if (thenGoTo === 'stay' && !editing) {
+        try {
+          await downloadQrFile({ data: payload, design, name, qrCodeId: result.data.id, format: 'png', size: 1024 });
+        } catch (error) {
+          toast.error(`Saved, but the download failed: ${(error as Error).message}. Use the Download button to try again.`);
+        }
       }
     } catch {
       toast.error('Network problem — your work is still on screen, try again.');

@@ -8,6 +8,7 @@ import {
 import { cn } from '@/lib/utils';
 import { AccentButton, LandingHeader, LandingShell } from '@/components/landing/shell';
 import { toast } from 'sonner';
+import { formatDateValue, useHydrated } from '@/lib/hooks/use-date-format';
 
 /**
  * Hosted landing views, one per dynamic QR type. These are the pages a visitor sees
@@ -61,12 +62,29 @@ function rows(value: unknown): Json[] {
   return Array.isArray(value) ? (value.filter((item) => item && typeof item === 'object') as Json[]) : [];
 }
 
-function formatDateTime(value: unknown): string | null {
-  const raw = str(value);
-  if (!raw) return null;
-  const date = new Date(raw);
+/**
+ * Event times and coupon dates are typed by the owner as wall-clock values
+ * ("2026-10-10T18:00", "2026-12-31") with no zone. They mean that local time wherever
+ * the event happens, so they are shown exactly as entered: read and printed in UTC on
+ * both server and browser, which also keeps hydration deterministic. A value that does
+ * carry a zone is a real instant and is shown in the viewer's own time.
+ */
+function hasZone(raw: string): boolean {
+  return /(?:Z|[+-]\d{2}:?\d{2})$/i.test(raw);
+}
+
+function formatWallClock(
+  raw: string,
+  options: Intl.DateTimeFormatOptions,
+  hydrated: boolean,
+): string | null {
+  if (hasZone(raw)) {
+    const formatted = formatDateValue(raw, options, hydrated, '');
+    return formatted || null;
+  }
+  const date = new Date(/T/.test(raw) ? `${raw}Z` : `${raw}T00:00:00Z`);
   if (Number.isNaN(date.getTime())) return null;
-  return date.toLocaleString(undefined, { dateStyle: 'full', timeStyle: 'short' });
+  return date.toLocaleString('en-GB', { ...options, timeZone: 'UTC' });
 }
 
 function Card({ children, className }: { children: React.ReactNode; className?: string }) {
@@ -621,7 +639,10 @@ function BusinessView({ content }: LandingProps) {
 function CouponView({ content }: LandingProps) {
   const code = str(content.code);
   const validUntil = str(content.validUntil);
-  const expired = validUntil ? new Date(validUntil) < new Date(new Date().toDateString()) : false;
+  const hydrated = useHydrated();
+  // Today's date differs between the server's clock zone and the visitor's, so the
+  // expiry check waits for the browser instead of guessing during hydration.
+  const expired = hydrated && validUntil ? new Date(validUntil) < new Date(new Date().toDateString()) : false;
 
   return (
     <LandingShell accent={content.accentColor}>
@@ -672,7 +693,7 @@ function CouponView({ content }: LandingProps) {
 
           {validUntil ? (
             <p className={cn('text-center text-[12.5px]', expired ? 'text-destructive' : 'text-muted-foreground')}>
-              {expired ? 'This offer has expired' : `Valid until ${new Date(validUntil).toLocaleDateString()}`}
+              {expired ? 'This offer has expired' : `Valid until ${formatWallClock(validUntil, { day: 'numeric', month: 'long', year: 'numeric' }, hydrated) ?? validUntil}`}
             </p>
           ) : null}
 
@@ -882,7 +903,9 @@ function ProductView({ content }: LandingProps) {
 function EventView({ content, qrId }: LandingProps) {
   const agenda = rows(content.agenda);
   const cover = fileUrl(content.cover);
-  const start = formatDateTime(content.start);
+  const hydrated = useHydrated();
+  const startRaw = str(content.start);
+  const start = startRaw ? formatWallClock(startRaw, { dateStyle: 'full', timeStyle: 'short' }, hydrated) : null;
 
   return (
     <LandingShell accent={content.accentColor} width="wide">

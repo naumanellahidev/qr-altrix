@@ -15,6 +15,7 @@ import { ConfirmDialog } from '@/components/ui/confirm';
 import { DesignEditor } from '@/components/qr/design-editor';
 import { QrPreview } from '@/components/qr/qr-preview';
 import { toast } from 'sonner';
+import { useDateFormat, DATE, DATE_TIME, TIME } from '@/lib/hooks/use-date-format';
 
 const SAMPLE = 'https://qr-altrix.app/template-preview';
 
@@ -35,6 +36,7 @@ export function TemplatesManager({
   canManage: boolean;
   brandColors: string[];
 }) {
+  const formatDate = useDateFormat();
   const router = useRouter();
   const [editing, setEditing] = React.useState<TemplateRow | null>(null);
   const [creating, setCreating] = React.useState(false);
@@ -162,7 +164,7 @@ export function TemplatesManager({
                 <div className="min-w-0">
                   <p className="truncate text-[14px] font-semibold">{template.name}</p>
                   <p className="text-[11.5px] text-muted-foreground">
-                    Updated {new Date(template.updatedAt).toLocaleDateString()}
+                    Updated {formatDate(template.updatedAt)}
                   </p>
                 </div>
                 {template.isDefault ? (

@@ -30,6 +30,7 @@ import { CopyButton } from '@/components/ui/copy-button';
 import { downloadQrFile } from '@/components/qr/download-menu';
 import { TypeIcon } from '@/components/ui/icon';
 import { toast } from 'sonner';
+import { useDateFormat, DATE, DATE_TIME, TIME } from '@/lib/hooks/use-date-format';
 
 export interface CodeRow {
   id: string;
@@ -64,6 +65,8 @@ export interface CodesTableProps {
   canResetScans: boolean;
 }
 
+const SHORT_DATE: Intl.DateTimeFormatOptions = { day: '2-digit', month: 'short', year: '2-digit' };
+
 const FILTERS = [
   { value: 'all', label: 'All codes' },
   { value: 'dynamic', label: 'Dynamic' },
@@ -92,11 +95,6 @@ function StatusBadge({ row }: { row: CodeRow }) {
   return <Badge variant="success">Active</Badge>;
 }
 
-function formatDate(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '—';
-  return date.toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: '2-digit' });
-}
 
 export function CodesTable({
   rows,
@@ -108,6 +106,7 @@ export function CodesTable({
   canDelete,
   canResetScans,
 }: CodesTableProps) {
+  const formatDate = useDateFormat();
   const router = useRouter();
   const params = useSearchParams();
 
@@ -506,10 +505,10 @@ export function CodesTable({
                     </TableCell>
 
                     <TableCell className="hidden whitespace-nowrap text-[12.5px] text-muted-foreground lg:table-cell">
-                      {formatDate(row.createdAt)}
+                      {formatDate(row.createdAt, SHORT_DATE)}
                     </TableCell>
                     <TableCell className="hidden whitespace-nowrap text-[12.5px] text-muted-foreground xl:table-cell">
-                      {formatDate(row.updatedAt)}
+                      {formatDate(row.updatedAt, SHORT_DATE)}
                     </TableCell>
 
                     <TableCell>

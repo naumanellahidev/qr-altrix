@@ -20,6 +20,7 @@ import { SectionHeader } from '@/components/ui/page-header';
 import { ConfirmDialog } from '@/components/ui/confirm';
 import { CopyField } from '@/components/ui/copy-button';
 import { toast } from 'sonner';
+import { useDateFormat, DATE, DATE_TIME, TIME } from '@/lib/hooks/use-date-format';
 
 const SCOPES = [
   { value: 'qr:read', label: 'Read QR codes', hint: 'List and fetch codes and their designs' },
@@ -71,6 +72,7 @@ export function DevelopersView({
   webhooks: WebhookRow[];
   appUrl: string;
 }) {
+  const formatDate = useDateFormat();
   const router = useRouter();
 
   const [creatingKey, setCreatingKey] = React.useState(false);
@@ -234,7 +236,7 @@ export function DevelopersView({
                     <TableCell>
                       <p className="text-[13.5px] font-medium">{key.name}</p>
                       <p className="text-[11.5px] text-muted-foreground">
-                        {key.rateLimit}/min · created {new Date(key.createdAt).toLocaleDateString()}
+                        {key.rateLimit}/min · created {formatDate(key.createdAt)}
                       </p>
                     </TableCell>
                     <TableCell className="hidden font-mono text-[12px] text-muted-foreground sm:table-cell">
@@ -250,7 +252,7 @@ export function DevelopersView({
                       </span>
                     </TableCell>
                     <TableCell className="hidden text-[12.5px] text-muted-foreground md:table-cell">
-                      {key.lastUsedAt ? new Date(key.lastUsedAt).toLocaleString() : 'Never'}
+                      {formatDate(key.lastUsedAt, DATE_TIME, 'Never')}
                     </TableCell>
                     <TableCell>
                       {key.revokedAt ? <Badge variant="destructive">Revoked</Badge> : <Badge variant="success">Active</Badge>}
@@ -318,7 +320,7 @@ export function DevelopersView({
                     </p>
                     <p className="mt-1 text-[11.5px] text-muted-foreground">
                       {hook.lastFiredAt
-                        ? `Last delivery ${new Date(hook.lastFiredAt).toLocaleString()} · status ${hook.lastStatus ?? 'none'}`
+                        ? `Last delivery ${formatDate(hook.lastFiredAt, DATE_TIME)} · status ${hook.lastStatus ?? 'none'}`
                         : 'Never delivered yet'}
                       {hook.failureCount > 0 ? ` · ${hook.failureCount} consecutive failures` : ''}
                     </p>

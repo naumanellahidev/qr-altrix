@@ -22,6 +22,7 @@ import { Alert } from '@/components/ui/feedback';
 import { ConfirmDialog } from '@/components/ui/confirm';
 import { CopyField } from '@/components/ui/copy-button';
 import { toast } from 'sonner';
+import { useDateFormat, DATE, DATE_TIME, TIME } from '@/lib/hooks/use-date-format';
 
 const ASSIGNABLE: Role[] = ['ADMIN', 'EDITOR', 'ANALYST', 'VIEWER', 'LIMITED'];
 
@@ -51,6 +52,7 @@ export function TeamManager({
   canManage: boolean;
   yourRole: Role;
 }) {
+  const formatDate = useDateFormat();
   const router = useRouter();
   const [inviting, setInviting] = React.useState(false);
   const [email, setEmail] = React.useState('');
@@ -239,7 +241,7 @@ export function TeamManager({
                 </TableCell>
 
                 <TableCell className="hidden whitespace-nowrap text-[12.5px] text-muted-foreground md:table-cell">
-                  {member.lastAccessAt ? new Date(member.lastAccessAt).toLocaleDateString() : '—'}
+                  {formatDate(member.lastAccessAt)}
                 </TableCell>
 
                 <TableCell>

@@ -23,6 +23,7 @@ import { CopyField } from '@/components/ui/copy-button';
 import { ConfirmDialog } from '@/components/ui/confirm';
 import { ScanSafety } from '@/components/qr/scan-safety';
 import { toast } from 'sonner';
+import { useDateFormat, DATE, DATE_TIME, TIME } from '@/lib/hooks/use-date-format';
 
 export interface CodeDetailProps {
   code: {
@@ -63,14 +64,10 @@ export interface CodeDetailProps {
   };
 }
 
-function formatDateTime(value: string | null): string {
-  if (!value) return '—';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '—';
-  return date.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
-}
 
 export function CodeDetail({ code, permissions, expiry }: CodeDetailProps) {
+  const formatDate = useDateFormat();
+  const formatDateTime = (value: string | null) => formatDate(value, DATE_TIME);
   const router = useRouter();
   const params = useSearchParams();
   const def = getTypeDef(code.type);

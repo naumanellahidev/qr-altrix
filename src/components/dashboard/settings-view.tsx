@@ -23,6 +23,7 @@ import { ResendVerification } from '@/components/auth/resend-verification';
 import { TwoFactorSetup } from '@/components/dashboard/two-factor-setup';
 import { bytesToSize } from '@/lib/utils';
 import { toast } from 'sonner';
+import { useDateFormat, DATE, DATE_TIME, TIME } from '@/lib/hooks/use-date-format';
 
 export interface SettingsUser {
   id: string;
@@ -87,6 +88,7 @@ export function SettingsView({
   /** The admin gate sent this administrator here because the platform requires 2FA. */
   twoFactorRequired?: boolean;
 }) {
+  const formatDate = useDateFormat();
   const router = useRouter();
 
   const [profile, setProfile] = React.useState({
@@ -602,7 +604,7 @@ export function SettingsView({
             </div>
             <div>
               <dt className="text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground">Member since</dt>
-              <dd className="text-[13.5px]">{new Date(user.createdAt).toLocaleDateString()}</dd>
+              <dd className="text-[13.5px]">{formatDate(user.createdAt)}</dd>
             </div>
             <div>
               <dt className="text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground">

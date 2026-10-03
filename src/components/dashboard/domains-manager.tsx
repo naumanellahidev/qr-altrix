@@ -16,6 +16,7 @@ import { ConfirmDialog } from '@/components/ui/confirm';
 import { CopyField } from '@/components/ui/copy-button';
 import { SectionHeader } from '@/components/ui/page-header';
 import { toast } from 'sonner';
+import { useDateFormat, DATE, DATE_TIME, TIME } from '@/lib/hooks/use-date-format';
 
 export interface DnsRecord {
   type: string;
@@ -46,6 +47,7 @@ export function DomainsManager({
   fallbackShortDomain: string;
   canManage: boolean;
 }) {
+  const formatDate = useDateFormat();
   const router = useRouter();
   const [adding, setAdding] = React.useState(false);
   const [host, setHost] = React.useState('');
@@ -198,7 +200,7 @@ export function DomainsManager({
                     ) : null}
                     <span>{domain.codeCount} code(s)</span>
                     {domain.lastCheckedAt ? (
-                      <span>Checked {new Date(domain.lastCheckedAt).toLocaleString()}</span>
+                      <span>Checked {formatDate(domain.lastCheckedAt, DATE_TIME)}</span>
                     ) : null}
                   </p>
                 </div>
