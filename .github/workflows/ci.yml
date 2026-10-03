@@ -44,8 +44,8 @@ jobs:
         run: npm run typecheck
 
       - name: Unit tests
-        # Database-backed tests skip themselves unless DATABASE_URL points at a real
-        # server, so this stays fast and hermetic.
+        # DB_TESTS is deliberately absent: the DATABASE_URL above is a placeholder for
+        # `next build`, and the database suite must not mistake it for a live server.
         run: npm test
 
       - name: Production build
@@ -71,6 +71,8 @@ jobs:
           --health-retries 10
 
     env:
+      # The opt-in that turns the database suite on. Only this job has a real server.
+      DB_TESTS: '1'
       DATABASE_URL: postgresql://qraltrix:qraltrix@localhost:5432/qraltrix_test?schema=public
       AUTH_SECRET: ci-only-secret-0123456789abcdef0123456789abcdef
       IP_HASH_SALT: ci-only-salt-0123456789

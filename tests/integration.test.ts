@@ -5,13 +5,14 @@ import { randomUUID } from 'node:crypto';
  * Database-backed tests for the paths that matter most: creating codes, resolving a scan,
  * recording analytics, and the owner-controlled gates.
  *
- * They are skipped unless DATABASE_URL is set, so `npm test` stays fast and dependency
- * free. Point it at a disposable database:
+ * They need an explicit opt-in, not just a DATABASE_URL: `next build` and CI set a
+ * placeholder connection string, and "a variable is set" is not the same as "a database
+ * is listening". Point DB_TESTS at a disposable database:
  *
- *   DATABASE_URL=postgresql://localhost:5432/qraltrix_test npm test
+ *   DB_TESTS=1 DATABASE_URL=postgresql://localhost:5432/qraltrix_test npm test
  */
 
-const hasDatabase = Boolean(process.env.DATABASE_URL);
+const hasDatabase = process.env.DB_TESTS === '1' && Boolean(process.env.DATABASE_URL);
 
 describe.skipIf(!hasDatabase)('database integration', () => {
   /* eslint-disable @typescript-eslint/no-explicit-any */

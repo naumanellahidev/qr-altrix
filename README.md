@@ -346,13 +346,19 @@ npm run typecheck
 ```
 
 The suite covers the access rules (pause, delete, schedule, time windows, scan limits,
-admin disable), smart routing, static payload encoders, the SVG renderer, scan-safety
-scoring, CSV mapping and validation, TOTP, and the webhook signature. Tests that need a
-database are skipped automatically unless `DATABASE_URL` points at a disposable one:
+admin disable, and the expiry policy), smart routing, static payload encoders, the SVG
+renderer, scan-safety scoring, CSV mapping and validation, TOTP, upload sanitising and the
+webhook signature.
+
+Database-backed tests need an explicit opt-in, because a placeholder `DATABASE_URL` is
+needed for `next build` and must not be mistaken for a live server:
 
 ```bash
-DATABASE_URL=postgresql://localhost:5432/qraltrix_test npm test
+DB_TESTS=1 DATABASE_URL=postgresql://localhost:5432/qraltrix_test npm test
 ```
+
+Point it at a disposable database: the suite creates and deletes its own users,
+workspaces and codes.
 
 ---
 
