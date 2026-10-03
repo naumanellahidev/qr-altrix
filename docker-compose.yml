@@ -1,0 +1,112 @@
+############################################
+# QR ALTRIX — production stack
+#
+#   cp .env.example .env   (then edit it)
+#   docker compose up -d --build
+#   docker compose exec app npx prisma migrate deploy
+#   docker compose exec app npm run seed      # optional demo data
+#
+# Services: PostgreSQL, Redis, the Next.js app, the background worker, and Nginx with
+# Certbot for HTTPS. Only Nginx is exposed to the host.
+############################################
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-qraltrix}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-qraltrix}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./backups:/backups
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-qraltrix} -d ${POSTGRES_DB:-qraltrix}']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [qraltrix]
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes', '--maxmemory-policy', 'noeviction']
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [qraltrix]
+
+  app:
+    build:
+      context: .
+      target: runner
+    restart: unless-stopped
+    env_file: [.env]
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-qraltrix}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-qraltrix}?schema=public
+      REDIS_URL: redis://redis:6379
+      STORAGE_LOCAL_DIR: /app/storage
+    volumes:
+      - storage-data:/app/storage
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    networks: [qraltrix]
+
+  worker:
+    build:
+      context: .
+      target: runner
+    restart: unless-stopped
+    command: ['npm', 'run', 'worker']
+    env_file: [.env]
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-qraltrix}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-qraltrix}?schema=public
+      REDIS_URL: redis://redis:6379
+      STORAGE_LOCAL_DIR: /app/storage
+    volumes:
+      - storage-data:/app/storage
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    networks: [qraltrix]
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - certbot-conf:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    depends_on: [app]
+    networks: [qraltrix]
+
+  certbot:
+    image: certbot/certbot:latest
+    restart: unless-stopped
+    volumes:
+      - certbot-conf:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    # Renew twice a day; Certbot exits early when nothing is due.
+    entrypoint: /bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done'
+    networks: [qraltrix]
+
+volumes:
+  postgres-data:
+  redis-data:
+  storage-data:
+  certbot-conf:
+  certbot-www:
+
+networks:
+  qraltrix:
+    driver: bridge

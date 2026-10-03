@@ -1,0 +1,656 @@
+// QR ALTRIX — database schema
+// Core rule: dynamic QR codes never expire automatically. A QR stops resolving only
+// when the owner pauses/deletes it, the owner explicitly enables schedule/scan-limit
+// behaviour, or an admin disables it for abuse.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum Role {
+  OWNER
+  ADMIN
+  EDITOR
+  ANALYST
+  VIEWER
+  LIMITED
+}
+
+enum MemberStatus {
+  PENDING
+  ACTIVE
+  DISABLED
+}
+
+enum QrKind {
+  STATIC
+  DYNAMIC
+}
+
+enum QrType {
+  // static
+  URL
+  TEXT
+  WIFI
+  VCARD
+  EMAIL
+  WHATSAPP
+  SMS
+  PHONE
+  LOCATION
+  EVENT
+  CRYPTO
+  CALENDAR
+  // dynamic
+  WEBSITE
+  PDF
+  IMAGE_GALLERY
+  VCARD_PLUS
+  VIDEO
+  LINK_LIST
+  SOCIAL
+  AUDIO
+  BUSINESS
+  COUPON
+  APP_STORE
+  LANDING_PAGE
+  PRODUCT
+  EVENT_PAGE
+  MENU
+  FEEDBACK
+  PLAYLIST
+  GS1
+  SMART_LINK
+}
+
+enum QrStatus {
+  ACTIVE
+  PAUSED
+  DELETED
+  ADMIN_DISABLED
+}
+
+enum RuleKind {
+  DEFAULT
+  COUNTRY
+  LANGUAGE
+  DEVICE
+  TIME
+}
+
+enum DomainStatus {
+  PENDING
+  VERIFIED
+  FAILED
+}
+
+enum SslStatus {
+  NONE
+  PENDING
+  ACTIVE
+  ERROR
+}
+
+enum BulkJobStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  PARTIAL
+  FAILED
+}
+
+enum SecurityEventType {
+  LOGIN
+  LOGIN_FAILED
+  LOGOUT
+  PASSWORD_CHANGED
+  PASSWORD_RESET_REQUESTED
+  PASSWORD_RESET_COMPLETED
+  EMAIL_VERIFIED
+  TWO_FACTOR_ENABLED
+  TWO_FACTOR_DISABLED
+  QR_CREATED
+  QR_EDITED
+  QR_DELETED
+  QR_PAUSED
+  QR_UNPAUSED
+  QR_SCANS_RESET
+  API_KEY_CREATED
+  API_KEY_REVOKED
+  DOMAIN_ADDED
+  DOMAIN_REMOVED
+  DOMAIN_VERIFIED
+  USER_INVITED
+  ROLE_CHANGED
+  MEMBER_DISABLED
+  ADMIN_ABUSE_DISABLE
+  ADMIN_ABUSE_ENABLE
+  ADMIN_PANEL_ACCESS
+  ACCOUNT_LOCKED
+  ACCOUNT_DELETED
+  EXPIRY_POLICY_ENABLED
+  EXPIRY_POLICY_DISABLED
+  TEMPLATE_CREATED
+  BULK_IMPORT
+  WEBHOOK_CREATED
+}
+
+enum ScanEventKind {
+  SCAN
+  PASSWORD_FAILED
+  BLOCKED
+}
+
+enum AbuseStatus {
+  OPEN
+  REVIEWING
+  ACTIONED
+  DISMISSED
+}
+
+// ---------------------------------------------------------------------------
+// Identity
+// ---------------------------------------------------------------------------
+
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  passwordHash    String?
+  name            String?
+  surname         String?
+  phone           String?
+  avatarUrl       String?
+  emailVerifiedAt DateTime?
+  isPlatformAdmin Boolean   @default(false)
+  isDisabled      Boolean   @default(false)
+  googleId        String?   @unique
+
+  twoFactorEnabled  Boolean @default(false)
+  twoFactorSecret   String?
+  twoFactorRecovery String?
+
+  locale       String  @default("en")
+  timezone     String  @default("UTC")
+  dateFormat   String  @default("dd/MM/yyyy")
+  hour12       Boolean @default(false)
+  thousandsSep String  @default(",")
+  theme        String  @default("system")
+
+  notifyProduct    Boolean @default(true)
+  notifySecurity   Boolean @default(true)
+  notifyScanDigest Boolean @default(false)
+
+  sessionVersion Int       @default(1)
+  lastAccessAt   DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  memberships     WorkspaceMember[]
+  ownedWorkspaces Workspace[]              @relation("WorkspaceOwner")
+  createdQrCodes  QRCode[]                 @relation("QRCreator")
+  resetTokens     PasswordResetToken[]
+  verifyTokens    EmailVerificationToken[]
+  securityEvents  SecurityEvent[]
+  activityLogs    ActivityLog[]
+  apiKeys         ApiKey[]
+  uploads         UploadedFile[]
+  bulkJobs        BulkJob[]
+  abuseReports    AbuseReport[]            @relation("AbuseReporter")
+
+  @@index([email])
+}
+
+model Workspace {
+  id              String   @id @default(cuid())
+  name            String
+  slug            String   @unique
+  ownerId         String
+  isDisabled      Boolean  @default(false)
+  brandColors     Json?
+  /** GA4 / Meta Pixel / GTM ids applied to hosted landing pages. */
+  tracking        Json?
+  defaultDomainId String?
+  storageUsed     BigInt   @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  owner          User              @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members        WorkspaceMember[]
+  qrCodes        QRCode[]
+  folders        Folder[]
+  templates      QRTemplate[]
+  domains        CustomDomain[]
+  apiKeys        ApiKey[]
+  bulkJobs       BulkJob[]
+  uploads        UploadedFile[]
+  scanEvents     ScanEvent[]
+  activityLogs   ActivityLog[]
+  securityEvents SecurityEvent[]
+  webhooks       Webhook[]
+
+  @@index([ownerId])
+}
+
+model WorkspaceMember {
+  id                  String       @id @default(cuid())
+  workspaceId         String
+  userId              String?
+  email               String
+  role                Role         @default(VIEWER)
+  status              MemberStatus @default(PENDING)
+  inviteToken         String?      @unique
+  invitedById         String?
+  invitedAt           DateTime     @default(now())
+  acceptedAt          DateTime?
+  lastAccessAt        DateTime?
+  canDeleteOwnAccount Boolean      @default(true)
+  folderScopes        Json?
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, email])
+  @@index([userId])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model EmailVerificationToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// ---------------------------------------------------------------------------
+// QR codes
+// ---------------------------------------------------------------------------
+
+model Folder {
+  id          String   @id @default(cuid())
+  workspaceId String
+  name        String
+  color       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  qrCodes   QRCode[]
+
+  @@unique([workspaceId, name])
+}
+
+model QRCode {
+  id          String   @id @default(cuid())
+  workspaceId String
+  folderId    String?
+  creatorId   String?
+  name        String
+  kind        QrKind
+  type        QrType
+  status      QrStatus @default(ACTIVE)
+
+  // Static QRs encode this payload directly; dynamic QRs store landing content here.
+  content Json
+
+  // Dynamic routing
+  shortCode      String? @unique
+  customDomainId String?
+  slug           String?
+
+  // Owner-controlled gates. All default OFF — nothing expires on its own.
+  scheduleEnabled  Boolean   @default(false)
+  passwordHash     String?
+  scheduleStart    DateTime?
+  scheduleEnd      DateTime?
+  timeRules        Json?
+  scanLimitEnabled Boolean   @default(false)
+  scanLimitMax     Int?
+
+  utm                 Json?
+  isFavorite          Boolean @default(false)
+  adminDisabledReason String?
+
+  scanCount       Int       @default(0)
+  uniqueScanCount Int       @default(0)
+  firstScanAt     DateTime?
+  lastScanAt      DateTime?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  workspace    Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  folder       Folder?         @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  creator      User?           @relation("QRCreator", fields: [creatorId], references: [id], onDelete: SetNull)
+  customDomain CustomDomain?   @relation(fields: [customDomainId], references: [id], onDelete: SetNull)
+  design       QRDesign?
+  destinations QRDestination[]
+  scanEvents   ScanEvent[]
+  abuseReports AbuseReport[]
+
+  @@unique([customDomainId, slug])
+  @@index([workspaceId, status])
+  @@index([workspaceId, createdAt])
+  @@index([folderId])
+}
+
+model QRDestination {
+  id         String   @id @default(cuid())
+  qrCodeId   String
+  kind       RuleKind @default(DEFAULT)
+  matchValue String?
+  url        String
+  priority   Int      @default(0)
+  config     Json?
+  createdAt  DateTime @default(now())
+
+  qrCode QRCode @relation(fields: [qrCodeId], references: [id], onDelete: Cascade)
+
+  @@index([qrCodeId, kind])
+}
+
+model QRDesign {
+  id       String @id @default(cuid())
+  qrCodeId String @unique
+
+  bodyShape     String @default("square")
+  eyeFrameShape String @default("square")
+  eyeBallShape  String @default("square")
+
+  fgColor       String  @default("#0B1120")
+  bgColor       String  @default("#FFFFFF")
+  transparentBg Boolean @default(false)
+  invert        Boolean @default(false)
+
+  gradientEnabled  Boolean @default(false)
+  gradientType     String  @default("linear")
+  gradientFrom     String  @default("#4F46E5")
+  gradientTo       String  @default("#0EA5E9")
+  gradientRotation Int     @default(0)
+  eyeColor         String?
+  eyeBallColor     String?
+
+  margin          Int    @default(4)
+  errorCorrection String @default("M")
+
+  logoUrl     String?
+  logoPreset  String?
+  logoSize    Int     @default(22)
+  logoPadding Int     @default(6)
+  logoShape   String  @default("none")
+
+  frame          String  @default("none")
+  frameColor     String  @default("#4F46E5")
+  frameTextColor String  @default("#FFFFFF")
+  ctaText        String?
+  ctaPosition    String  @default("bottom")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  qrCode QRCode @relation(fields: [qrCodeId], references: [id], onDelete: Cascade)
+}
+
+model QRTemplate {
+  id          String   @id @default(cuid())
+  workspaceId String
+  name        String
+  isDefault   Boolean  @default(false)
+  design      Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, name])
+}
+
+model ScanEvent {
+  id          String        @id @default(cuid())
+  qrCodeId    String
+  workspaceId String
+  kind        ScanEventKind @default(SCAN)
+  createdAt   DateTime      @default(now())
+
+  ipHash      String?
+  visitorHash String?
+  isUnique    Boolean @default(false)
+
+  country    String?
+  region     String?
+  city       String?
+  deviceType String?
+  browser    String?
+  os         String?
+  language   String?
+  referrer   String?
+  hourOfDay  Int?
+
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  utmTerm     String?
+  utmContent  String?
+
+  destinationUrl String?
+  meta           Json?
+
+  qrCode    QRCode    @relation(fields: [qrCodeId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([qrCodeId, createdAt])
+  @@index([workspaceId, createdAt])
+  @@index([country])
+}
+
+// ---------------------------------------------------------------------------
+// Domains, API, jobs, files
+// ---------------------------------------------------------------------------
+
+model CustomDomain {
+  id             String       @id @default(cuid())
+  workspaceId    String
+  host           String       @unique
+  status         DomainStatus @default(PENDING)
+  sslStatus      SslStatus    @default(NONE)
+  verifyToken    String
+  verifiedAt     DateTime?
+  lastCheckedAt  DateTime?
+  lastCheckError String?
+  isDefault      Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  qrCodes   QRCode[]
+
+  @@index([workspaceId])
+}
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  workspaceId String
+  userId      String?
+  name        String
+  prefix      String    @unique
+  keyHash     String    @unique
+  scopes      String[]
+  rateLimit   Int       @default(600)
+  lastUsedAt  DateTime?
+  revokedAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId])
+}
+
+model BulkJob {
+  id             String        @id @default(cuid())
+  workspaceId    String
+  userId         String?
+  status         BulkJobStatus @default(QUEUED)
+  totalRows      Int           @default(0)
+  processedRows  Int           @default(0)
+  successRows    Int           @default(0)
+  failedRows     Int           @default(0)
+  kind           QrKind        @default(DYNAMIC)
+  type           QrType        @default(WEBSITE)
+  folderId       String?
+  templateId     String?
+  customDomainId String?
+  mapping        Json?
+  errors         Json?
+  createdQrIds   String[]
+  zipPath        String?
+  error          String?
+  startedAt      DateTime?
+  finishedAt     DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId, createdAt])
+}
+
+model UploadedFile {
+  id           String   @id @default(cuid())
+  workspaceId  String?
+  userId       String?
+  kind         String   @default("asset")
+  originalName String
+  storageKey   String   @unique
+  mimeType     String
+  size         Int
+  width        Int?
+  height       Int?
+  createdAt    DateTime @default(now())
+
+  workspace Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId])
+}
+
+model Webhook {
+  id           String    @id @default(cuid())
+  workspaceId  String
+  url          String
+  secret       String
+  events       String[]
+  isActive     Boolean   @default(true)
+  lastStatus   Int?
+  lastFiredAt  DateTime?
+  failureCount Int       @default(0)
+  createdAt    DateTime  @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+}
+
+// ---------------------------------------------------------------------------
+// Audit, abuse, settings, anonymous drafts
+// ---------------------------------------------------------------------------
+
+model ActivityLog {
+  id          String   @id @default(cuid())
+  workspaceId String?
+  userId      String?
+  action      String
+  entityType  String?
+  entityId    String?
+  meta        Json?
+  createdAt   DateTime @default(now())
+
+  workspace Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId, createdAt])
+  @@index([userId, createdAt])
+}
+
+model SecurityEvent {
+  id          String            @id @default(cuid())
+  workspaceId String?
+  userId      String?
+  email       String?
+  type        SecurityEventType
+  ipHash      String?
+  userAgent   String?
+  meta        Json?
+  createdAt   DateTime          @default(now())
+
+  workspace Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([workspaceId, createdAt])
+  @@index([type])
+}
+
+model AbuseReport {
+  id            String      @id @default(cuid())
+  qrCodeId      String?
+  reporterId    String?
+  reporterEmail String?
+  reason        String
+  details       String?
+  status        AbuseStatus @default(OPEN)
+  resolution    String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  qrCode   QRCode? @relation(fields: [qrCodeId], references: [id], onDelete: SetNull)
+  reporter User?   @relation("AbuseReporter", fields: [reporterId], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+}
+
+model SystemSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model AnonymousQRDraft {
+  id        String    @id @default(cuid())
+  sessionId String    @unique
+  payload   Json
+  claimedAt DateTime?
+  claimedBy String?
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+
+  @@index([expiresAt])
+}

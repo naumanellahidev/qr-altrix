@@ -1,0 +1,92 @@
+############################################
+# QR ALTRIX — for a server that already runs its own Nginx on 80/443
+#
+# Use this instead of docker-compose.yml when the host already terminates TLS (for
+# example a VPS hosting several apps). It starts only PostgreSQL, Redis, the app and the
+# worker. The app listens on 127.0.0.1:${APP_PORT} and the host Nginx reverse-proxies to
+# it, so nothing here competes for port 80 or 443 and the database is never exposed.
+#
+#   docker compose -p qraltrix -f docker-compose.vps.yml up -d --build
+#   docker compose -p qraltrix -f docker-compose.vps.yml exec app npx prisma migrate deploy
+############################################
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-qraltrix}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-qraltrix}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    # No published ports: only the app and worker reach it, over the private network.
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-qraltrix} -d ${POSTGRES_DB:-qraltrix}']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [qraltrix]
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # noeviction matters: BullMQ jobs must never be dropped to free memory.
+    command: ['redis-server', '--appendonly', 'yes', '--maxmemory-policy', 'noeviction']
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [qraltrix]
+
+  app:
+    build:
+      context: .
+      target: runner
+    restart: unless-stopped
+    env_file: [.env]
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-qraltrix}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-qraltrix}?schema=public
+      REDIS_URL: redis://redis:6379
+      STORAGE_LOCAL_DIR: /app/storage
+      BACKUP_DIR: /app/backups
+    ports:
+      # Loopback only — the host Nginx is the single public entry point.
+      - '127.0.0.1:${APP_PORT:-3010}:3000'
+    volumes:
+      - storage-data:/app/storage
+      - ./backups:/app/backups:ro
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    networks: [qraltrix]
+
+  worker:
+    build:
+      context: .
+      target: runner
+    restart: unless-stopped
+    command: ['npm', 'run', 'worker']
+    env_file: [.env]
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-qraltrix}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-qraltrix}?schema=public
+      REDIS_URL: redis://redis:6379
+      STORAGE_LOCAL_DIR: /app/storage
+    volumes:
+      - storage-data:/app/storage
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    networks: [qraltrix]
+
+volumes:
+  postgres-data:
+  redis-data:
+  storage-data:
+
+networks:
+  qraltrix:
+    driver: bridge

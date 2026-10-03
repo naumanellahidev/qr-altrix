@@ -1,0 +1,13 @@
+[Unit]
+Description=Auto-deploy QR ALTRIX from GitHub
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=altrixadmin
+Environment=HOME=/home/altrixadmin
+WorkingDirectory=/opt/qraltrix
+ExecStart=/opt/qraltrix/deploy.sh
+# A cold image build with Prisma and Next can legitimately take a while.
+TimeoutStartSec=2400

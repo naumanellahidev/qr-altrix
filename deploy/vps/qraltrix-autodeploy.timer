@@ -1,0 +1,11 @@
+[Unit]
+Description=Poll GitHub every minute for QR ALTRIX changes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=1min
+# Catch up after a reboot instead of waiting for the next tick.
+Persistent=true
+
+[Install]
+WantedBy=timers.target
