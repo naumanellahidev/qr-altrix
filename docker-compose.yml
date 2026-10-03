@@ -64,6 +64,12 @@ services:
       target: runner
     restart: unless-stopped
     command: ['npm', 'run', 'worker']
+    # The image's health check curls /api/health, which only the web service serves. The
+    # worker has no HTTP listener, so inheriting that check would mark a perfectly healthy
+    # worker unhealthy for ever. It exits non-zero on a fatal error, so `restart:
+    # unless-stopped` is the real safety net; watch the log for "worker started".
+    healthcheck:
+      disable: true
     env_file: [.env]
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-qraltrix}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-qraltrix}?schema=public
