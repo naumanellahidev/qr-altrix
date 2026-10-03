@@ -11,8 +11,8 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    // scripts/worker.ts is executed directly by Node's type stripping, which requires
-    // explicit .ts specifiers. Safe here because the project never emits JavaScript.
+    // scripts/worker.ts is run directly by tsx and imports src modules with explicit
+    // .ts specifiers. Safe here because the project never emits JavaScript.
     "allowImportingTsExtensions": true,
     "jsx": "preserve",
     "incremental": true,

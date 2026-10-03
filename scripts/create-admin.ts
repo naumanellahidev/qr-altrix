@@ -1,8 +1,7 @@
 /**
  * Creates (or promotes) a platform administrator.
  *
- *   node --conditions=react-server --experimental-strip-types scripts/create-admin.ts \
- *     --email you@example.com [--password 'secret'] [--name Nauman]
+ *   npm run admin:create -- --email you@example.com [--password 'secret'] [--name Nauman]
  *
  * With no --password a strong one is generated and printed once. The account is created
  * with its email already confirmed, given its own workspace, and marked as a platform

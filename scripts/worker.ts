@@ -8,6 +8,11 @@
  *   npm run worker
  *
  * With no REDIS_URL the web process handles jobs inline and this worker is unnecessary.
+ *
+ * It runs through tsx (`node --conditions=react-server --import tsx`). Two reasons:
+ * tsx resolves the extensionless relative imports the application code uses, which plain
+ * Node cannot; and the `react-server` condition makes the `server-only` marker resolve to
+ * an empty module instead of throwing outside a React Server Component graph.
  */
 
 import { Worker, type Job } from 'bullmq';

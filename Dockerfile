@@ -7,8 +7,8 @@
 #   web    → npm start        (Next.js server)
 #   worker → npm run worker   (BullMQ background jobs)
 #
-# The image keeps the TypeScript sources because the worker runs them directly with
-# Node's type stripping, which avoids maintaining a second build pipeline.
+# The image keeps the TypeScript sources because the worker and the CLI scripts run them
+# directly through tsx, which avoids maintaining a second build pipeline for them.
 ############################################
 
 FROM node:22-bookworm-slim AS base
