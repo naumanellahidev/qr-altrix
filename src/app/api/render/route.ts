@@ -59,7 +59,8 @@ export const POST = withApi(async (request: Request) => {
       design: { ...(qr.design ?? {}), ...(body.design ?? {}) } as Partial<QrDesign>,
       format: body.format,
       size: body.size,
-      filenameBase: body.name ?? qr.name,
+      // An empty name from an unnamed form is not a name: fall back to the saved one.
+      filenameBase: body.name?.trim() || qr.name,
     });
 
     void logActivity({
@@ -92,7 +93,7 @@ export const POST = withApi(async (request: Request) => {
     design: body.design ?? {},
     format: body.format,
     size: body.size,
-    filenameBase: body.name ?? 'qr-altrix',
+    filenameBase: body.name?.trim() || 'qr-altrix',
   });
 
   return fileResponse(result.body, { contentType: result.contentType, filename: result.filename });

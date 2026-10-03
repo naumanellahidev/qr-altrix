@@ -296,7 +296,7 @@ export function Builder({
       // sits where this button was.
       if (thenGoTo === 'stay' && !editing) {
         try {
-          await downloadQrFile({ data: payload, design, name, qrCodeId: result.data.id, format: 'png', size: 1024 });
+          await downloadQrFile({ data: payload, design, name: body.name, qrCodeId: result.data.id, format: 'png', size: 1024 });
         } catch (error) {
           toast.error(`Saved, but the download failed: ${(error as Error).message}. Use the Download button to try again.`);
         }
