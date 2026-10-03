@@ -75,7 +75,18 @@ const LOCALES = [
   { value: 'id', label: 'Bahasa Indonesia' },
 ];
 
-export function SettingsView({ user, workspace }: { user: SettingsUser; workspace: SettingsWorkspace }) {
+export function SettingsView({
+  user,
+  workspace,
+  initialTab = 'general',
+  twoFactorRequired = false,
+}: {
+  user: SettingsUser;
+  workspace: SettingsWorkspace;
+  initialTab?: string;
+  /** The admin gate sent this administrator here because the platform requires 2FA. */
+  twoFactorRequired?: boolean;
+}) {
   const router = useRouter();
 
   const [profile, setProfile] = React.useState({
@@ -161,7 +172,7 @@ export function SettingsView({ user, workspace }: { user: SettingsUser; workspac
   }
 
   return (
-    <Tabs defaultValue="general">
+    <Tabs defaultValue={initialTab}>
       <TabsList variant="underline" className="mb-6">
         <TabsTriggerLine value="general">
           <BadgeCheck /> General
@@ -314,6 +325,12 @@ export function SettingsView({ user, workspace }: { user: SettingsUser; workspac
 
       {/* ------------------------------------------------------------ security */}
       <TabsContent value="security" className="space-y-5">
+        {twoFactorRequired ? (
+          <Alert tone="warning" title="Turn on two-factor to open the admin panel">
+            This platform requires two-factor authentication for administrators. Set it up
+            below with any authenticator app, then return to the admin panel.
+          </Alert>
+        ) : null}
         <Card className="p-5">
           <SectionHeader
             title={user.hasPassword ? 'Change password' : 'Set a password'}

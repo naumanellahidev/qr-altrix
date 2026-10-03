@@ -9,8 +9,19 @@ import { SettingsView } from '@/components/dashboard/settings-view';
 export const metadata: Metadata = { title: 'Settings' };
 export const dynamic = 'force-dynamic';
 
-export default async function SettingsPage() {
+const TABS = ['general', 'locale', 'security', 'notifications', 'tracking', 'workspace', 'account'] as const;
+
+export default async function SettingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string; enroll2fa?: string }>;
+}) {
   const auth = await requireAuth('/dashboard/settings');
+  const query = await searchParams;
+  // `?tab=` lets other pages link straight to a section. `enroll2fa` is set by the admin
+  // gate when the operator requires two-factor and this administrator has none yet.
+  const initialTab = (TABS as readonly string[]).includes(query.tab ?? '') ? query.tab! : 'general';
+  const twoFactorRequired = query.enroll2fa === '1' && auth.user.isPlatformAdmin && !auth.user.twoFactorEnabled;
 
   const workspace = await prisma.workspace.findUniqueOrThrow({
     where: { id: auth.workspace.id },
@@ -26,6 +37,8 @@ export default async function SettingsPage() {
       />
 
       <SettingsView
+        initialTab={twoFactorRequired ? 'security' : initialTab}
+        twoFactorRequired={twoFactorRequired}
         user={{
           id: auth.user.id,
           email: auth.user.email,
