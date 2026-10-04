@@ -15,26 +15,39 @@ export const dynamic = 'force-dynamic';
  * - /login and /forgot-password: they carry `noindex`, and a crawler can only read that
  *   tag on a page it is allowed to fetch.
  */
+const PRIVATE = [
+  '/api/',
+  '/dashboard',
+  '/admin',
+  '/q/',
+  '/r/',
+  '/l/',
+  '/p/',
+  '/inactive/',
+  '/invite/',
+  '/verify-email',
+  '/reset-password',
+];
+
+/**
+ * AI assistants and answer engines, named so the welcome is explicit (some sites block
+ * them by name, and some assistants check for their own group). A named group replaces
+ * the `*` group for that bot, so each repeats the private paths. /llms.txt is public.
+ */
+export const AI_CRAWLERS = [
+  'GPTBot', 'OAI-SearchBot', 'ChatGPT-User',
+  'ClaudeBot', 'Claude-SearchBot', 'Claude-User',
+  'PerplexityBot', 'Perplexity-User',
+  'Google-Extended', 'Applebot-Extended', 'Applebot',
+  'Bingbot', 'DuckAssistBot', 'Amazonbot', 'meta-externalagent',
+  'MistralAI-User', 'cohere-ai', 'CCBot',
+];
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
-      {
-        userAgent: '*',
-        allow: '/',
-        disallow: [
-          '/api/',
-          '/dashboard',
-          '/admin',
-          '/q/',
-          '/r/',
-          '/l/',
-          '/p/',
-          '/inactive/',
-          '/invite/',
-          '/verify-email',
-          '/reset-password',
-        ],
-      },
+      { userAgent: '*', allow: '/', disallow: PRIVATE },
+      { userAgent: AI_CRAWLERS, allow: ['/', '/llms.txt', '/llms-full.txt'], disallow: PRIVATE },
     ],
     sitemap: `${env.appUrl.replace(/\/+$/, '')}/sitemap.xml`,
   };

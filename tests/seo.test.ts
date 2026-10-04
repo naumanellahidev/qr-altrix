@@ -58,6 +58,39 @@ describe('sitemap', () => {
   });
 });
 
+describe('automatic sitemap coverage', () => {
+  // Any static, public page that can be indexed must be in PUBLIC_ROUTES — otherwise it
+  // would silently miss the sitemap and its canonical. This finds them on its own.
+  const PRIVATE_DIRS = ['api', 'dashboard', 'admin', 'l', 'p', 'q', 'r', 'inactive', 'invite'];
+
+  function publicPages(dir: string, prefix = ''): string[] {
+    const out: string[] = [];
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      const name = entry.name;
+      if (name.startsWith('[') || name.startsWith('_') || name.includes('.')) continue;
+      const segment = name.startsWith('(') ? '' : `/${name}`;
+      if (!prefix && PRIVATE_DIRS.includes(name)) continue;
+      const full = path.join(dir, name);
+      const page = path.join(full, 'page.tsx');
+      if (fs.existsSync(page)) {
+        const source = fs.readFileSync(page, 'utf8');
+        if (!/index:\s*false/.test(source)) out.push(`${prefix}${segment}` || '/');
+      }
+      out.push(...publicPages(full, `${prefix}${segment}`));
+    }
+    return out;
+  }
+
+  it('lists every indexable page the app serves', () => {
+    const appDir = path.resolve(__dirname, '../src/app');
+    const found = ['/', ...publicPages(appDir)];
+    const listed = PUBLIC_ROUTES.map((route) => route.path as string);
+    const missing = [...new Set(found)].filter((page) => !listed.includes(page));
+    expect(missing, `add these to lib/seo/routes.ts (or mark them noindex): ${missing.join(', ')}`).toEqual([]);
+  });
+});
+
 describe('robots.txt', () => {
   const rules = robots();
   const disallow = [rules.rules].flat().flatMap((rule) => [rule.disallow ?? []].flat());
@@ -69,8 +102,52 @@ describe('robots.txt', () => {
     }
   });
 
+  it('welcomes AI crawlers but keeps them out of private paths', () => {
+    const groups = [rules.rules].flat();
+    const ai = groups.find((group) => [group.userAgent].flat().includes('GPTBot'));
+    expect(ai).toBeDefined();
+    expect([ai!.userAgent].flat()).toEqual(expect.arrayContaining(['ClaudeBot', 'PerplexityBot', 'Google-Extended']));
+    expect([ai!.disallow].flat()).toEqual(expect.arrayContaining(['/dashboard', '/api/', '/admin']));
+  });
+
   it('lets crawlers fetch scripts and styles, and points at the sitemap', () => {
     expect(disallow.some((prefix) => '/_next/static/x.js'.startsWith(prefix))).toBe(false);
     expect(rules.sitemap).toMatch(/\/sitemap\.xml$/);
+  });
+});
+
+describe('llms.txt', () => {
+  const facts = {
+    baseUrl: 'https://qr.altrixcore.com',
+    expiryEnabled: false,
+    brandingEnabled: true,
+    bulkMaxRows: 20000,
+    apiRateLimitPerMin: 120,
+    maxUploadMb: 15,
+  };
+
+  it('follows the llmstxt.org shape and links every public page', async () => {
+    const { buildLlmsTxt } = await import('@/lib/seo/llms');
+    const text = buildLlmsTxt(facts);
+    expect(text.startsWith('# QR ALTRIX\n\n> ')).toBe(true);
+    for (const route of PUBLIC_ROUTES) {
+      expect(text).toContain(route.path === '/' ? 'https://qr.altrixcore.com/)' : `https://qr.altrixcore.com${route.path})`);
+    }
+    expect(text).toContain('never expire');
+    expect(text).toContain('/llms-full.txt');
+  });
+
+  it('never claims "never expire" when the operator has switched expiry on', async () => {
+    const { buildLlmsTxt, buildLlmsFullTxt } = await import('@/lib/seo/llms');
+    const on = { ...facts, expiryEnabled: true };
+    expect(buildLlmsTxt(on)).not.toMatch(/never expire/i);
+    expect(buildLlmsFullTxt(on)).not.toMatch(/never expire/i);
+  });
+
+  it('lists every QR type in the full briefing', async () => {
+    const { buildLlmsFullTxt } = await import('@/lib/seo/llms');
+    const { QR_TYPES } = await import('@/lib/qr/catalog');
+    const text = buildLlmsFullTxt(facts);
+    for (const type of QR_TYPES) expect(text).toContain(`- ${type.label} (`);
   });
 });
