@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowRight, Infinity as InfinityIcon, Star } from 'lucide-react';
+import { MaskIcon } from '@/components/ui/mask-icon';
 import { SiteHeader } from '@/components/marketing/site-header';
 import { SiteFooter } from '@/components/marketing/site-footer';
 import { LazyHeroGenerator } from '@/components/marketing/hero-generator-lazy';
@@ -58,7 +58,7 @@ export default async function HomePage() {
           <div className="container relative z-10 pb-10 pt-10 sm:pt-14">
             <div className="mx-auto mb-8 max-w-3xl text-center">
               <Badge variant="success" className="mb-4">
-                <InfinityIcon className="size-3" />
+                <MaskIcon name="Infinity" className="size-3" />
                 {expiryEnabled ? 'Free QR codes with full analytics' : 'Dynamic QR codes that never expire'}
               </Badge>
               <h1 className="font-display text-[32px] font-bold leading-[1.1] tracking-[-0.035em] sm:text-[46px]">
@@ -78,7 +78,7 @@ export default async function HomePage() {
               </p>
               <div className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[12.5px] text-muted-foreground">
                 <span className="flex items-center gap-1.5">
-                  <Star className="size-3.5 fill-warning text-warning" />
+                  <span className="text-[14px] leading-none text-warning" aria-hidden>★</span>
                   31 QR types, 32 frames, 7 pattern styles
                 </span>
                 <span className="hidden h-3 w-px bg-border sm:block" />
@@ -132,7 +132,7 @@ export default async function HomePage() {
             <div className="mt-8 text-center">
               <Button asChild variant="subtle">
                 <Link href="/dashboard/new">
-                  Open the full builder <ArrowRight />
+                  Open the full builder <MaskIcon name="ArrowRight" />
                 </Link>
               </Button>
             </div>

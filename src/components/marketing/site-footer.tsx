@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { CalendarClock, Infinity as InfinityIcon, ArrowUpRight } from 'lucide-react';
+import { MaskIcon } from '@/components/ui/mask-icon';
 import { BrandLogo } from '@/components/brand';
 import { getSettings } from '@/lib/settings';
 
@@ -53,12 +53,12 @@ export async function SiteFooter() {
             </p>
             {expiryEnabled ? (
               <p className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-muted px-2.5 py-1 text-[12px] font-medium text-muted-foreground">
-                <CalendarClock className="size-3.5" />
+                <MaskIcon name="CalendarClock" className="size-3.5" />
                 Every code shows its expiry date
               </p>
             ) : (
               <p className="inline-flex items-center gap-1.5 rounded-full border border-success/25 bg-success/10 px-2.5 py-1 text-[12px] font-medium text-success-text">
-                <InfinityIcon className="size-3.5" />
+                <MaskIcon name="Infinity" className="size-3.5" />
                 Dynamic codes never expire
               </p>
             )}
@@ -97,7 +97,7 @@ export async function SiteFooter() {
               <span className="text-[11.5px] text-muted-foreground">Designed &amp; developed by</span>
               <span className="text-gradient text-[12.5px] font-bold tracking-[0.08em]">NAUMAN ELLAHI</span>
               <span className="inline-flex size-7 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-white transition-transform group-hover:rotate-12">
-                <ArrowUpRight className="size-3.5" aria-hidden />
+                <MaskIcon name="ArrowUpRight" className="size-3.5" />
               </span>
               <span className="sr-only">(opens naumanellahi.com in a new tab)</span>
             </a>

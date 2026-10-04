@@ -228,6 +228,15 @@
     contain-intrinsic-size: auto 900px;
   }
 
+  /* One-element icon: the shape comes from --mask-icon, the colour from the text. */
+  .mask-icon {
+    display: inline-block;
+    flex-shrink: 0;
+    background-color: currentColor;
+    -webkit-mask: var(--mask-icon) center / contain no-repeat;
+    mask: var(--mask-icon) center / contain no-repeat;
+  }
+
   /* Invisible 40 px touch area around a visually small control (info icons, radios). */
   .hit-area {
     position: relative;
