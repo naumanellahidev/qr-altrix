@@ -42,6 +42,14 @@ export default async function HomePage() {
 
   return (
     <div className="flex min-h-dvh flex-col">
+      {/*
+        React streams a Suspense boundary larger than ~12.8 KB after the rest of the page
+        even when it is ready, and the generator is one (it hydrates lazily). Without this,
+        Chrome could paint the page with an empty hero and then shift everything down when
+        the generator's HTML arrives a moment later. rel=expect holds the first paint until
+        the parser has reached the generator's end marker; browsers without it ignore it.
+      */}
+      <link rel="expect" href="#hero-ready" blocking="render" />
       <SiteHeader signedIn={Boolean(auth)} />
 
       <main className="flex-1">

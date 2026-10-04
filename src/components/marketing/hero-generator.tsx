@@ -301,6 +301,8 @@ export function HeroGenerator({
         onSuccess={handleAuthSuccess}
       />
       ) : null}
+      {/* Render-blocking marker for the homepage: see <link rel="expect"> in app/page.tsx. */}
+      <span id="hero-ready" hidden />
     </div>
   );
 }
