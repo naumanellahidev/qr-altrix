@@ -139,7 +139,7 @@ export default async function SupportPage() {
           </Card>
 
           <Card className="border-success/25 bg-success/8 p-5">
-            <p className="flex items-center gap-2 text-[13px] font-semibold text-success">
+            <p className="flex items-center gap-2 text-[13px] font-semibold text-success-text">
               <InfinityIcon className="size-4" /> No expiry, no upsell
             </p>
             <p className="mt-1.5 text-[12.5px] leading-6 text-muted-foreground">

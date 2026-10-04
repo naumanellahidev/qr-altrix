@@ -266,7 +266,7 @@ export function verify(req, secret) {
             </Card>
 
             <Card className="border-success/25 bg-success/8 p-5">
-              <p className="text-[13px] font-semibold text-success">Codes created by the API never expire</p>
+              <p className="text-[13px] font-semibold text-success-text">Codes created by the API never expire</p>
               <p className="mt-1.5 text-[12.5px] leading-6 text-muted-foreground">
                 The only things that stop a dynamic code are the owner pausing or deleting it, an owner-enabled schedule
                 or scan limit, or an administrator disabling it for abuse.

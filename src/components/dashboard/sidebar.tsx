@@ -124,7 +124,7 @@ export function Sidebar({ role, isPlatformAdmin, open, onClose, codeCount, expir
         </div>
       ) : (
         <div className="rounded-xl border border-success/25 bg-success/8 p-3">
-          <p className="flex items-center gap-1.5 text-[12px] font-semibold text-success">
+          <p className="flex items-center gap-1.5 text-[12px] font-semibold text-success-text">
             <InfinityIcon className="size-3.5" />
             Nothing expires here
           </p>

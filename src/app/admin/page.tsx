@@ -162,7 +162,7 @@ export default async function AdminOverview() {
       </div>
 
       <Card className="mt-5 border-success/25 bg-success/8 p-5">
-        <p className="flex items-center gap-2 text-[13.5px] font-semibold text-success">
+        <p className="flex items-center gap-2 text-[13.5px] font-semibold text-success-text">
           <InfinityIcon className="size-4" /> Expiry is not a lever you have
         </p>
         <p className="mt-1.5 max-w-3xl text-[12.5px] leading-6 text-muted-foreground">

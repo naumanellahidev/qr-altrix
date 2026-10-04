@@ -253,7 +253,7 @@ export default async function DashboardHome() {
           </Card>
 
           <Card className="border-success/25 bg-success/8 p-5">
-            <p className="flex items-center gap-2 text-[13px] font-semibold text-success">
+            <p className="flex items-center gap-2 text-[13px] font-semibold text-success-text">
               <InfinityIcon className="size-4" />
               A promise, not a plan feature
             </p>

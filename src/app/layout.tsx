@@ -12,7 +12,7 @@ import { env } from '@/lib/env';
 // otherwise that view keeps the fallback and the next one uses the cached font. That
 // rules out the late swap that shifted the whole hero on phones without Arial.
 const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-inter', display: 'optional' });
-const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], weight: ['600', '700', '800'], variable: '--font-jakarta', display: 'optional' });
+const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], weight: ['600', '700'], variable: '--font-jakarta', display: 'optional' });
 const mono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-jetbrains', display: 'optional', preload: false });
 
 function siteToken(value: string | undefined): string | undefined {
