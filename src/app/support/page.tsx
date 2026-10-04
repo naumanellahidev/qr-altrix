@@ -9,8 +9,10 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PageHeader, SectionHeader } from '@/components/ui/page-header';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/misc';
+import { canonical } from '@/lib/seo/routes';
 
 export const metadata: Metadata = {
+  alternates: canonical('/support'),
   title: 'Contact & support',
   description: 'Help with QR ALTRIX: troubleshooting a code, custom domains, analytics and contacting a human.',
 };

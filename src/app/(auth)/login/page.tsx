@@ -8,6 +8,8 @@ import { Alert } from '@/components/ui/feedback';
 export const metadata: Metadata = {
   title: 'Log in',
   description: 'Log in to manage your QR codes, destinations and scan analytics.',
+  // A sign-in form answers no search; keep it out of results but let links be followed.
+  robots: { index: false, follow: true },
 };
 
 export const dynamic = 'force-dynamic';

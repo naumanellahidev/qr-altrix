@@ -5,8 +5,10 @@ import { getSettings } from '@/lib/settings';
 import { SiteHeader } from '@/components/marketing/site-header';
 import { SiteFooter } from '@/components/marketing/site-footer';
 import { LegalDocument } from '@/components/marketing/legal-document';
+import { canonical } from '@/lib/seo/routes';
 
 export const metadata: Metadata = {
+  alternates: canonical('/legal/privacy'),
   title: 'Privacy policy',
   description: 'What QR ALTRIX stores about you and about the people who scan your codes.',
 };

@@ -6,22 +6,25 @@ import { env } from '@/lib/env';
 export const dynamic = 'force-dynamic';
 
 /**
- * Search engines are welcome on the marketing and documentation pages. Everything that
- * belongs to a specific user — the dashboard, admin, hosted landing pages and the scan
- * endpoints themselves — stays out of the index.
+ * Everything is crawlable except what belongs to a specific user or does nothing useful
+ * for a searcher: the API, dashboard, admin, scan redirects and hosted landing pages,
+ * and one-time account links.
+ *
+ * Not blocked on purpose:
+ * - /_next/ (scripts, styles, fonts): Google renders pages and needs them.
+ * - /login and /forgot-password: they carry `noindex`, and a crawler can only read that
+ *   tag on a page it is allowed to fetch.
  */
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
         userAgent: '*',
-        allow: ['/', '/developers', '/support', '/report-abuse', '/legal/'],
+        allow: '/',
         disallow: [
           '/api/',
           '/dashboard',
-          '/dashboard/',
           '/admin',
-          '/admin/',
           '/q/',
           '/r/',
           '/l/',
@@ -33,7 +36,6 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: `${env.appUrl}/sitemap.xml`,
-    host: env.appUrl,
+    sitemap: `${env.appUrl.replace(/\/+$/, '')}/sitemap.xml`,
   };
 }

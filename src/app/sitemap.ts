@@ -1,21 +1,24 @@
 import type { MetadataRoute } from 'next';
 import { env } from '@/lib/env';
+import { PUBLIC_ROUTES } from '@/lib/seo/routes';
 
 // Generated per request: APP_URL is configured at runtime, not at build time.
 export const dynamic = 'force-dynamic';
 
-/** Only the public, stable pages. Everything behind sign-in is deliberately absent. */
+/**
+ * The indexable public pages, from the single list in lib/seo/routes.ts.
+ *
+ * - URLs are the exact canonical URLs (same host, same trailing-slash form), so each
+ *   entry matches the <link rel="canonical"> of the page it lists.
+ * - <lastmod> is the page's real content date. A timestamp that changes on every request
+ *   teaches Google to ignore lastmod for the whole site.
+ * - No <changefreq> or <priority>: Google ignores both.
+ * - Sign-in, password and account pages are left out on purpose; they are noindex.
+ */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date();
-
-  return [
-    { url: `${env.appUrl}/`, lastModified: now, changeFrequency: 'weekly', priority: 1 },
-    { url: `${env.appUrl}/developers`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${env.appUrl}/support`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${env.appUrl}/report-abuse`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
-    { url: `${env.appUrl}/legal/terms`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
-    { url: `${env.appUrl}/legal/privacy`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
-    { url: `${env.appUrl}/signup`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${env.appUrl}/login`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
-  ];
+  const base = env.appUrl.replace(/\/+$/, '');
+  return PUBLIC_ROUTES.map((route) => ({
+    url: route.path === '/' ? `${base}/` : `${base}${route.path}`,
+    lastModified: new Date(`${route.updated}T00:00:00Z`),
+  }));
 }

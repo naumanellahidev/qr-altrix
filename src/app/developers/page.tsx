@@ -11,8 +11,10 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { PageHeader, SectionHeader } from '@/components/ui/page-header';
 import { CodeBlock } from '@/components/marketing/code-block';
+import { canonical } from '@/lib/seo/routes';
 
 export const metadata: Metadata = {
+  alternates: canonical('/developers'),
   title: 'Developers & API',
   description:
     'REST API for creating, editing, rendering and measuring QR codes. Scoped keys, signed webhooks and an OpenAPI description.',

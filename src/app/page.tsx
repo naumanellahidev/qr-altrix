@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight, Infinity as InfinityIcon, Star } from 'lucide-react';
 import { SiteHeader } from '@/components/marketing/site-header';
@@ -12,6 +13,10 @@ import { getSettings } from '@/lib/settings';
 import { getAuthContext } from '@/lib/auth';
 import { BrandingProvider } from '@/components/qr/branding-context';
 import { brandingFromSettings } from '@/lib/qr/branding';
+import { canonical } from '@/lib/seo/routes';
+
+// The root layout supplies title and description; this page adds its canonical URL.
+export const metadata: Metadata = { alternates: canonical('/') };
 
 export const dynamic = 'force-dynamic';
 

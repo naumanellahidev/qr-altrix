@@ -4,8 +4,10 @@ import { getAuthContext } from '@/lib/auth';
 import { SiteHeader } from '@/components/marketing/site-header';
 import { SiteFooter } from '@/components/marketing/site-footer';
 import { LegalDocument } from '@/components/marketing/legal-document';
+import { canonical } from '@/lib/seo/routes';
 
 export const metadata: Metadata = {
+  alternates: canonical('/legal/terms'),
   title: 'Terms of service',
   description: 'The terms that apply to this QR ALTRIX install.',
 };

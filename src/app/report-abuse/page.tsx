@@ -6,8 +6,10 @@ import { SiteFooter } from '@/components/marketing/site-footer';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AbuseReportForm } from '@/components/marketing/abuse-report-form';
+import { canonical } from '@/lib/seo/routes';
 
 export const metadata: Metadata = {
+  alternates: canonical('/report-abuse'),
   title: 'Report a QR code',
   description: 'Report a QR code that leads somewhere harmful. A human reviews every report.',
   robots: { index: true, follow: true },

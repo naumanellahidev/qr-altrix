@@ -9,8 +9,10 @@ import { getDraft } from '@/lib/drafts';
 import { getTypeDef } from '@/lib/qr/catalog';
 import { AuthForm } from '@/components/auth/auth-form';
 import { Alert } from '@/components/ui/feedback';
+import { canonical } from '@/lib/seo/routes';
 
 export const metadata: Metadata = {
+  alternates: canonical('/signup'),
   title: 'Create a free account',
   description: 'Create a free QR ALTRIX account. Dynamic QR codes never expire.',
 };
