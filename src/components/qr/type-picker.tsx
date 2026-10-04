@@ -57,7 +57,7 @@ export function TypePicker({
               className={cn(
                 'flex shrink-0 items-center gap-2 rounded-xl border px-3 py-2 text-[13px] font-medium transition-all',
                 selected
-                  ? 'border-primary bg-primary-soft text-primary shadow-soft'
+                  ? 'border-primary bg-primary-soft text-primary-soft-foreground shadow-soft'
                   : 'border-border bg-surface text-foreground hover:border-primary/40 hover:bg-surface-muted',
               )}
             >
@@ -90,7 +90,7 @@ export function TypePicker({
                 className={cn(
                   'min-h-9 rounded-full border px-3 py-1 text-[12px] transition-colors sm:min-h-0',
                   category === item
-                    ? 'border-primary bg-primary-soft font-medium text-primary'
+                    ? 'border-primary bg-primary-soft font-medium text-primary-soft-foreground'
                     : 'border-border bg-surface text-muted-foreground hover:text-foreground',
                 )}
               >

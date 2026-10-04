@@ -344,7 +344,7 @@ export function Builder({
                       active
                         ? 'bg-primary text-primary-foreground shadow-soft'
                         : done
-                          ? 'bg-primary-soft text-primary'
+                          ? 'bg-primary-soft text-primary-soft-foreground'
                           : 'text-muted-foreground hover:bg-surface-muted hover:text-foreground',
                       disabled && 'cursor-not-allowed opacity-40',
                     )}

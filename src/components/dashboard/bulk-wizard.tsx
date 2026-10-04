@@ -214,7 +214,7 @@ export function BulkWizard({
                   step === number
                     ? 'bg-primary text-primary-foreground'
                     : step > number
-                      ? 'bg-primary-soft text-primary'
+                      ? 'bg-primary-soft text-primary-soft-foreground'
                       : 'text-muted-foreground',
                 )}
               >

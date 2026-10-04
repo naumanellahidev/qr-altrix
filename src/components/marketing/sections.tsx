@@ -102,7 +102,7 @@ export function Features() {
       <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {FEATURES.map((feature) => (
           <Card key={feature.title} className="group p-5 transition-all hover:-translate-y-0.5 hover:shadow-lifted">
-            <span className="mb-4 flex size-10 items-center justify-center rounded-xl border border-border bg-surface-muted text-primary transition-colors group-hover:border-primary/30 group-hover:bg-primary-soft">
+            <span className="mb-4 flex size-10 items-center justify-center rounded-xl border border-border bg-surface-muted text-primary-soft-foreground transition-colors group-hover:border-primary/30 group-hover:bg-primary-soft">
               <feature.icon className="size-[18px]" />
             </span>
             <h3 className="text-[15px] font-semibold leading-snug">{feature.title}</h3>

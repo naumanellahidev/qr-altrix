@@ -29,6 +29,7 @@ const config: Config = {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
           soft: 'hsl(var(--primary-soft))',
+          'soft-foreground': 'hsl(var(--primary-soft-foreground))',
         },
         secondary: {
           DEFAULT: 'hsl(var(--secondary))',

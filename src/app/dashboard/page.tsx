@@ -126,7 +126,7 @@ export default async function DashboardHome() {
               href={action.href}
               className="group rounded-2xl border border-border bg-card p-4 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-card"
             >
-              <span className="mb-3 flex size-9 items-center justify-center rounded-xl bg-surface-muted text-muted-foreground transition-colors group-hover:bg-primary-soft group-hover:text-primary">
+              <span className="mb-3 flex size-9 items-center justify-center rounded-xl bg-surface-muted text-muted-foreground transition-colors group-hover:bg-primary-soft group-hover:text-primary-soft-foreground">
                 <action.icon className="size-[17px]" />
               </span>
               <p className="text-[13.5px] font-semibold">{action.label}</p>

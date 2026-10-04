@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 // ------------------------------------------------------------------------ alert
 
 const alertStyles = {
-  info: 'border-primary/25 bg-primary-soft/60 text-foreground [&_[data-icon]]:text-primary',
+  info: 'border-primary/25 bg-primary-soft/60 text-foreground [&_[data-icon]]:text-primary-soft-foreground',
   success: 'border-success/25 bg-success/10 text-foreground [&_[data-icon]]:text-success',
   warning: 'border-warning/30 bg-warning/10 text-foreground [&_[data-icon]]:text-warning',
   error: 'border-destructive/25 bg-destructive/10 text-foreground [&_[data-icon]]:text-destructive',

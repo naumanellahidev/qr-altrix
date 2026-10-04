@@ -30,7 +30,7 @@ export default async function PasswordPage({ params }: { params: Promise<{ code:
 
         <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
           <div className="mb-5 flex flex-col items-center text-center">
-            <span className="mb-3 flex size-11 items-center justify-center rounded-xl bg-primary-soft text-primary">
+            <span className="mb-3 flex size-11 items-center justify-center rounded-xl bg-primary-soft text-primary-soft-foreground">
               <Lock className="size-5" />
             </span>
             <h1 className="font-display text-[19px] font-semibold tracking-[-0.01em]">This code is protected</h1>

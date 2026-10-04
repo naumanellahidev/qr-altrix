@@ -597,3 +597,49 @@ function scallopEdge(w: number, h: number, color: string): string {
 export function renderQrSvg(data: string, design: Partial<QrDesign>, options?: RenderOptions): string {
   return renderQr(data, design, options).svg;
 }
+
+/**
+ * A small sample of one shape setting for the design editor's pickers — about 1 KB,
+ * where a full QR code per swatch was ~22 KB and twenty-odd renders on every page load.
+ * Body shapes are drawn on a fixed 7×7 pattern that shows how neighbouring modules join;
+ * eye shapes on a single finder pattern. Same path builders as the real renderer, so a
+ * swatch looks exactly like the result.
+ */
+const SWATCH_PATTERN = [
+  '1101101',
+  '1111001',
+  '0011011',
+  '1010111',
+  '1110100',
+  '0111101',
+  '1101011',
+];
+
+export function renderShapeSwatch(
+  kind: 'body' | 'eyeFrame' | 'eyeBall',
+  shape: string,
+  color: string,
+  pixels = 44,
+): string {
+  const fill = sanitizeColor(color, '#334155');
+  let d: string;
+  if (kind === 'body') {
+    const sample: QrMatrix = {
+      size: 7,
+      get: (x, y) => x >= 0 && y >= 0 && x < 7 && y < 7 && SWATCH_PATTERN[y][x] === '1',
+      isEye: () => false,
+    };
+    const paths: string[] = [];
+    for (let y = 0; y < 7; y += 1) {
+      for (let x = 0; x < 7; x += 1) {
+        if (sample.get(x, y)) paths.push(bodyModulePath(sample, x, y, shape as QrDesign['bodyShape']));
+      }
+    }
+    d = paths.join(' ');
+  } else if (kind === 'eyeFrame') {
+    d = `${eyeFramePath(0, 0, shape as QrDesign['eyeFrameShape'])} ${eyeBallPath(0, 0, DEFAULT_DESIGN.eyeBallShape)}`;
+  } else {
+    d = `${eyeFramePath(0, 0, DEFAULT_DESIGN.eyeFrameShape)} ${eyeBallPath(0, 0, shape as QrDesign['eyeBallShape'])}`;
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${pixels}" height="${pixels}" viewBox="-0.75 -0.75 8.5 8.5" shape-rendering="geometricPrecision" aria-hidden="true"><path fill="${fill}" fill-rule="evenodd" d="${d}"/></svg>`;
+}

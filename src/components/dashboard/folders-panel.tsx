@@ -147,7 +147,7 @@ export function FoldersPanel({ folders, unfiled, total, canManage }: FoldersPane
             className={cn(
               'flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-left text-[13px] transition-colors',
               active === ''
-                ? 'bg-primary-soft font-medium text-primary'
+                ? 'bg-primary-soft font-medium text-primary-soft-foreground'
                 : 'text-muted-foreground hover:bg-surface-muted hover:text-foreground',
             )}
           >
@@ -165,7 +165,7 @@ export function FoldersPanel({ folders, unfiled, total, canManage }: FoldersPane
               className={cn(
                 'flex min-w-0 flex-1 items-center gap-2 rounded-xl px-2.5 py-2 text-left text-[13px] transition-colors',
                 active === folder.id
-                  ? 'bg-primary-soft font-medium text-primary'
+                  ? 'bg-primary-soft font-medium text-primary-soft-foreground'
                   : 'text-muted-foreground hover:bg-surface-muted hover:text-foreground',
               )}
             >

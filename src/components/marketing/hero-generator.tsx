@@ -17,7 +17,11 @@ import { DesignEditor } from '@/components/qr/design-editor';
 import { QrPreview } from '@/components/qr/qr-preview';
 import { ScanSafety } from '@/components/qr/scan-safety';
 import { DownloadGate } from '@/components/qr/download-menu';
-import { AuthDialog } from '@/components/auth/auth-dialog';
+import dynamic from 'next/dynamic';
+
+// The sign-up dialog (form, validation, Google button) is only needed once someone asks
+// to download, so it loads then instead of being parsed and hydrated with the page.
+const AuthDialog = dynamic(() => import('@/components/auth/auth-dialog').then((m) => m.AuthDialog), { ssr: false });
 import {
   draftIsComplete,
   persistDraftToServer,
@@ -49,6 +53,8 @@ export function HeroGenerator({
   const router = useRouter();
   const { draft, setType, patchContent, patchDesign, setName } = useQrDraft('URL');
   const [authOpen, setAuthOpen] = React.useState(false);
+  // Mount the dialog on first use and keep it mounted, so closing it still animates.
+  const authRequested = useLatch(authOpen);
   const [authMode, setAuthMode] = React.useState<'signup' | 'login'>('signup');
   const [moduleCount, setModuleCount] = React.useState(33);
   const [gateReason, setGateReason] = React.useState<string | null>(null);
@@ -235,6 +241,7 @@ export function HeroGenerator({
         </Card>
       </div>
 
+      {authRequested ? (
       <AuthDialog
         open={authOpen}
         onOpenChange={setAuthOpen}
@@ -244,6 +251,14 @@ export function HeroGenerator({
         description={gateReason ?? 'Sign up to download your QR Code'}
         onSuccess={handleAuthSuccess}
       />
+      ) : null}
     </div>
   );
+}
+
+/** False until `value` is first true, then true for good. */
+function useLatch(value: boolean): boolean {
+  const [latched, setLatched] = React.useState(value);
+  if (value && !latched) setLatched(true);
+  return latched || value;
 }

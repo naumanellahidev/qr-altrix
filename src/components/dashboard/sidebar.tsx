@@ -70,7 +70,7 @@ export function Sidebar({ role, isPlatformAdmin, open, onClose, codeCount, expir
                     className={cn(
                       'group flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13.5px] font-medium transition-colors',
                       active
-                        ? 'bg-primary-soft text-primary'
+                        ? 'bg-primary-soft text-primary-soft-foreground'
                         : 'text-muted-foreground hover:bg-surface-muted hover:text-foreground',
                     )}
                   >

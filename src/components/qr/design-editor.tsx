@@ -4,7 +4,7 @@ import * as React from 'react';
 import {
   Blend, Frame, ImagePlus, Palette, Settings2, Shapes, Sparkles, Trash2, Upload, X,
 } from 'lucide-react';
-import { renderQr } from '@/lib/qr/render';
+import { renderShapeSwatch } from '@/lib/qr/render';
 import {
   BODY_SHAPES, COLOR_PRESETS, EYE_BALL_SHAPES, EYE_FRAME_SHAPES, FRAME_PRESETS, LOGO_PRESETS,
   logoPresetDataUri,
@@ -22,7 +22,6 @@ import { InfoHint } from '@/components/ui/tooltip';
 import { ColorInput } from '@/components/qr/color-input';
 import { toast } from 'sonner';
 
-const SAMPLE_PAYLOAD = 'https://qr-altrix.app/sample';
 
 export interface DesignEditorProps {
   design: QrDesign;
@@ -35,33 +34,17 @@ export interface DesignEditorProps {
   compact?: boolean;
 }
 
-/** Tiny QR rendered with one shape setting changed, used as a visual swatch. */
+/** A small sample of one shape setting, drawn with the renderer's own path builders. */
 function ShapeSwatch({ design, patch, selected }: { design: QrDesign; patch: Partial<QrDesign>; selected: boolean }) {
-  const svg = React.useMemo(() => {
-    try {
-      return renderQr(SAMPLE_PAYLOAD, {
-        ...design,
-        ...patch,
-        frame: 'none',
-        ctaText: null,
-        margin: 1,
-        logoUrl: null,
-        logoPreset: null,
-        gradientEnabled: false,
-        fgColor: selected ? design.fgColor : '#334155',
-        bgColor: '#FFFFFF',
-        transparentBg: false,
-        invert: false,
-      }, { size: 92, bare: true }).svg;
-    } catch {
-      return '';
-    }
-  }, [design, patch, selected]);
+  const kind = patch.bodyShape ? 'body' : patch.eyeFrameShape ? 'eyeFrame' : 'eyeBall';
+  const shape = (patch.bodyShape ?? patch.eyeFrameShape ?? patch.eyeBallShape) as string;
+  const color = selected ? design.fgColor : '#334155';
+  const svg = React.useMemo(() => renderShapeSwatch(kind, shape, color), [kind, shape, color]);
 
   return (
     <span
       className="pointer-events-none block size-11 overflow-hidden rounded-md bg-white"
-      dangerouslySetInnerHTML={{ __html: svg.replace(/width="\d+" height="\d+"/, 'width="44" height="44"') }}
+      dangerouslySetInnerHTML={{ __html: svg }}
     />
   );
 }
@@ -168,19 +151,19 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
     <div className={cn('space-y-4', className)}>
       <Tabs defaultValue="shape">
         <TabsList className="w-full justify-start overflow-x-auto">
-          <TabsTrigger value="shape">
+          <TabsTrigger value="shape" aria-label="Shape">
             <Shapes /> {compact ? null : 'Shape'}
           </TabsTrigger>
-          <TabsTrigger value="colour">
+          <TabsTrigger value="colour" aria-label="Colour">
             <Palette /> {compact ? null : 'Colour'}
           </TabsTrigger>
-          <TabsTrigger value="logo">
+          <TabsTrigger value="logo" aria-label="Logo">
             <ImagePlus /> {compact ? null : 'Logo'}
           </TabsTrigger>
-          <TabsTrigger value="frame">
+          <TabsTrigger value="frame" aria-label="Frame">
             <Frame /> {compact ? null : 'Frame'}
           </TabsTrigger>
-          <TabsTrigger value="advanced">
+          <TabsTrigger value="advanced" aria-label="Advanced">
             <Settings2 /> {compact ? null : 'Advanced'}
           </TabsTrigger>
         </TabsList>
@@ -254,7 +237,7 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
                     'flex items-center gap-2 rounded-full border px-2.5 py-1.5 text-[12px] transition-all hover:shadow-soft',
                     design.fgColor.toUpperCase() === preset.fg.toUpperCase() &&
                       design.bgColor.toUpperCase() === preset.bg.toUpperCase()
-                      ? 'border-primary bg-primary-soft text-primary'
+                      ? 'border-primary bg-primary-soft text-primary-soft-foreground'
                       : 'border-border bg-surface',
                   )}
                 >
@@ -521,7 +504,7 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
                       className={cn(
                         'rounded-lg border px-2.5 py-1.5 text-[12px] transition-all',
                         design.frame === preset.id
-                          ? 'border-primary bg-primary-soft font-medium text-primary'
+                          ? 'border-primary bg-primary-soft font-medium text-primary-soft-foreground'
                           : 'border-border bg-surface hover:border-primary/40 hover:bg-surface-muted',
                       )}
                     >

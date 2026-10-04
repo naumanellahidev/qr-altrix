@@ -49,7 +49,7 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <span className="flex size-11 items-center justify-center rounded-xl bg-primary-soft text-primary">
+        <span className="flex size-11 items-center justify-center rounded-xl bg-primary-soft text-primary-soft-foreground">
           <Users className="size-5" />
         </span>
         <h1 className="font-display text-[23px] font-bold tracking-[-0.025em]">

@@ -27,7 +27,7 @@ export default async function ReportAbusePage({ searchParams }: { searchParams: 
       <main className="container flex-1 py-12">
         <div className="mx-auto max-w-xl">
           <div className="mb-6 text-center">
-            <span className="mx-auto mb-3 flex size-11 items-center justify-center rounded-xl bg-primary-soft text-primary">
+            <span className="mx-auto mb-3 flex size-11 items-center justify-center rounded-xl bg-primary-soft text-primary-soft-foreground">
               <ShieldCheck className="size-5" />
             </span>
             <h1 className="font-display text-[26px] font-bold tracking-[-0.03em]">Report a QR code</h1>

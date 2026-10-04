@@ -210,3 +210,24 @@ describe('scan safety', () => {
     expect(report.contrastRatio).toBeLessThan(2);
   });
 });
+
+describe('shape swatches', () => {
+  it('draws every body and eye shape in a few kilobytes', async () => {
+    const { renderShapeSwatch } = await import('@/lib/qr/render');
+    const all = [
+      ...BODY_SHAPES.map((s) => renderShapeSwatch('body', s.value, '#0F172A')),
+      ...EYE_FRAME_SHAPES.map((s) => renderShapeSwatch('eyeFrame', s.value, '#0F172A')),
+      ...EYE_BALL_SHAPES.map((s) => renderShapeSwatch('eyeBall', s.value, '#0F172A')),
+    ];
+    for (const svg of all) {
+      expect(svg.startsWith('<svg')).toBe(true);
+      expect(svg).toMatch(/d="[^"]{20,}"/);
+      expect(svg.length).toBeLessThan(6000); // a full-QR swatch was ~22 KB
+    }
+  });
+
+  it('only accepts real colours', async () => {
+    const { renderShapeSwatch } = await import('@/lib/qr/render');
+    expect(renderShapeSwatch('body', 'dots', '"/><script>')).not.toContain('<script>');
+  });
+});

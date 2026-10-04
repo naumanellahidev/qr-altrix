@@ -100,7 +100,7 @@ export default async function HomePage() {
                 { title: 'Download and track', body: 'PNG, SVG, PDF, JPEG, WebP or EPS — then watch the scans arrive.' },
               ].map((step, index) => (
                 <li key={step.title} className="rounded-2xl border border-border bg-card p-5">
-                  <span className="mb-3 flex size-7 items-center justify-center rounded-lg bg-primary-soft text-[12.5px] font-bold text-primary">
+                  <span className="mb-3 flex size-7 items-center justify-center rounded-lg bg-primary-soft text-[12.5px] font-bold text-primary-soft-foreground">
                     {index + 1}
                   </span>
                   <h3 className="text-[14.5px] font-semibold">{step.title}</h3>
