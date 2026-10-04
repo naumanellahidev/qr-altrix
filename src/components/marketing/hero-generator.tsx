@@ -13,7 +13,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert } from '@/components/ui/feedback';
 import { TypePicker } from '@/components/qr/type-picker';
 import { ContentForm } from '@/components/qr/content-form';
-import { DesignEditor } from '@/components/qr/design-editor';
 import { QrPreview } from '@/components/qr/qr-preview';
 import { ScanSafety } from '@/components/qr/scan-safety';
 import { DownloadGate } from '@/components/qr/download-menu';
@@ -22,6 +21,15 @@ import dynamic from 'next/dynamic';
 // The sign-up dialog (form, validation, Google button) is only needed once someone asks
 // to download, so it loads then instead of being parsed and hydrated with the page.
 const AuthDialog = dynamic(() => import('@/components/auth/auth-dialog').then((m) => m.AuthDialog), { ssr: false });
+
+// The design editor (tabs, ~25 shape swatches, colour, logo and frame controls) sits
+// below the fold on phones. It loads when the visitor opens it — or, on wide screens,
+// as soon as the browser is idle after load — instead of being parsed and hydrated
+// with the first paint. It holds controls, not content, so search engines lose nothing.
+const DesignEditor = dynamic(() => import('@/components/qr/design-editor').then((m) => m.DesignEditor), {
+  ssr: false,
+  loading: () => <div className="h-[22rem] animate-pulse rounded-xl bg-surface-muted/70" aria-hidden />,
+});
 import {
   draftIsComplete,
   persistDraftToServer,
@@ -53,6 +61,20 @@ export function HeroGenerator({
   const router = useRouter();
   const { draft, setType, patchContent, patchDesign, setName } = useQrDraft('URL');
   const [authOpen, setAuthOpen] = React.useState(false);
+  const [designOpen, setDesignOpen] = React.useState(false);
+
+  // Wide screens have room to show the editor straight away; open it once the page is
+  // idle so it never competes with the first paint.
+  React.useEffect(() => {
+    if (!window.matchMedia('(min-width: 1024px)').matches) return;
+    const open = () => setDesignOpen(true);
+    const idle = window.requestIdleCallback?.(open, { timeout: 2500 });
+    const timer = idle === undefined ? window.setTimeout(open, 1200) : undefined;
+    return () => {
+      if (idle !== undefined) window.cancelIdleCallback?.(idle);
+      if (timer !== undefined) window.clearTimeout(timer);
+    };
+  }, []);
   // Mount the dialog on first use and keep it mounted, so closing it still animates.
   const authRequested = useLatch(authOpen);
   const [authMode, setAuthMode] = React.useState<'signup' | 'login'>('signup');
@@ -151,11 +173,24 @@ export function HeroGenerator({
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="design" className="pt-3">
-                <DesignEditor
-                  design={draft.design}
-                  onChange={patchDesign}
-                  compact
-                />
+                {designOpen ? (
+                  <DesignEditor design={draft.design} onChange={patchDesign} compact />
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-auto w-full justify-between px-4 py-3 text-left"
+                    onClick={() => setDesignOpen(true)}
+                  >
+                    <span className="flex flex-col">
+                      <span className="text-[13.5px] font-semibold">Customise the design</span>
+                      <span className="text-[12px] font-normal text-muted-foreground">
+                        Colours, gradients, shapes, logo and 30+ frames
+                      </span>
+                    </span>
+                    <Palette className="size-4 text-primary" />
+                  </Button>
+                )}
               </TabsContent>
               <TabsContent value="name" className="pt-3">
                 <Field
