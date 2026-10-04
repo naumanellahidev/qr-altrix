@@ -31,6 +31,8 @@ import { downloadQrFile } from '@/components/qr/download-menu';
 import { TypeIcon } from '@/components/ui/icon';
 import { toast } from 'sonner';
 import { useDateFormat, DATE, DATE_TIME, TIME } from '@/lib/hooks/use-date-format';
+import { useLiveScans } from '@/lib/hooks/use-live-scans';
+import { LiveIndicator } from '@/components/dashboard/live-indicator';
 
 export interface CodeRow {
   id: string;
@@ -108,6 +110,8 @@ export function CodesTable({
 }: CodesTableProps) {
   const formatDate = useDateFormat();
   const router = useRouter();
+  // Scan counts in the list follow new scans without a reload.
+  const liveState = useLiveScans({ onChange: () => router.refresh() });
   const params = useSearchParams();
 
   const [search, setSearch] = React.useState(params.get('search') ?? '');
@@ -279,6 +283,7 @@ export function CodesTable({
         />
 
         <div className="flex flex-wrap items-center gap-2">
+          <LiveIndicator live={liveState.live} className="order-last lg:order-first" />
           <Select value={currentFilter} onValueChange={(value) => updateParams({ filter: value === 'all' ? null : value })}>
             <SelectTrigger className="w-[11rem]">
               <SelectValue />

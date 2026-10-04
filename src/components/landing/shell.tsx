@@ -47,7 +47,7 @@ export function LandingShell({ accent, children, className, width = 'narrow', fo
             className="inline-flex items-center gap-1.5 text-[11.5px] text-muted-foreground transition-colors hover:text-foreground"
           >
             <BrandMark size={14} />
-            Made with QR ALTRIX
+            Free QR codes by <span className="font-semibold">QR ALTRIX</span>
           </Link>
         </footer>
       </div>

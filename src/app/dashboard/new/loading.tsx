@@ -9,7 +9,7 @@ export default function NewQrLoading() {
         <Skeleton className="h-4 w-full max-w-xl" />
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_352px]">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_352px]">
         <div className="space-y-5">
           <div className="flex gap-1.5 overflow-hidden">
             {Array.from({ length: 6 }).map((_, index) => (
@@ -19,7 +19,7 @@ export default function NewQrLoading() {
           <Card className="space-y-4 p-5">
             <Skeleton className="h-5 w-64" />
             <Skeleton className="h-4 w-full max-w-md" />
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {Array.from({ length: 6 }).map((_, index) => (
                 <Skeleton key={index} className="h-[86px] rounded-xl" />
               ))}

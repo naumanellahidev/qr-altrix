@@ -426,7 +426,7 @@ export function ContentForm({
           {group ? (
             <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{group}</p>
           ) : null}
-          <div className="grid gap-4 sm:grid-cols-2">{fields.map(renderField)}</div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">{fields.map(renderField)}</div>
         </div>
       ))}
     </div>

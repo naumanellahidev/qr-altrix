@@ -292,7 +292,7 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
             </div>
           ) : null}
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <ColorInput
               label="Pattern colour"
               value={design.fgColor}
@@ -320,7 +320,7 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
             />
             {design.gradientEnabled ? (
               <div className="space-y-3 pt-1">
-                <div className="grid gap-3 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <ColorInput
                     label="From"
                     value={design.gradientFrom}
@@ -328,7 +328,7 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
                   />
                   <ColorInput label="To" value={design.gradientTo} onChange={(gradientTo) => onChange({ gradientTo })} />
                 </div>
-                <div className="grid gap-3 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <Field label="Type">
                     <Select
                       value={design.gradientType}
@@ -375,7 +375,7 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
 
           <details className="group rounded-xl border border-border bg-surface p-3.5">
             <summary className="cursor-pointer text-[13px] font-medium">Colour the corners separately</summary>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
               <ColorInput
                 label="Corner frame"
                 value={design.eyeColor ?? design.fgColor}
@@ -543,7 +543,7 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
                   maxLength={40}
                 />
               </Field>
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <ColorInput label="Frame colour" value={design.frameColor} onChange={(frameColor) => onChange({ frameColor })} />
                 <ColorInput
                   label="Text colour"

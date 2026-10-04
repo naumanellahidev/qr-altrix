@@ -1,6 +1,7 @@
 import { buildMatrix, EYE_ORIGINS, type QrMatrix } from './matrix';
 import { getFramePreset, getLogoPreset, logoPresetDataUri } from './presets';
 import { DEFAULT_DESIGN, type QrDesign, type RenderOptions } from './types';
+import { cleanBrandingText } from './branding';
 
 /**
  * QR ALTRIX SVG renderer.
@@ -467,18 +468,48 @@ export function renderQr(data: string, partialDesign: Partial<QrDesign>, options
     );
   }
 
+  // Credit line ------------------------------------------------------------------
+  // Drawn below everything else — under the frame and its label, under a map pin's
+  // point — so it is always outside the quiet zone and cannot affect scanning. The
+  // font shrinks to fit narrow codes; the band grows with it.
+  const brandText = cleanBrandingText(options.branding);
+  let canvasH = totalH;
+  if (brandText) {
+    const below = frame.decoration === 'pin' ? 2.6 : 0;
+    const fontSize = clamp((totalW * 0.9) / (brandText.length * 0.56), 1.15, 2.1);
+    const band = fontSize * 2.2;
+    const top = totalH + below;
+    canvasH = top + band;
+    if (!design.transparentBg) {
+      const r = framed ? frame.radius : 0;
+      // Overlap the main background by at least one unit: two shapes meeting edge to
+      // edge leave an anti-aliased hairline between them.
+      const stripTop = Math.max(0, totalH - Math.max(r, 1));
+      chrome.unshift(`<path d="${roundedSquareRect(0, stripTop, totalW, canvasH - stripTop, r)}" fill="${bg}"/>`);
+    }
+    // The product name gets a heavier weight so it reads as a brand, not a footnote.
+    const brandAt = brandText.indexOf('QR ALTRIX');
+    const inner =
+      brandAt >= 0
+        ? `${esc(brandText.slice(0, brandAt))}<tspan font-weight="800">QR ALTRIX</tspan>${esc(brandText.slice(brandAt + 9))}`
+        : esc(brandText);
+    chrome.push(
+      `<text x="${n(totalW / 2)}" y="${n(top + band / 2 + fontSize * 0.36)}" text-anchor="middle" font-family="Inter, Segoe UI, Helvetica, Arial, sans-serif" font-size="${n(fontSize)}" font-weight="500" letter-spacing="${n(fontSize * 0.02)}" fill="${design.transparentBg ? '#475569' : fg}" fill-opacity="0.78">${inner}</text>`,
+    );
+  }
+
   const pxWidth = options.size ?? 512;
-  const pxHeight = Math.round((pxWidth * totalH) / totalW);
+  const pxHeight = Math.round((pxWidth * canvasH) / totalW);
 
   const svg = [
-    `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${pxWidth}" height="${pxHeight}" viewBox="0 0 ${n(totalW)} ${n(totalH)}" shape-rendering="geometricPrecision" role="img" aria-label="QR code">`,
+    `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${pxWidth}" height="${pxHeight}" viewBox="0 0 ${n(totalW)} ${n(canvasH)}" shape-rendering="geometricPrecision" role="img" aria-label="QR code">`,
     defs.length ? `<defs>${defs.join('')}</defs>` : '',
     chrome.join(''),
     body.join(''),
     `</svg>`,
   ].join('');
 
-  return { svg, units: { width: totalW, height: totalH }, moduleCount: matrix.size };
+  return { svg, units: { width: totalW, height: canvasH }, moduleCount: matrix.size };
 }
 
 /** Rectangle (not necessarily square) with uniform corner radius. */

@@ -257,7 +257,7 @@ export function DomainsManager({
                     className="mb-0"
                   />
                   {[domain.dns.verification, domain.dns.routing].map((record) => (
-                    <div key={`${record.type}-${record.name}`} className="grid gap-2 sm:grid-cols-[80px_1fr_1fr]">
+                    <div key={`${record.type}-${record.name}`} className="grid grid-cols-1 gap-2 sm:grid-cols-[80px_1fr_1fr]">
                       <div>
                         <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Type</p>
                         <p className="font-mono text-[12.5px]">{record.type}</p>

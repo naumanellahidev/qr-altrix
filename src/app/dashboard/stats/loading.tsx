@@ -14,7 +14,7 @@ export default function StatsLoading() {
         ))}
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, index) => (
           <CardSkeleton key={index} />
         ))}
@@ -22,7 +22,7 @@ export default function StatsLoading() {
 
       <Skeleton className="mt-5 h-[360px] rounded-2xl" />
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Skeleton className="h-[300px] rounded-2xl" />
         <Skeleton className="h-[300px] rounded-2xl" />
       </div>

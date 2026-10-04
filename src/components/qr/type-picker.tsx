@@ -88,7 +88,7 @@ export function TypePicker({
                 type="button"
                 onClick={() => setCategory(item)}
                 className={cn(
-                  'rounded-full border px-2.5 py-1 text-[12px] transition-colors',
+                  'min-h-9 rounded-full border px-3 py-1 text-[12px] transition-colors sm:min-h-0',
                   category === item
                     ? 'border-primary bg-primary-soft font-medium text-primary'
                     : 'border-border bg-surface text-muted-foreground hover:text-foreground',
@@ -106,7 +106,7 @@ export function TypePicker({
           No QR type matches “{query}”.
         </p>
       ) : (
-        <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((type) => {
             const selected = type.type === value;
             return (

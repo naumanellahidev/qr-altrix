@@ -109,6 +109,8 @@ export interface RenderOptions {
   bare?: boolean;
   /** Deterministic ids make rendered output diffable and test-friendly. */
   idPrefix?: string;
+  /** Credit line drawn under the code, outside the quiet zone. Null or empty: none. */
+  branding?: string | null;
 }
 
 export type ExportFormat = 'svg' | 'png' | 'jpeg' | 'webp' | 'pdf' | 'eps';

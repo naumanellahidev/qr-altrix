@@ -157,7 +157,7 @@ export function TemplatesManager({
           }
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {templates.map((template) => (
             <Card key={template.id} className="flex flex-col p-4">
               <div className="mb-3 flex items-start justify-between gap-2">
@@ -220,7 +220,7 @@ export function TemplatesManager({
             <DialogTitle>{editing ? `Edit “${editing.name}”` : 'New template'}</DialogTitle>
           </DialogHeader>
 
-          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_240px]">
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_240px]">
             <div className="min-w-0 space-y-4">
               <Field label="Template name" required help="For example: Brand primary, Menu cards, Event posters.">
                 <Input value={name} onChange={(event) => setName(event.target.value)} maxLength={60} autoFocus />

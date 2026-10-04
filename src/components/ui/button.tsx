@@ -26,10 +26,11 @@ const buttonVariants = cva(
       size: {
         default: 'h-10 px-4',
         sm: 'h-9 rounded-lg px-3 text-[13px]',
-        xs: 'h-8 rounded-lg px-2.5 text-[12.5px] [&_svg]:size-3.5',
+        // Compact on desktop; 36 px on touch screens, where a finger needs the room.
+        xs: 'h-8 rounded-lg px-2.5 text-[12.5px] [&_svg]:size-3.5 [@media(pointer:coarse)]:h-9',
         lg: 'h-12 rounded-xl px-6 text-[15px]',
-        icon: 'size-10',
-        'icon-sm': 'size-8 rounded-lg [&_svg]:size-3.5',
+        icon: 'size-10 shrink-0',
+        'icon-sm': 'size-8 shrink-0 rounded-lg [&_svg]:size-3.5 [@media(pointer:coarse)]:size-9',
       },
     },
     defaultVariants: { variant: 'default', size: 'default' },

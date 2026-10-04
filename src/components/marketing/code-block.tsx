@@ -42,7 +42,7 @@ export function CodeBlock({
       <button
         type="button"
         onClick={copy}
-        className="absolute right-2 top-2 rounded-lg border border-border bg-card p-1.5 text-muted-foreground transition-colors hover:text-foreground"
+        className="absolute right-2 top-2 inline-flex size-9 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition-colors hover:text-foreground"
         aria-label="Copy code"
       >
         {copied ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}

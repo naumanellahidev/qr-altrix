@@ -99,7 +99,7 @@ export function Features() {
         </p>
       </div>
 
-      <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {FEATURES.map((feature) => (
           <Card key={feature.title} className="group p-5 transition-all hover:-translate-y-0.5 hover:shadow-lifted">
             <span className="mb-4 flex size-10 items-center justify-center rounded-xl border border-border bg-surface-muted text-primary transition-colors group-hover:border-primary/30 group-hover:bg-primary-soft">
@@ -166,7 +166,7 @@ export function UseCases() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {USE_CASES.map((useCase) => (
             <div
               key={useCase.title}
@@ -201,7 +201,7 @@ export function TypesShowcase() {
         </p>
       </div>
 
-      <div className="mt-12 grid gap-6 lg:grid-cols-2">
+      <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-2">
         {[
           { title: 'Static', subtitle: 'Encoded directly in the pattern', items: statics, variant: 'outline' as const },
           { title: 'Dynamic', subtitle: 'Editable and tracked, never expiring', items: dynamics, variant: 'primary' as const },
@@ -214,7 +214,7 @@ export function TypesShowcase() {
               </div>
               <Badge variant={group.variant}>{group.items.length} types</Badge>
             </div>
-            <ul className="grid gap-1.5 sm:grid-cols-2">
+            <ul className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
               {group.items.map((type) => (
                 <li
                   key={type.type}

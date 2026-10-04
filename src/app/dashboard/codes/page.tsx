@@ -101,7 +101,7 @@ export default async function CodesPage({
         }
       />
 
-      <div className="grid gap-5 lg:grid-cols-[232px_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[232px_minmax(0,1fr)]">
         <aside className="hidden lg:block">
           <Card className="p-3">
             <FoldersPanel

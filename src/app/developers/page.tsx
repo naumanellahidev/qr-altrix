@@ -69,7 +69,7 @@ export default async function DevelopersDocsPage() {
           }
         />
 
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
           <div className="min-w-0 space-y-5">
             <Card className="p-5">
               <SectionHeader

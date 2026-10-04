@@ -203,7 +203,7 @@ export function SettingsView({
       <TabsContent value="general" className="space-y-5">
         <Card className="p-5">
           <SectionHeader title="General information" description="How your name appears to teammates." />
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="First name">
               <Input value={profile.name} onChange={(event) => setProfile({ ...profile, name: event.target.value })} maxLength={80} />
             </Field>
@@ -242,7 +242,7 @@ export function SettingsView({
       <TabsContent value="locale" className="space-y-5">
         <Card className="p-5">
           <SectionHeader title="Language, timezone and formats" description="Affects how dates and numbers are shown to you." />
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Interface language" help="Dates and number formats follow this immediately.">
               <Select value={locale.locale} onValueChange={(value) => setLocale({ ...locale, locale: value })}>
                 <SelectTrigger>
@@ -445,7 +445,7 @@ export function SettingsView({
               Your role can view these settings but not change them.
             </Alert>
           ) : null}
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Google Analytics 4" help="Measurement ID, for example G-ABCD1234.">
               <Input
                 value={tracking.ga4}
@@ -588,11 +588,11 @@ export function SettingsView({
       <TabsContent value="account" className="space-y-5">
         <Card className="p-5">
           <SectionHeader title="Account status" />
-          <dl className="grid gap-4 sm:grid-cols-2">
+          <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <dt className="text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground">Email</dt>
-              <dd className="flex items-center gap-2 text-[13.5px]">
-                {user.email}
+              <dd className="flex flex-wrap items-center gap-2 text-[13.5px]">
+                <span className="min-w-0 break-all">{user.email}</span>
                 {user.emailVerified ? (
                   <Badge variant="success">
                     <Check className="size-3" /> Confirmed

@@ -562,7 +562,7 @@ function BusinessView({ content }: LandingProps) {
         </Card>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           {str(content.phone) ? (
             <LinkRow href={`tel:${str(content.phone)}`} label="Call us" detail={str(content.phone)} icon={<Phone />} />
@@ -789,7 +789,7 @@ function LandingPageView({ content }: LandingProps) {
       ) : null}
 
       {highlights.length > 0 ? (
-        <div className="mb-5 grid gap-3 sm:grid-cols-2">
+        <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
           {highlights.map((item, index) => (
             <Card key={index}>
               <p className="text-[14px] font-semibold">{str(item.title)}</p>
@@ -817,7 +817,7 @@ function ProductView({ content }: LandingProps) {
 
   return (
     <LandingShell accent={content.accentColor} width="wide">
-      <div className="grid gap-6 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div>
           {images.length > 0 ? (
             <>

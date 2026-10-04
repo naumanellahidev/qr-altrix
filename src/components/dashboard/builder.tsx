@@ -324,7 +324,7 @@ export function Builder({
   }
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_352px]">
+    <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_352px]">
       <div className="min-w-0 space-y-5">
         {/* ------------------------------------------------------------ stepper */}
         <nav aria-label="Builder steps" className="overflow-x-auto">
@@ -448,7 +448,7 @@ export function Builder({
           <div className="space-y-4">
             <Card className="p-5">
               <h2 className="mb-4 font-display text-[16px] font-semibold">Where it lives</h2>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field label="Folder" help="Keeps your list tidy. Optional.">
                   <Select value={folderId || 'none'} onValueChange={(value) => setFolderId(value === 'none' ? '' : value)}>
                     <SelectTrigger>
@@ -529,7 +529,7 @@ export function Builder({
                   <p className="mb-4 text-[13px] text-muted-foreground">
                     UTM parameters are added to the destination so your own analytics can attribute the visit.
                   </p>
-                  <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     {(
                       [
                         ['source', 'utm_source', 'qr-poster'],
@@ -613,7 +613,7 @@ export function Builder({
                   <div className="space-y-2.5">
                     {smartRules.map((rule, index) => (
                       <div key={index} className="rounded-xl border border-border bg-surface p-3">
-                        <div className="grid gap-2.5 sm:grid-cols-[150px_1fr_1fr_auto]">
+                        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-[150px_1fr_1fr_auto]">
                           <Select
                             value={rule.kind}
                             onValueChange={(value) =>
@@ -760,7 +760,7 @@ export function Builder({
                         onCheckedChange={setScheduleEnabled}
                       />
                       {scheduleEnabled ? (
-                        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                           <Field label="Starts">
                             <Input
                               type="datetime-local"
@@ -878,7 +878,7 @@ export function Builder({
               Scan the preview with your phone camera. For dynamic codes the real short link is created when you save.
             </p>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="rounded-xl border border-border bg-surface-muted/50 p-4">
                 <p className="mb-2 text-[12.5px] font-medium">What the code encodes</p>
                 <p className="break-all rounded-lg bg-card p-2.5 font-mono text-[11.5px] leading-5">

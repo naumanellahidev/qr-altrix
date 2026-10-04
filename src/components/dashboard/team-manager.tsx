@@ -303,7 +303,7 @@ export function TeamManager({
 
       <Card className="p-5">
         <h2 className="mb-3 font-display text-[15px] font-semibold">What each role can do</h2>
-        <dl className="grid gap-3 sm:grid-cols-2">
+        <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {(['OWNER', ...ASSIGNABLE] as Role[]).map((item) => (
             <div key={item} className="rounded-xl border border-border p-3">
               <dt className="text-[13px] font-semibold">{ROLE_LABELS[item]}</dt>

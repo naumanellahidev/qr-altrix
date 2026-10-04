@@ -54,7 +54,7 @@ export default async function SupportPage() {
         breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Contact & support' }]}
       />
 
-      <div className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.4fr_1fr]">
         <div className="space-y-5">
           <Card className="p-5">
             <SectionHeader title="Common questions" />

@@ -236,7 +236,7 @@ export function BulkWizard({
             title="What kind of codes are you importing?"
             description="One type per import. Run the wizard again for a different type."
           />
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="QR code type" help={def?.description}>
               <Select
                 value={type}
@@ -332,7 +332,7 @@ export function BulkWizard({
               }
             />
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label="QR code name" required help="Each code needs a name you will recognise.">
                 <Select
                   value={mapping.name ?? 'none'}
@@ -520,7 +520,7 @@ export function BulkWizard({
       {step === 4 ? (
         <Card className="p-5">
           <SectionHeader title="Import options" description="Applied to every code in this batch." />
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <Field label="Folder" help="Overridden by a mapped folder column.">
               <Select value={folderId} onValueChange={setFolderId}>
                 <SelectTrigger>
@@ -610,7 +610,7 @@ export function BulkWizard({
             className="mb-4"
           />
 
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="rounded-xl border border-border p-3 text-center">
               <p className="text-[20px] font-semibold tabular-nums">{activeJob?.successRows ?? 0}</p>
               <p className="text-[11.5px] text-muted-foreground">created</p>

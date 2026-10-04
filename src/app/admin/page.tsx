@@ -72,7 +72,7 @@ export default async function AdminOverview() {
         description="Everything running on this install. Figures are live, not cached."
       />
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Accounts"
           value={formatNumber(users)}
@@ -101,7 +101,7 @@ export default async function AdminOverview() {
         />
       </div>
 
-      <div className="mt-6 grid gap-5 lg:grid-cols-2">
+      <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-2">
         <Card className="p-5">
           <SectionHeader
             title="Newest accounts"

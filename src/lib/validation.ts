@@ -398,6 +398,8 @@ export const platformSettingsSchema = z.object({
   requireTwoFactorForAdmins: z.boolean().optional(),
   sessionIdleTimeoutMinutes: z.number().int().min(0).max(10_080).optional(),
   lockoutAfterFailedAttempts: z.number().int().min(3).max(100).optional(),
+  brandingEnabled: z.boolean().optional(),
+  brandingText: z.string().trim().max(60, 'Keep the credit line to 60 characters').optional(),
   analyticsRetentionDays: z.number().int().min(0).max(3650).optional(),
   maxUploadMb: z.number().int().min(1).max(500).optional(),
   bulkMaxRows: z.number().int().min(10).max(1_000_000).optional(),

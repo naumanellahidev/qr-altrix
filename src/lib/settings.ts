@@ -2,6 +2,7 @@ import 'server-only';
 import { prisma } from './db';
 import { env } from './env';
 import { logger } from './logger';
+import { defaultBrandingText } from './qr/branding';
 
 /**
  * Platform settings live in the database so an admin can change them without a redeploy.
@@ -39,6 +40,9 @@ export interface PlatformSettings {
   lockoutAfterFailedAttempts: number;
   /** 0 = keep scan analytics forever. */
   analyticsRetentionDays: number;
+  /** Credit line under every rendered QR code ("Free QR codes by QR ALTRIX · <host>"). */
+  brandingEnabled: boolean;
+  brandingText: string;
   maxUploadMb: number;
   bulkMaxRows: number;
   rateLimitApiPerMin: number;
@@ -68,6 +72,8 @@ function defaults(): PlatformSettings {
     sessionIdleTimeoutMinutes: 0,
     lockoutAfterFailedAttempts: 10,
     analyticsRetentionDays: env.analyticsRetentionDays,
+    brandingEnabled: true,
+    brandingText: defaultBrandingText(env.appUrl),
     maxUploadMb: env.storage.maxUploadMb,
     bulkMaxRows: env.bulkMaxRows,
     rateLimitApiPerMin: env.rateLimits.apiPerMin,

@@ -23,6 +23,8 @@ import { ConfirmDialog } from '@/components/ui/confirm';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { useDateFormat, DATE, DATE_TIME, TIME } from '@/lib/hooks/use-date-format';
+import { useLiveScans } from '@/lib/hooks/use-live-scans';
+import { LiveIndicator } from '@/components/dashboard/live-indicator';
 
 export interface Breakdown {
   label: string;
@@ -186,8 +188,9 @@ export function AnalyticsView({
   const [codeQuery, setCodeQuery] = React.useState('');
   const firstRender = React.useRef(true);
 
-  const load = React.useCallback(async () => {
-    setLoading(true);
+  // `silent` is the live refresh: no spinner, no error toast every five seconds.
+  const load = React.useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const { from, to } = rangeToDates(range);
       const params = new URLSearchParams({ from, to, timezone });
@@ -197,14 +200,20 @@ export function AnalyticsView({
       const response = await fetch(`/api/v1/stats?${params.toString()}`);
       const payload = (await response.json().catch(() => ({}))) as { ok?: boolean; data?: AnalyticsPayload; error?: string };
       if (!response.ok || !payload.ok || !payload.data) {
-        toast.error(payload.error ?? 'Could not load analytics');
+        if (!silent) toast.error(payload.error ?? 'Could not load analytics');
         return;
       }
       setData(payload.data);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [range, codeId, folderId, timezone]);
+
+  const liveState = useLiveScans({
+    qrCodeId: codeId !== 'all' ? codeId : undefined,
+    folderId: folderId !== 'all' ? folderId : undefined,
+    onChange: () => void load(true),
+  });
 
   React.useEffect(() => {
     if (firstRender.current) {
@@ -326,6 +335,8 @@ export function AnalyticsView({
           </SelectContent>
         </Select>
 
+        <LiveIndicator live={liveState.live} />
+
         <div className="ml-auto flex items-center gap-1.5">
           {canExport ? (
             <>
@@ -355,7 +366,7 @@ export function AnalyticsView({
       ) : null}
 
       {/* ------------------------------------------------------------- tiles */}
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Total scans"
           value={formatNumber(data.totalScans)}
@@ -485,7 +496,7 @@ export function AnalyticsView({
       </Card>
 
       {/* ------------------------------------------------------- breakdowns */}
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card className="p-5">
           <SectionHeader title="Where scans came from" description="Reported by your proxy or CDN." />
           <Tabs defaultValue="countries">
@@ -625,7 +636,7 @@ export function AnalyticsView({
       </Card>
 
       {/* ---------------------------------------------- codes and campaigns */}
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card className="p-5">
           <SectionHeader title="Most scanned codes" />
           {data.topCodes.length === 0 ? (

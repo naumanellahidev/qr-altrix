@@ -12,7 +12,7 @@ const POINTS = [
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid min-h-dvh lg:grid-cols-2">
+    <div className="grid grid-cols-1 min-h-dvh lg:grid-cols-2">
       {/* ------------------------------------------------------------- form side */}
       <div className="flex flex-col px-5 py-6 sm:px-10">
         <div className="flex items-center justify-between">
@@ -21,7 +21,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             <ThemeToggle />
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
+              className="inline-flex min-h-10 items-center gap-1.5 rounded-lg px-2.5 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
             >
               <ArrowLeft className="size-3.5" /> Home
             </Link>

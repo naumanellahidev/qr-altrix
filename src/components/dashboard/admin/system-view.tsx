@@ -94,7 +94,7 @@ export function SystemView({ initial }: { initial: HealthPayload }) {
         </Button>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Database"
           value={health.database.ok ? 'Healthy' : 'Down'}
@@ -141,7 +141,7 @@ export function SystemView({ initial }: { initial: HealthPayload }) {
         </Alert>
       ) : null}
 
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <Card className="p-5">
           <SectionHeader title="Background queue" description="Scan logging, bulk imports, webhooks and housekeeping." />
           {queue?.enabled ? (

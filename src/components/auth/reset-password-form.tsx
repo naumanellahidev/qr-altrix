@@ -89,7 +89,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
           <button
             type="button"
             onClick={() => setShow((value) => !value)}
-            className="absolute right-1 top-1 rounded-lg p-2 text-muted-foreground transition-colors hover:text-foreground"
+            className="absolute right-0.5 top-0.5 inline-flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground"
             aria-label={show ? 'Hide password' : 'Show password'}
           >
             {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}

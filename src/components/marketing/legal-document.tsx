@@ -23,7 +23,7 @@ export function LegalDocument({
     <article className="container max-w-3xl py-12">
       <Link
         href="/"
-        className="mb-6 inline-flex items-center gap-1.5 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
+        className="mb-4 inline-flex min-h-10 items-center gap-1.5 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowLeft className="size-3.5" /> Back to QR ALTRIX
       </Link>
@@ -38,7 +38,7 @@ export function LegalDocument({
 
       <nav className="mb-10 rounded-2xl border border-border bg-surface p-4">
         <p className="mb-2 text-[11.5px] font-semibold uppercase tracking-wide text-muted-foreground">Contents</p>
-        <ol className="grid gap-1 sm:grid-cols-2">
+        <ol className="grid grid-cols-1 gap-1 sm:grid-cols-2">
           {sections.map((section, index) => (
             <li key={section.heading}>
               <a

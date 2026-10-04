@@ -24,6 +24,8 @@ import { ConfirmDialog } from '@/components/ui/confirm';
 import { ScanSafety } from '@/components/qr/scan-safety';
 import { toast } from 'sonner';
 import { useDateFormat, DATE, DATE_TIME, TIME } from '@/lib/hooks/use-date-format';
+import { useLiveScans } from '@/lib/hooks/use-live-scans';
+import { LiveIndicator } from '@/components/dashboard/live-indicator';
 
 export interface CodeDetailProps {
   code: {
@@ -68,6 +70,8 @@ export interface CodeDetailProps {
 export function CodeDetail({ code, permissions, expiry }: CodeDetailProps) {
   const formatDate = useDateFormat();
   const formatDateTime = (value: string | null) => formatDate(value, DATE_TIME);
+  // New scans re-render the server data (counters, first/last scan) without a reload.
+  const liveState = useLiveScans({ qrCodeId: code.id, onChange: () => router.refresh() });
   const router = useRouter();
   const params = useSearchParams();
   const def = getTypeDef(code.type);
@@ -126,7 +130,7 @@ export function CodeDetail({ code, permissions, expiry }: CodeDetailProps) {
   }
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
+    <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
       <div className="min-w-0 space-y-5">
         {code.status === 'ADMIN_DISABLED' ? (
           <Alert tone="error" title="Disabled by a platform administrator">
@@ -222,7 +226,7 @@ export function CodeDetail({ code, permissions, expiry }: CodeDetailProps) {
         {/* ------------------------------------------------------------- facts */}
         <Card className="p-5">
           <SectionHeader title="Details" />
-          <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
+          <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
             {[
               ['Type', `${def?.label ?? code.type} · ${code.kind === 'DYNAMIC' ? 'Dynamic' : 'Static'}`],
               ['Folder', code.folderName ?? 'No folder'],
@@ -233,7 +237,7 @@ export function CodeDetail({ code, permissions, expiry }: CodeDetailProps) {
             ].map(([label, value]) => (
               <div key={label}>
                 <dt className="text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground">{label}</dt>
-                <dd className="text-[13.5px]">{value}</dd>
+                <dd className="min-w-0 break-words text-[13.5px]">{value}</dd>
               </div>
             ))}
           </dl>
@@ -373,6 +377,10 @@ export function CodeDetail({ code, permissions, expiry }: CodeDetailProps) {
             className="w-full"
           />
 
+          <div className="flex items-center justify-between">
+            <p className="text-[12px] font-medium text-muted-foreground">Scans</p>
+            <LiveIndicator live={liveState.live} />
+          </div>
           <div className="grid grid-cols-2 gap-2 text-center">
             <div className="rounded-xl border border-border p-2.5">
               <p className="text-[18px] font-semibold tabular-nums">{compactNumber(code.scanCount)}</p>

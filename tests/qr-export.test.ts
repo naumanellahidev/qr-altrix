@@ -44,9 +44,12 @@ describe('exportQr raster sizes', () => {
         design: { ...design, logoUrl: await photoLogo(), logoShape: 'rounded' } as never,
         format,
         size,
+        // Explicit, so the test needs no database to look up the platform setting.
+        branding: 'Free QR codes by QR ALTRIX · qr.altrixcore.com',
       });
       const meta = await sharp(result.body).metadata();
       expect(meta.width).toBe(size);
+      expect(meta.height!).toBeGreaterThan(size); // the credit band sits under the code
       expect(meta.format).toBe(format === 'jpeg' ? 'jpeg' : format);
     }, 120_000);
   }

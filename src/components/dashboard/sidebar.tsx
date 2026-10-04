@@ -37,7 +37,7 @@ export function Sidebar({ role, isPlatformAdmin, open, onClose, codeCount, expir
         <button
           type="button"
           onClick={onClose}
-          className="rounded-lg p-1.5 text-muted-foreground hover:bg-surface-muted"
+          className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-surface-muted"
           aria-label="Close menu"
         >
           <X className="size-4" />

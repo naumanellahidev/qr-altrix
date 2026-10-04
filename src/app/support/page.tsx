@@ -58,7 +58,7 @@ export default async function PublicSupportPage() {
           description="Answers to the questions people actually ask, and how to reach a person."
         />
 
-        <div className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.4fr_1fr]">
           <Card className="p-5">
             <SectionHeader title="Frequently asked" />
             <Accordion type="single" collapsible>

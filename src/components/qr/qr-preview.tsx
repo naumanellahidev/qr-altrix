@@ -5,6 +5,7 @@ import { QrCode, TriangleAlert } from 'lucide-react';
 import { renderQr } from '@/lib/qr/render';
 import type { QrDesign } from '@/lib/qr/types';
 import { cn } from '@/lib/utils';
+import { useBranding } from '@/components/qr/branding-context';
 
 export interface QrPreviewProps {
   /** The exact string that will be encoded. */
@@ -31,15 +32,19 @@ export function QrPreview({
   placeholder = 'Your QR code appears here',
   onRender,
 }: QrPreviewProps) {
+  // Bare previews (thumbnails, the 2FA code) carry no credit line; full previews show the
+  // same line the download will.
+  const contextBranding = useBranding();
+  const branding = bare ? null : contextBranding;
   const result = React.useMemo(() => {
     if (!data || data.trim() === '') return { kind: 'empty' as const };
     try {
-      const rendered = renderQr(data, design, { size, bare, idPrefix: 'qap' });
+      const rendered = renderQr(data, design, { size, bare, idPrefix: 'qap', branding });
       return { kind: 'ok' as const, rendered };
     } catch (error) {
       return { kind: 'error' as const, message: (error as Error).message };
     }
-  }, [data, design, size, bare]);
+  }, [data, design, size, bare, branding]);
 
   React.useEffect(() => {
     if (result.kind === 'ok') onRender?.({ moduleCount: result.rendered.moduleCount });

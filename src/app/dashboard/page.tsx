@@ -86,7 +86,7 @@ export default async function DashboardHome() {
         }
       />
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="QR codes"
           value={formatNumber(totalCodes, auth.user.thousandsSep)}
@@ -119,7 +119,7 @@ export default async function DashboardHome() {
       {/* ------------------------------------------------------- quick actions */}
       <section className="mt-8">
         <SectionHeader title="Start something new" description="The four people reach for most often." />
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {QUICK_ACTIONS.map((action) => (
             <Link
               key={action.href}
@@ -137,7 +137,7 @@ export default async function DashboardHome() {
       </section>
 
       {/* -------------------------------------------------------- recent codes */}
-      <section className="mt-8 grid gap-5 lg:grid-cols-[1.4fr_1fr]">
+      <section className="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-[1.4fr_1fr]">
         <div>
           <SectionHeader
             title="Recently created"

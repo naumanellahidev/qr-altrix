@@ -3,6 +3,9 @@ import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
 import { getSettings } from '@/lib/settings';
 import { DashboardShell } from '@/components/dashboard/shell';
+import { BrandingProvider } from '@/components/qr/branding-context';
+import { brandingFromSettings } from '@/lib/qr/branding';
+import { env } from '@/lib/env';
 
 export const metadata: Metadata = {
   title: { default: 'Dashboard', template: '%s · QR ALTRIX' },
@@ -38,7 +41,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       maintenanceNote={settings?.maintenanceNote || null}
       emailVerificationRequired={Boolean(settings?.requireEmailVerification)}
     >
-      {children}
+      <BrandingProvider value={brandingFromSettings(settings, env.appUrl)}>{children}</BrandingProvider>
     </DashboardShell>
   );
 }

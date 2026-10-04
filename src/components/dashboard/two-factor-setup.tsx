@@ -101,7 +101,7 @@ export function TwoFactorSetup({ enabled, hasPassword }: { enabled: boolean; has
           <ShieldCheck /> Set up two-factor
         </Button>
       ) : stage === 'scan' ? (
-        <div className="grid gap-5 sm:grid-cols-[200px_1fr]">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-[200px_1fr]">
           <div className="rounded-xl border border-border bg-white p-3">
             <div
               className="[&>svg]:h-auto [&>svg]:w-full"

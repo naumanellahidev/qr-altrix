@@ -5,6 +5,8 @@ import { DEFAULT_DESIGN, type ExportFormat, type QrDesign } from './types';
 import { getLogoPreset, logoPresetDataUri } from './presets';
 import { readFileBuffer } from '../storage';
 import { logger } from '../logger';
+import { env } from '../env';
+import { brandingFromSettings, cleanBrandingText, defaultBrandingText } from './branding';
 
 export interface ExportRequest {
   data: string;
@@ -13,6 +15,18 @@ export interface ExportRequest {
   /** Pixel width for raster formats, or point width for PDF. */
   size?: number;
   filenameBase?: string;
+  /** Credit line under the code. Omitted: follow the platform setting. Null: none. */
+  branding?: string | null;
+}
+
+/** The platform's credit line; a settings outage still prints the default, not nothing. */
+async function platformBranding(): Promise<string | null> {
+  try {
+    const { getSettings } = await import('../settings');
+    return brandingFromSettings(await getSettings(), env.appUrl);
+  } catch {
+    return defaultBrandingText(env.appUrl);
+  }
 }
 
 export interface ExportResult {
@@ -88,7 +102,7 @@ export async function resolveLogoDataUri(design: Partial<QrDesign>): Promise<str
 }
 
 /** Minimal EPS writer so print shops with legacy workflows are still served. */
-function renderEps(data: string, design: QrDesign): Buffer {
+function renderEps(data: string, design: QrDesign, branding: string | null = null): Buffer {
   const matrix = buildMatrix(data, design.errorCorrection);
   const quiet = Math.max(0, Math.min(12, Math.round(design.margin)));
   const units = matrix.size + quiet * 2;
@@ -113,18 +127,43 @@ function renderEps(data: string, design: QrDesign): Buffer {
   const fg = design.invert ? design.bgColor : design.fgColor;
   const bg = design.invert ? design.fgColor : design.bgColor;
 
+  // Credit line in a band under the code, sized like the SVG renderer's.
+  const credit = cleanBrandingText(branding);
+  const fontPts = credit ? Math.min(2.1, Math.max(1.15, (units * 0.9) / (credit.length * 0.56))) * scale : 0;
+  const band = credit ? Math.round(fontPts * 2.2) : 0;
+  const height = side + band;
+  // PostScript has no opacity: blend the ink a quarter of the way to the background.
+  const mix = (a: string, b: string) =>
+    hexToPs(a)
+      .split(' ')
+      .map((value, index) => (Number(value) * 0.75 + Number(hexToPs(b).split(' ')[index]) * 0.25).toFixed(4))
+      .join(' ');
+  // Helvetica's standard encoding has the middle dot at octal 267; anything else outside
+  // ASCII is replaced so the file stays valid Latin-1 PostScript.
+  const psText = (credit ?? '')
+    .replace(/[\\()]/g, (c) => `\\${c}`)
+    .replace(/·/g, '\\267')
+    .replace(/[^\x20-\x7e]/g, '-');
+
   const lines: string[] = [
     '%!PS-Adobe-3.0 EPSF-3.0',
     '%%Creator: QR ALTRIX',
     '%%Title: QR ALTRIX code',
-    `%%BoundingBox: 0 0 ${side} ${side}`,
+    `%%BoundingBox: 0 0 ${side} ${height}`,
     '%%EndComments',
     '/m { moveto } bind def',
     '/rf { 4 2 roll moveto 1 index 0 rlineto 0 exch rlineto neg 0 rlineto closepath fill } bind def',
   ];
 
   if (!design.transparentBg) {
-    lines.push(`${hexToPs(bg)} setrgbcolor`, `0 0 ${side} ${side} rf`);
+    lines.push(`${hexToPs(bg)} setrgbcolor`, `0 0 ${side} ${height} rf`);
+  }
+  if (credit) {
+    lines.push(
+      `${design.transparentBg ? hexToPs('#475569') : mix(fg, bg)} setrgbcolor`,
+      `/Helvetica-Bold findfont ${fontPts.toFixed(2)} scalefont setfont`,
+      `(${psText}) dup stringwidth pop 2 div ${side / 2} exch sub ${(band / 2 - fontPts * 0.36).toFixed(2)} moveto show`,
+    );
   }
   lines.push(`${hexToPs(fg)} setrgbcolor`);
 
@@ -137,7 +176,7 @@ function renderEps(data: string, design: QrDesign): Buffer {
       if (!matrix.get(x, y)) continue;
       const px = (x + quiet) * scale;
       // EPS origin is bottom-left; the matrix is top-left based.
-      const py = side - (y + quiet + 1) * scale;
+      const py = height - (y + quiet + 1) * scale;
       if (dots && !inEye(x, y)) {
         const r = scale * 0.44;
         lines.push(`newpath ${(px + scale / 2).toFixed(2)} ${(py + scale / 2).toFixed(2)} ${r.toFixed(2)} 0 360 arc fill`);
@@ -195,7 +234,8 @@ export async function exportQr(request: ExportRequest): Promise<ExportResult> {
   const design: QrDesign = { ...DEFAULT_DESIGN, ...request.design };
   const size = Math.max(64, Math.min(4096, request.size ?? 1024));
   const logoDataUri = await resolveLogoDataUri(design);
-  const rendered = renderQr(request.data, design, { size, logoDataUri, idPrefix: 'qa' });
+  const branding = request.branding !== undefined ? cleanBrandingText(request.branding) : await platformBranding();
+  const rendered = renderQr(request.data, design, { size, logoDataUri, idPrefix: 'qa', branding });
   const base = request.filenameBase ?? 'qr-altrix';
   const ratio = rendered.units.height / rendered.units.width;
 
@@ -209,7 +249,7 @@ export async function exportQr(request: ExportRequest): Promise<ExportResult> {
 
     case 'eps':
       return {
-        body: renderEps(request.data, design),
+        body: renderEps(request.data, design, branding),
         contentType: CONTENT_TYPES.eps,
         filename: safeFilename(base, 'eps'),
       };

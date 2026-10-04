@@ -9,7 +9,7 @@ export default function CodesLoading() {
         <Skeleton className="h-4 w-full max-w-lg" />
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-[232px_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[232px_minmax(0,1fr)]">
         <aside className="hidden lg:block">
           <Card className="space-y-2 p-3">
             <Skeleton className="h-9 w-full" />

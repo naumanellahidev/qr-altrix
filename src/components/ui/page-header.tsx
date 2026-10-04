@@ -32,7 +32,7 @@ export function PageHeader({
               <li key={`${crumb.label}-${index}`} className="flex items-center gap-1">
                 {index > 0 ? <ChevronRight className="size-3.5 opacity-60" aria-hidden /> : null}
                 {crumb.href ? (
-                  <Link href={crumb.href} className="rounded transition-colors hover:text-foreground">
+                  <Link href={crumb.href} className="-my-2 inline-block rounded py-2 transition-colors hover:text-foreground">
                     {crumb.label}
                   </Link>
                 ) : (

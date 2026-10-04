@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { env } from '@/lib/env';
 import { getSettings } from '@/lib/settings';
 import { getAuthContext } from '@/lib/auth';
+import { BrandingProvider } from '@/components/qr/branding-context';
+import { brandingFromSettings } from '@/lib/qr/branding';
 
 export const dynamic = 'force-dynamic';
 
@@ -58,13 +60,15 @@ export default async function HomePage() {
               </div>
             </div>
 
-            <HeroGenerator
-              googleEnabled={env.google.enabled}
-              allowGuestStaticDownload={settings?.allowGuestStaticDownload ?? env.allowGuestStaticDownload}
-              shortUrlBase={env.shortUrlBase}
-              signedIn={Boolean(auth)}
-              expiryEnabled={expiryEnabled}
-            />
+            <BrandingProvider value={brandingFromSettings(settings, env.appUrl)}>
+              <HeroGenerator
+                googleEnabled={env.google.enabled}
+                allowGuestStaticDownload={settings?.allowGuestStaticDownload ?? env.allowGuestStaticDownload}
+                shortUrlBase={env.shortUrlBase}
+                signedIn={Boolean(auth)}
+                expiryEnabled={expiryEnabled}
+              />
+            </BrandingProvider>
           </div>
         </section>
 
@@ -81,7 +85,7 @@ export default async function HomePage() {
                 Six steps, start to print
               </h2>
             </div>
-            <ol className="mx-auto mt-10 grid max-w-5xl gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <ol className="mx-auto mt-10 grid grid-cols-1 max-w-5xl gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {[
                 { title: 'Choose a type', body: 'Website, menu, vCard, PDF, gallery, coupon — 31 to pick from.' },
                 { title: 'Add your content', body: 'Type a link or upload a file. Validation catches mistakes as you go.' },

@@ -214,6 +214,20 @@
 }
 
 @layer utilities {
+  /* Invisible 40 px touch area around a visually small control (info icons, radios). */
+  .hit-area {
+    position: relative;
+  }
+  .hit-area::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, 40px);
+    height: max(100%, 40px);
+    transform: translate(-50%, -50%);
+  }
+
   .text-gradient {
     @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
   }

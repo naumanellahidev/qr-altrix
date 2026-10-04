@@ -35,7 +35,7 @@ function InfoHint({ children, className }: { children: React.ReactNode; classNam
         <button
           type="button"
           className={cn(
-            'inline-flex size-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground',
+            'hit-area inline-flex size-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground',
             className,
           )}
           aria-label="More information"

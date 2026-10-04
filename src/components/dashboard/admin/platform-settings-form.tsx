@@ -16,6 +16,10 @@ import { SwitchRow } from '@/components/ui/switch';
 import { Alert } from '@/components/ui/feedback';
 import { SectionHeader } from '@/components/ui/page-header';
 import { toast } from 'sonner';
+import { QrPreview } from '@/components/qr/qr-preview';
+import { BrandingProvider } from '@/components/qr/branding-context';
+import { cleanBrandingText } from '@/lib/qr/branding';
+import { DEFAULT_DESIGN } from '@/lib/qr/types';
 
 export function PlatformSettingsForm({ initial }: { initial: PlatformSettings }) {
   const router = useRouter();
@@ -74,6 +78,36 @@ export function PlatformSettingsForm({ initial }: { initial: PlatformSettings })
       )}
 
       <Card className="p-5">
+        <SectionHeader
+          title="Credit line on QR codes"
+          description="A short line printed under every code this install renders — previews and every download format. It sits outside the code's quiet zone, so it never affects scanning."
+        />
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-[minmax(0,1fr)_200px] md:items-start">
+          <div className="space-y-4">
+            <SwitchRow
+              label="Print the credit line"
+              description="Every printed code becomes a small pointer back to this site."
+              checked={form.brandingEnabled}
+              onCheckedChange={(checked) => patch({ brandingEnabled: checked })}
+            />
+            <Field label="Text" help={`${form.brandingText.length}/60 characters. Keep it short: it shrinks to fit narrow codes.`}>
+              <Input
+                value={form.brandingText}
+                maxLength={60}
+                disabled={!form.brandingEnabled}
+                onChange={(event) => patch({ brandingText: event.target.value })}
+              />
+            </Field>
+          </div>
+          <div className="mx-auto w-full max-w-[200px]">
+            <BrandingProvider value={form.brandingEnabled ? cleanBrandingText(form.brandingText) : null}>
+              <QrPreview data="https://qr.altrixcore.com/q/preview" design={DEFAULT_DESIGN} size={200} />
+            </BrandingProvider>
+          </div>
+        </div>
+      </Card>
+
+      <Card className="p-5">
         <SectionHeader title="Sign-ups and access" />
         <div className="space-y-4">
           <SwitchRow
@@ -123,7 +157,7 @@ export function PlatformSettingsForm({ initial }: { initial: PlatformSettings })
                 the world will stop working until the owner extends the code. Set generous limits, and tell your users.
               </Alert>
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field
                   label="Expire this many days after creation"
                   help="0 = never expire by age. For example 365 gives every code a one-year life."
@@ -195,7 +229,7 @@ export function PlatformSettingsForm({ initial }: { initial: PlatformSettings })
             onCheckedChange={(checked) => patch({ requireTwoFactorForAdmins: checked })}
           />
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field
               label="Sign out after inactivity (minutes)"
               help="0 = never. 60 is a reasonable choice for a shared computer."
@@ -234,7 +268,7 @@ export function PlatformSettingsForm({ initial }: { initial: PlatformSettings })
 
       <Card className="p-5">
         <SectionHeader title="Privacy and retention" />
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field
             label="Visitor IP handling"
             help="Hashed lets unique visitors be counted without identifying anyone. Never disables that count."
@@ -270,7 +304,7 @@ export function PlatformSettingsForm({ initial }: { initial: PlatformSettings })
 
       <Card className="p-5">
         <SectionHeader title="Abuse protection" description="Limits are per minute, per key or per IP address." />
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Field label="API requests / minute">
             <Input
               type="number"
