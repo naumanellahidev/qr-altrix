@@ -34,8 +34,29 @@ const Generator = React.lazy(() =>
 
 const WAKE_EVENTS = ['pointerdown', 'pointermove', 'touchstart', 'keydown', 'focusin', 'scroll', 'wheel'] as const;
 
+/**
+ * Text typed into the generator before it hydrates. React resets a controlled input to
+ * its state when it takes over, so the keystrokes are recorded here by field id and
+ * handed to the generator, which applies them once it is live.
+ */
+const early: Record<string, string> = {};
+
+function recordEarlyInput(event: Event) {
+  const target = event.target;
+  if (!(target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement)) return;
+  if (target.id.startsWith('content-') || target.id === 'draft-name') early[target.id] = target.value;
+}
+
+function takeEarlyInput(): Record<string, string> {
+  const values = { ...early };
+  for (const key of Object.keys(early)) delete early[key];
+  window.removeEventListener('input', recordEarlyInput, true);
+  return values;
+}
+
 export function LazyHeroGenerator(props: HeroGeneratorProps) {
   React.useEffect(() => {
+    window.addEventListener('input', recordEarlyInput, true);
     if (!release) return;
     const wake = () => {
       release?.();
@@ -53,7 +74,7 @@ export function LazyHeroGenerator(props: HeroGeneratorProps) {
 
   return (
     <React.Suspense fallback={null}>
-      <Generator {...props} />
+      <Generator {...props} earlyInput={takeEarlyInput} />
     </React.Suspense>
   );
 }

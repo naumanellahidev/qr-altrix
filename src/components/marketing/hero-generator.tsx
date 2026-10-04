@@ -38,6 +38,8 @@ import {
 } from '@/components/qr/use-draft';
 
 export interface HeroGeneratorProps {
+  /** Values typed before hydration, keyed by input id (see hero-generator-lazy). */
+  earlyInput?: () => Record<string, string>;
   googleEnabled: boolean;
   allowGuestStaticDownload: boolean;
   shortUrlBase: string;
@@ -57,9 +59,22 @@ export function HeroGenerator({
   shortUrlBase,
   signedIn,
   expiryEnabled = false,
+  earlyInput,
 }: HeroGeneratorProps) {
   const router = useRouter();
   const { draft, setType, patchContent, patchDesign, setName } = useQrDraft('URL');
+
+  // Keep whatever the visitor typed before the generator came alive. Runs after the
+  // draft hook restores a saved draft, so fresh typing wins over an old draft.
+  React.useEffect(() => {
+    const values = earlyInput?.() ?? {};
+    for (const [id, value] of Object.entries(values)) {
+      if (id === 'draft-name') setName(value);
+      else patchContent({ [id.slice('content-'.length)]: value });
+    }
+    // Once, on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [authOpen, setAuthOpen] = React.useState(false);
   const [designOpen, setDesignOpen] = React.useState(false);
 
