@@ -648,7 +648,7 @@ export function AnalyticsView({
                   <span className="w-5 text-right text-[12px] tabular-nums text-muted-foreground">{index + 1}</span>
                   <a
                     href={`/dashboard/codes/${code.id}`}
-                    className="min-w-0 flex-1 truncate text-[13.5px] font-medium hover:text-primary"
+                    className="-my-2 min-w-0 flex-1 truncate py-2 text-[13.5px] font-medium hover:text-primary"
                   >
                     {code.name}
                   </a>
