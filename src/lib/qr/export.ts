@@ -176,6 +176,21 @@ async function svgToPdf(svg: string, widthPt: number, heightPt: number): Promise
   });
 }
 
+/**
+ * The SVG is rasterised larger than the requested size and scaled down, which keeps
+ * curved modules and logos crisp. A fixed density of 384 dpi (5.3x) did that, but at
+ * the "Huge · 4096 px" size it asked libvips for a 21,845 px square — 477 million
+ * pixels, past sharp's 268M input limit — so every 4096 px PNG, JPEG and WebP failed.
+ * Supersampling is now capped so the intermediate raster never exceeds 8192 px a side
+ * (67M pixels, ~270 MB at most), which is still 2x at the largest size.
+ */
+export const MAX_RASTER_SIDE = 8192;
+
+export function rasterDensity(size: number): number {
+  const scale = Math.min(384 / 72, MAX_RASTER_SIDE / Math.max(1, size));
+  return Math.max(72, Math.floor(72 * scale));
+}
+
 export async function exportQr(request: ExportRequest): Promise<ExportResult> {
   const design: QrDesign = { ...DEFAULT_DESIGN, ...request.design };
   const size = Math.max(64, Math.min(4096, request.size ?? 1024));
@@ -209,8 +224,8 @@ export async function exportQr(request: ExportRequest): Promise<ExportResult> {
       } catch (error) {
         logger.warn('vector pdf failed, embedding raster instead', { error: (error as Error).message });
         const sharp = (await import('sharp')).default;
-        const png = await sharp(Buffer.from(rendered.svg), { density: 300 })
-          .resize({ width: size * 2 })
+        const png = await sharp(Buffer.from(rendered.svg), { density: rasterDensity(size) })
+          .resize({ width: Math.min(size * 2, MAX_RASTER_SIDE) })
           .png()
           .toBuffer();
         const { default: PDFDocument } = await import('pdfkit');
@@ -229,7 +244,7 @@ export async function exportQr(request: ExportRequest): Promise<ExportResult> {
 
     default: {
       const sharp = (await import('sharp')).default;
-      let pipeline = sharp(Buffer.from(rendered.svg), { density: 384 }).resize({
+      let pipeline = sharp(Buffer.from(rendered.svg), { density: rasterDensity(size) }).resize({
         width: size,
         height: Math.round(size * ratio),
         fit: 'contain',
