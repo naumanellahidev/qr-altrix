@@ -469,7 +469,7 @@ export function CodesTable({
                           <div className="flex items-center gap-1.5">
                             <Link
                               href={`/dashboard/codes/${row.id}`}
-                              className="truncate text-[13.5px] font-medium hover:text-primary"
+                              className="-my-1.5 truncate py-1.5 text-[13.5px] font-medium hover:text-primary"
                             >
                               {row.name}
                             </Link>
@@ -484,7 +484,7 @@ export function CodesTable({
                                 href={row.shortLink}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="truncate text-[11.5px] text-muted-foreground hover:text-primary"
+                                className="-my-1.5 truncate py-1.5 text-[11.5px] text-muted-foreground hover:text-primary"
                               >
                                 {row.shortLink.replace(/^https?:\/\//, '')}
                               </a>

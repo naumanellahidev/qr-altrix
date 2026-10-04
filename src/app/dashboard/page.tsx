@@ -178,7 +178,7 @@ export default async function DashboardHome() {
                       <div className="min-w-0 flex-1">
                         <Link
                           href={`/dashboard/codes/${qr.id}`}
-                          className="block truncate text-[13.5px] font-medium hover:text-primary"
+                          className="-my-2 block truncate py-2 text-[13.5px] font-medium hover:text-primary"
                         >
                           {qr.name}
                         </Link>
