@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { ArrowRight, Infinity as InfinityIcon, Star } from 'lucide-react';
 import { SiteHeader } from '@/components/marketing/site-header';
 import { SiteFooter } from '@/components/marketing/site-footer';
-import { HeroGenerator } from '@/components/marketing/hero-generator';
+import { LazyHeroGenerator } from '@/components/marketing/hero-generator-lazy';
 import { CtaBand, Features, TrustBar, TypesShowcase, UseCases } from '@/components/marketing/sections';
 import { Faq } from '@/components/marketing/faq';
 import { Badge } from '@/components/ui/badge';
@@ -79,7 +79,7 @@ export default async function HomePage() {
             </div>
 
             <BrandingProvider value={brandingFromSettings(settings, env.appUrl)}>
-              <HeroGenerator
+              <LazyHeroGenerator
                 googleEnabled={env.google.enabled}
                 allowGuestStaticDownload={settings?.allowGuestStaticDownload ?? env.allowGuestStaticDownload}
                 shortUrlBase={env.shortUrlBase}

@@ -69,6 +69,10 @@ fi
     sleep 5
   done
 
+  # Warm the homepage once: the lazily hydrated generator resolves its module on the
+  # first server render, so every visitor after this one gets it inline in the HTML.
+  curl -fsS --max-time 30 -o /dev/null "${HEALTH_URL%/api/health}/" || true
+
   # Tell IndexNow engines (Bing, Yandex…) about new or changed public pages. Needs
   # INDEXNOW_KEY in the .env; skips quietly without it and never fails a deploy.
   $COMPOSE exec -T app node scripts/indexnow.mjs || true
