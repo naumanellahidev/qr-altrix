@@ -5,6 +5,12 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { env } from '@/lib/env';
 
+function siteToken(value: string | undefined): string | undefined {
+  const raw = value?.trim();
+  if (!raw) return undefined;
+  return raw.match(/content="([^"]+)"/)?.[1] ?? raw;
+}
+
 export const metadata: Metadata = {
   metadataBase: new URL(env.appUrl),
   title: {
@@ -22,6 +28,15 @@ export const metadata: Metadata = {
     'self-hosted QR platform',
   ],
   applicationName: 'QR ALTRIX',
+  // Search engine ownership tags, set in the server's .env (no rebuild needed — the
+  // homepage renders per request). Each accepts the bare token or the whole <meta> tag.
+  verification: {
+    google: siteToken(process.env.GOOGLE_SITE_VERIFICATION),
+    other: {
+      ...(siteToken(process.env.BING_SITE_VERIFICATION) ? { 'msvalidate.01': siteToken(process.env.BING_SITE_VERIFICATION)! } : {}),
+      ...(siteToken(process.env.YANDEX_SITE_VERIFICATION) ? { 'yandex-verification': siteToken(process.env.YANDEX_SITE_VERIFICATION)! } : {}),
+    },
+  },
   authors: [{ name: 'QR ALTRIX' }],
   openGraph: {
     type: 'website',
