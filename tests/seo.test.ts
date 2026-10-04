@@ -46,7 +46,11 @@ describe('sitemap', () => {
   it('gives each page a canonical that matches its sitemap URL', () => {
     for (const route of PUBLIC_ROUTES) {
       const source = fs.readFileSync(pageFileFor(route.path)!, 'utf8');
-      expect(source, `${route.path} should declare canonical('${route.path}')`).toContain(`canonical('${route.path}')`);
+      const declares =
+        source.includes(`canonical('${route.path}')`) ||
+        source.includes(`path: '${route.path}'`) ||
+        (route.path === '/' && source.includes('homeMeta('));
+      expect(declares, `${route.path} should set its canonical via pageMeta/canonical`).toBe(true);
     }
   });
 
@@ -121,6 +125,7 @@ describe('llms.txt', () => {
     baseUrl: 'https://qr.altrixcore.com',
     expiryEnabled: false,
     brandingEnabled: true,
+    guestStaticDownload: true,
     bulkMaxRows: 20000,
     apiRateLimitPerMin: 120,
     maxUploadMb: 15,
@@ -149,5 +154,30 @@ describe('llms.txt', () => {
     const { QR_TYPES } = await import('@/lib/qr/catalog');
     const text = buildLlmsFullTxt(facts);
     for (const type of QR_TYPES) expect(text).toContain(`- ${type.label} (`);
+  });
+});
+
+describe('homepage FAQ and structured data', () => {
+  it('only promises sign-up-free downloads when guests may download', async () => {
+    const { homeFaqs } = await import('@/lib/seo/faq');
+    const { buildLlmsTxt } = await import('@/lib/seo/llms');
+    const closed = homeFaqs({ expiryEnabled: false, guestStaticDownload: false });
+    expect(closed.find((f) => f.q.startsWith('Do I need an account'))!.a).toMatch(/needed to download/);
+    const facts = { baseUrl: 'https://x.test', expiryEnabled: false, brandingEnabled: true, guestStaticDownload: false, bulkMaxRows: 1, apiRateLimitPerMin: 1, maxUploadMb: 1 };
+    expect(buildLlmsTxt(facts)).not.toMatch(/no sign-up/i);
+  });
+
+  it('builds valid FAQPage and WebApplication JSON-LD from the same items the page shows', async () => {
+    const { homeFaqs } = await import('@/lib/seo/faq');
+    const { applicationSchema, faqSchema, graph } = await import('@/lib/seo/schema');
+    const items = homeFaqs({ expiryEnabled: false, guestStaticDownload: true });
+    const data = JSON.parse(JSON.stringify(graph(faqSchema('https://x.test', items), applicationSchema('https://x.test', { expiryEnabled: false }))));
+    expect(data['@context']).toBe('https://schema.org');
+    const faq = data['@graph'][0];
+    expect(faq.mainEntity).toHaveLength(items.length);
+    expect(faq.mainEntity[0].acceptedAnswer.text).toBe(items[0].a);
+    const app = data['@graph'][1];
+    expect(app.offers.price).toBe('0');
+    expect(app.aggregateRating).toBeUndefined(); // never invent ratings
   });
 });

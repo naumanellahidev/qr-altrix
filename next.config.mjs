@@ -3,6 +3,11 @@ const nextConfig = {
   output: 'standalone',
   reactStrictMode: true,
   poweredByHeader: false,
+  // Render <title>, description, canonical and Open Graph tags in <head> for every
+  // visitor. By default Next streams them into <body> for user agents outside its bot
+  // list — fine for Googlebot, but Bing's and AI crawlers' parsers, social card fetchers
+  // and Lighthouse then see a page with no description.
+  htmlLimitedBots: /.*/,
   eslint: { ignoreDuringBuilds: true },
   serverExternalPackages: ['sharp', 'pdfkit', 'bullmq', 'ioredis', '@prisma/client'],
   images: {

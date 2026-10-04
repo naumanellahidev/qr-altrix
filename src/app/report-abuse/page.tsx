@@ -6,14 +6,17 @@ import { SiteFooter } from '@/components/marketing/site-footer';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AbuseReportForm } from '@/components/marketing/abuse-report-form';
-import { canonical } from '@/lib/seo/routes';
+import { pageMeta } from '@/lib/seo/meta';
+import { JsonLd } from '@/components/seo/json-ld';
+import { breadcrumbSchema, graph } from '@/lib/seo/schema';
+import { env } from '@/lib/env';
 
-export const metadata: Metadata = {
-  alternates: canonical('/report-abuse'),
-  title: 'Report a QR code',
-  description: 'Report a QR code that leads somewhere harmful. A human reviews every report.',
-  robots: { index: true, follow: true },
-};
+export const metadata: Metadata = pageMeta({
+  path: '/report-abuse',
+  title: 'Report a Harmful QR Code',
+  description:
+    'Found a QR code that leads to phishing, malware or a scam? Report it here. A person reviews every report and can disable the code for everyone.',
+});
 
 export const dynamic = 'force-dynamic';
 
@@ -62,6 +65,7 @@ export default async function ReportAbusePage({ searchParams }: { searchParams: 
       </main>
 
       <SiteFooter />
+      <JsonLd data={graph(breadcrumbSchema(env.appUrl.replace(/\/+$/, ''), [{ name: 'Report a QR code', path: '/report-abuse' }]))} />
     </div>
   );
 }

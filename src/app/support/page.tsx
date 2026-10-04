@@ -9,13 +9,16 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PageHeader, SectionHeader } from '@/components/ui/page-header';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/misc';
-import { canonical } from '@/lib/seo/routes';
+import { pageMeta } from '@/lib/seo/meta';
+import { JsonLd } from '@/components/seo/json-ld';
+import { breadcrumbSchema, graph } from '@/lib/seo/schema';
 
-export const metadata: Metadata = {
-  alternates: canonical('/support'),
-  title: 'Contact & support',
-  description: 'Help with QR ALTRIX: troubleshooting a code, custom domains, analytics and contacting a human.',
-};
+export const metadata: Metadata = pageMeta({
+  path: '/support',
+  title: 'QR Code Help & Support',
+  description:
+    'Help with QR ALTRIX: fix a code that will not scan, set up a custom domain, read your scan analytics, or reach a person. Answers to common questions.',
+});
 
 export const dynamic = 'force-dynamic';
 
@@ -124,6 +127,7 @@ export default async function PublicSupportPage() {
       </main>
 
       <SiteFooter />
+      <JsonLd data={graph(breadcrumbSchema(env.appUrl.replace(/\/+$/, ''), [{ name: 'Help & support', path: '/support' }]))} />
     </div>
   );
 }

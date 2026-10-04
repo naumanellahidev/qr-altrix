@@ -69,6 +69,10 @@ fi
     sleep 5
   done
 
+  # Tell IndexNow engines (Bing, Yandex…) about new or changed public pages. Needs
+  # INDEXNOW_KEY in the .env; skips quietly without it and never fails a deploy.
+  $COMPOSE exec -T app node scripts/indexnow.mjs || true
+
   echo "$NEW" > "$BASE/deployed_sha"
   docker image prune -f --filter 'until=168h' >/dev/null 2>&1 || true
 

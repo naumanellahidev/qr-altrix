@@ -11,6 +11,7 @@ export async function llmsFacts(): Promise<LlmsFacts> {
     baseUrl: env.appUrl.replace(/\/+$/, ''),
     expiryEnabled: Boolean(settings?.expiryEnabled),
     brandingEnabled: brandingFromSettings(settings, env.appUrl) !== null,
+    guestStaticDownload: settings?.allowGuestStaticDownload ?? env.allowGuestStaticDownload,
     bulkMaxRows: settings?.bulkMaxRows ?? env.bulkMaxRows,
     apiRateLimitPerMin: settings?.rateLimitApiPerMin ?? env.rateLimits.apiPerMin,
     maxUploadMb: settings?.maxUploadMb ?? env.storage.maxUploadMb,

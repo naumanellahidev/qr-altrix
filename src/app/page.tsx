@@ -13,10 +13,17 @@ import { getSettings } from '@/lib/settings';
 import { getAuthContext } from '@/lib/auth';
 import { BrandingProvider } from '@/components/qr/branding-context';
 import { brandingFromSettings } from '@/lib/qr/branding';
-import { canonical } from '@/lib/seo/routes';
+import { homeMeta } from '@/lib/seo/meta';
+import { homeFaqs } from '@/lib/seo/faq';
+import { applicationSchema, faqSchema, graph, organizationSchema, websiteSchema } from '@/lib/seo/schema';
+import { JsonLd } from '@/components/seo/json-ld';
 
-// The root layout supplies title and description; this page adds its canonical URL.
-export const metadata: Metadata = { alternates: canonical('/') };
+// Title and description follow the live settings: with an expiry policy switched on, the
+// page must not promise codes that never expire.
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSettings().catch(() => null);
+  return homeMeta(Boolean(settings?.expiryEnabled), settings?.allowGuestStaticDownload ?? env.allowGuestStaticDownload);
+}
 
 export const dynamic = 'force-dynamic';
 
@@ -29,6 +36,9 @@ export default async function HomePage() {
 
   // The hero copy must describe this install: an operator can switch expiry on.
   const expiryEnabled = Boolean(settings?.expiryEnabled);
+  const guestStaticDownload = settings?.allowGuestStaticDownload ?? env.allowGuestStaticDownload;
+  const faqs = homeFaqs({ expiryEnabled, guestStaticDownload });
+  const base = env.appUrl.replace(/\/+$/, '');
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -44,7 +54,10 @@ export default async function HomePage() {
                 {expiryEnabled ? 'Free QR codes with full analytics' : 'Dynamic QR codes that never expire'}
               </Badge>
               <h1 className="font-display text-[32px] font-bold leading-[1.1] tracking-[-0.035em] sm:text-[46px]">
-                QR codes that look designed
+                <span className="mb-3 block text-[13px] font-semibold uppercase tracking-[0.14em] text-primary-soft-foreground sm:text-[14px]">
+                  Free QR code generator
+                </span>
+                QR codes that look designed{' '}
                 <span className="block text-gradient">
                   {expiryEnabled ? 'and stay under your control' : 'and keep working forever'}
                 </span>
@@ -118,11 +131,19 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <Faq expiryEnabled={expiryEnabled} />
+        <Faq items={faqs} />
         <CtaBand />
       </main>
 
       <SiteFooter />
+      <JsonLd
+        data={graph(
+          organizationSchema(base),
+          websiteSchema(base),
+          applicationSchema(base, { expiryEnabled }),
+          faqSchema(base, faqs),
+        )}
+      />
     </div>
   );
 }

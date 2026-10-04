@@ -4,13 +4,15 @@ import { getAuthContext } from '@/lib/auth';
 import { SiteHeader } from '@/components/marketing/site-header';
 import { SiteFooter } from '@/components/marketing/site-footer';
 import { LegalDocument } from '@/components/marketing/legal-document';
-import { canonical } from '@/lib/seo/routes';
+import { pageMeta } from '@/lib/seo/meta';
+import { JsonLd } from '@/components/seo/json-ld';
+import { breadcrumbSchema, graph } from '@/lib/seo/schema';
 
-export const metadata: Metadata = {
-  alternates: canonical('/legal/terms'),
-  title: 'Terms of service',
-  description: 'The terms that apply to this QR ALTRIX install.',
-};
+export const metadata: Metadata = pageMeta({
+  path: '/legal/terms',
+  title: 'Terms of Service',
+  description: 'The terms for using QR ALTRIX: your account, the QR codes you create, acceptable use, and how codes and data are handled.',
+});
 
 export const dynamic = 'force-dynamic';
 
@@ -95,6 +97,7 @@ export default async function TermsPage() {
         />
       </main>
       <SiteFooter />
+      <JsonLd data={graph(breadcrumbSchema(env.appUrl.replace(/\/+$/, ''), [{ name: 'Terms of service', path: '/legal/terms' }]))} />
     </div>
   );
 }

@@ -9,13 +9,14 @@ import { getDraft } from '@/lib/drafts';
 import { getTypeDef } from '@/lib/qr/catalog';
 import { AuthForm } from '@/components/auth/auth-form';
 import { Alert } from '@/components/ui/feedback';
-import { canonical } from '@/lib/seo/routes';
+import { pageMeta } from '@/lib/seo/meta';
 
-export const metadata: Metadata = {
-  alternates: canonical('/signup'),
-  title: 'Create a free account',
-  description: 'Create a free QR ALTRIX account. Dynamic QR codes never expire.',
-};
+export const metadata: Metadata = pageMeta({
+  path: '/signup',
+  title: 'Create a Free Account – Unlimited Dynamic QR Codes',
+  description:
+    'Sign up free for unlimited dynamic QR codes, live scan analytics, folders, bulk generation, custom domains and the API. No card, no trial, no paid plan.',
+});
 
 export const dynamic = 'force-dynamic';
 

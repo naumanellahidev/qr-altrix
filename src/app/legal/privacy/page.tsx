@@ -5,13 +5,16 @@ import { getSettings } from '@/lib/settings';
 import { SiteHeader } from '@/components/marketing/site-header';
 import { SiteFooter } from '@/components/marketing/site-footer';
 import { LegalDocument } from '@/components/marketing/legal-document';
-import { canonical } from '@/lib/seo/routes';
+import { pageMeta } from '@/lib/seo/meta';
+import { JsonLd } from '@/components/seo/json-ld';
+import { breadcrumbSchema, graph } from '@/lib/seo/schema';
 
-export const metadata: Metadata = {
-  alternates: canonical('/legal/privacy'),
-  title: 'Privacy policy',
-  description: 'What QR ALTRIX stores about you and about the people who scan your codes.',
-};
+export const metadata: Metadata = pageMeta({
+  path: '/legal/privacy',
+  title: 'Privacy Policy',
+  description:
+    'What QR ALTRIX stores about account holders and about people who scan QR codes, how scanner IP addresses are hashed, and how to delete your data.',
+});
 
 export const dynamic = 'force-dynamic';
 
@@ -96,6 +99,7 @@ export default async function PrivacyPage() {
         />
       </main>
       <SiteFooter />
+      <JsonLd data={graph(breadcrumbSchema(env.appUrl.replace(/\/+$/, ''), [{ name: 'Privacy policy', path: '/legal/privacy' }]))} />
     </div>
   );
 }

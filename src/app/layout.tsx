@@ -22,11 +22,11 @@ function siteToken(value: string | undefined): string | undefined {
 export const metadata: Metadata = {
   metadataBase: new URL(env.appUrl),
   title: {
-    default: 'QR ALTRIX — free QR codes that never expire',
+    default: 'QR ALTRIX – Free QR Code Generator',
     template: '%s · QR ALTRIX',
   },
   description:
-    'Create static and dynamic QR codes with a premium design editor, live scan analytics, custom domains and bulk generation. Dynamic codes stay permanent — no trials, no expiry.',
+    'Free QR code generator: static and dynamic QR codes with your logo and colours, live scan analytics, bulk generation, custom domains and an API.',
   keywords: [
     'QR code generator',
     'dynamic QR code',
@@ -49,20 +49,23 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     siteName: 'QR ALTRIX',
-    title: 'QR ALTRIX — free QR codes that never expire',
-    description:
-      'Design beautiful QR codes, track every scan and edit the destination any time. Dynamic codes never expire.',
-    url: env.appUrl,
+    locale: 'en_US',
+    title: 'QR ALTRIX – Free QR Code Generator',
+    description: 'Free static and dynamic QR codes with your logo, live scan analytics, bulk generation and an API.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'QR ALTRIX — free QR codes that never expire',
-    description: 'Premium QR code platform with analytics, custom domains and bulk generation.',
+    title: 'QR ALTRIX – Free QR Code Generator',
+    description: 'Free static and dynamic QR codes with your logo, live scan analytics, bulk generation and an API.',
   },
   robots: { index: true, follow: true },
   icons: {
-    icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
-    apple: [{ url: '/icon.svg' }],
+    icon: [
+      { url: '/favicon.ico', sizes: '48x48' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/icon-192.png', type: 'image/png', sizes: '192x192' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],
   },
 };
 

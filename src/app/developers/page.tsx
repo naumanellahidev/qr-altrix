@@ -11,14 +11,16 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { PageHeader, SectionHeader } from '@/components/ui/page-header';
 import { CodeBlock } from '@/components/marketing/code-block';
-import { canonical } from '@/lib/seo/routes';
+import { pageMeta } from '@/lib/seo/meta';
+import { JsonLd } from '@/components/seo/json-ld';
+import { breadcrumbSchema, graph } from '@/lib/seo/schema';
 
-export const metadata: Metadata = {
-  alternates: canonical('/developers'),
-  title: 'Developers & API',
+export const metadata: Metadata = pageMeta({
+  path: '/developers',
+  title: 'Free QR Code API – REST API & Webhooks',
   description:
-    'REST API for creating, editing, rendering and measuring QR codes. Scoped keys, signed webhooks and an OpenAPI description.',
-};
+    'Free REST API to create, edit, render and track QR codes. Scoped API keys, signed webhooks, bulk endpoints and a full OpenAPI description. No paid tier.',
+});
 
 export const dynamic = 'force-dynamic';
 
@@ -281,6 +283,7 @@ export function verify(req, secret) {
       </main>
 
       <SiteFooter />
+      <JsonLd data={graph(breadcrumbSchema(env.appUrl.replace(/\/+$/, ''), [{ name: 'Developers & API', path: '/developers' }]))} />
     </div>
   );
 }
