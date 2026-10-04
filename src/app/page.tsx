@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Suspense } from 'react';
 import { ArrowRight, Infinity as InfinityIcon, Star } from 'lucide-react';
 import { SiteHeader } from '@/components/marketing/site-header';
 import { SiteFooter } from '@/components/marketing/site-footer';
@@ -80,8 +79,6 @@ export default async function HomePage() {
             </div>
 
             <BrandingProvider value={brandingFromSettings(settings, env.appUrl)}>
-              {/* Own hydration unit: the header and page shell hydrate first. */}
-              <Suspense fallback={null}>
               <HeroGenerator
                 googleEnabled={env.google.enabled}
                 allowGuestStaticDownload={settings?.allowGuestStaticDownload ?? env.allowGuestStaticDownload}
@@ -89,7 +86,6 @@ export default async function HomePage() {
                 signedIn={Boolean(auth)}
                 expiryEnabled={expiryEnabled}
               />
-              </Suspense>
             </BrandingProvider>
           </div>
         </section>

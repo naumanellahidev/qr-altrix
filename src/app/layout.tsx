@@ -6,12 +6,14 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { env } from '@/lib/env';
 
-// Fonts are downloaded at build time and served from this domain with font-display:
-// swap and size-adjusted fallbacks. The Google Fonts stylesheet they replace was a
-// render-blocking request to another host on every first visit.
-const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-inter', display: 'swap' });
-const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], weight: ['600', '700', '800'], variable: '--font-jakarta', display: 'swap' });
-const mono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-jetbrains', display: 'swap', preload: false });
+// Fonts are downloaded at build time and served from this domain (the Google Fonts
+// stylesheet they replace was a render-blocking request to another host). They are
+// preloaded with font-display: optional: used if they arrive within the first paint,
+// otherwise that view keeps the fallback and the next one uses the cached font. That
+// rules out the late swap that shifted the whole hero on phones without Arial.
+const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-inter', display: 'optional' });
+const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], weight: ['600', '700', '800'], variable: '--font-jakarta', display: 'optional' });
+const mono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-jetbrains', display: 'optional', preload: false });
 
 function siteToken(value: string | undefined): string | undefined {
   const raw = value?.trim();
