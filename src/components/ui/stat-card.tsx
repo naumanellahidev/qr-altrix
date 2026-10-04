@@ -52,7 +52,7 @@ export function StatCard({
           <span
             className={cn(
               'mb-0.5 inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[11.5px] font-medium',
-              direction === 'up' && 'bg-success/12 text-success',
+              direction === 'up' && 'bg-success/12 text-success-text',
               direction === 'down' && 'bg-destructive/12 text-destructive',
               direction === 'flat' && 'bg-secondary text-muted-foreground',
             )}

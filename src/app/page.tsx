@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { ArrowRight, Infinity as InfinityIcon, Star } from 'lucide-react';
 import { SiteHeader } from '@/components/marketing/site-header';
 import { SiteFooter } from '@/components/marketing/site-footer';
@@ -56,7 +57,7 @@ export default async function HomePage() {
               <h1 className="font-display text-[32px] font-bold leading-[1.1] tracking-[-0.035em] sm:text-[46px]">
                 <span className="mb-3 block text-[13px] font-semibold uppercase tracking-[0.14em] text-primary-soft-foreground sm:text-[14px]">
                   Free QR code generator
-                </span>
+                </span>{' '}
                 QR codes that look designed{' '}
                 <span className="block text-gradient">
                   {expiryEnabled ? 'and stay under your control' : 'and keep working forever'}
@@ -79,6 +80,8 @@ export default async function HomePage() {
             </div>
 
             <BrandingProvider value={brandingFromSettings(settings, env.appUrl)}>
+              {/* Own hydration unit: the header and page shell hydrate first. */}
+              <Suspense fallback={null}>
               <HeroGenerator
                 googleEnabled={env.google.enabled}
                 allowGuestStaticDownload={settings?.allowGuestStaticDownload ?? env.allowGuestStaticDownload}
@@ -86,6 +89,7 @@ export default async function HomePage() {
                 signedIn={Boolean(auth)}
                 expiryEnabled={expiryEnabled}
               />
+              </Suspense>
             </BrandingProvider>
           </div>
         </section>
@@ -96,7 +100,7 @@ export default async function HomePage() {
         <TypesShowcase />
 
         {/* --------------------------------------------------- how it works */}
-        <section className="border-y border-border bg-surface py-16 sm:py-20">
+        <section className="cv-auto border-y border-border bg-surface py-16 sm:py-20">
           <div className="container">
             <div className="mx-auto max-w-2xl text-center">
               <h2 className="font-display text-[28px] font-bold leading-tight tracking-[-0.03em] sm:text-[34px]">

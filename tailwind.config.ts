@@ -49,6 +49,7 @@ const config: Config = {
         },
         success: {
           DEFAULT: 'hsl(var(--success))',
+          text: 'hsl(var(--success-text))',
           foreground: 'hsl(var(--success-foreground))',
         },
         warning: {

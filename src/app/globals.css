@@ -41,12 +41,15 @@
     --accent-foreground: 0 0% 100%;
 
     --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    /* 41% keeps body-size muted text above 4.5:1 on every light surface, glow included. */
+    --muted-foreground: 215 16% 41%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
     --success: 142 71% 40%;
+    /* Green text on the soft green tint: 5.4:1 light. */
+    --success-text: 142 72% 26%;
     --success-foreground: 0 0% 100%;
 
     --warning: 35 92% 48%;
@@ -90,6 +93,7 @@
     --destructive-foreground: 0 0% 100%;
 
     --success: 142 64% 48%;
+    --success-text: 142 64% 55%;
     --success-foreground: 150 90% 8%;
 
     --warning: 35 92% 58%;
@@ -217,6 +221,13 @@
 }
 
 @layer utilities {
+  /* Below-the-fold sections: the browser skips their layout and paint until they come
+     near the viewport. contain-intrinsic-size keeps the scrollbar honest meanwhile. */
+  .cv-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 900px;
+  }
+
   /* Invisible 40 px touch area around a visually small control (info icons, radios). */
   .hit-area {
     position: relative;

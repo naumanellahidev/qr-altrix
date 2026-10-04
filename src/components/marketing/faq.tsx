@@ -9,7 +9,7 @@ import type { FaqItem } from '@/lib/seo/faq';
  */
 export function Faq({ items }: { items: FaqItem[] }) {
   return (
-    <section id="faq" className="scroll-mt-24 border-t border-border bg-surface py-16 sm:py-24">
+    <section id="faq" className="cv-auto scroll-mt-24 border-t border-border bg-surface py-16 sm:py-24">
       <div className="container grid grid-cols-1 gap-10 lg:grid-cols-[0.8fr_1.2fr]">
         <div>
           <h2 className="font-display text-[28px] font-bold leading-tight tracking-[-0.03em] sm:text-[34px]">

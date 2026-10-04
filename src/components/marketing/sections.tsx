@@ -85,7 +85,7 @@ const FEATURES = [
 
 export function Features() {
   return (
-    <section id="features" className="container scroll-mt-24 py-16 sm:py-24">
+    <section id="features" className="cv-auto container scroll-mt-24 py-16 sm:py-24">
       <div className="mx-auto max-w-2xl text-center">
         <Badge variant="primary" className="mb-4">
           <Sparkles className="size-3" /> Everything included
@@ -155,7 +155,7 @@ const USE_CASES = [
 
 export function UseCases() {
   return (
-    <section id="use-cases" className="scroll-mt-24 border-y border-border bg-surface py-16 sm:py-24">
+    <section id="use-cases" className="cv-auto scroll-mt-24 border-y border-border bg-surface py-16 sm:py-24">
       <div className="container">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-display text-[28px] font-bold leading-tight tracking-[-0.03em] sm:text-[36px]">
@@ -190,7 +190,7 @@ export function TypesShowcase() {
   const dynamics = QR_TYPES.filter((type) => type.kind === 'DYNAMIC');
 
   return (
-    <section id="types" className="container scroll-mt-24 py-16 sm:py-24">
+    <section id="types" className="cv-auto container scroll-mt-24 py-16 sm:py-24">
       <div className="mx-auto max-w-2xl text-center">
         <h2 className="font-display text-[28px] font-bold leading-tight tracking-[-0.03em] sm:text-[36px]">
           {QR_TYPES.length} QR code types
@@ -234,7 +234,7 @@ export function TypesShowcase() {
 
 export function CtaBand() {
   return (
-    <section className="container py-16 sm:py-20">
+    <section className="cv-auto container py-16 sm:py-20">
       <div className="qa-glow relative overflow-hidden rounded-3xl border border-border bg-card px-6 py-12 text-center shadow-card sm:px-12">
         <div className="relative z-10 mx-auto max-w-2xl">
           <Badge variant="success" className="mb-4">

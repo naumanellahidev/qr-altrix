@@ -42,7 +42,7 @@ export async function SiteFooter() {
   const expiryEnabled = Boolean(settings?.expiryEnabled);
 
   return (
-    <footer className="border-t border-border bg-surface">
+    <footer className="cv-auto border-t border-border bg-surface">
       <div className="container py-12">
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.4fr_repeat(3,1fr)]">
           <div className="space-y-3">
@@ -57,7 +57,7 @@ export async function SiteFooter() {
                 Every code shows its expiry date
               </p>
             ) : (
-              <p className="inline-flex items-center gap-1.5 rounded-full border border-success/25 bg-success/10 px-2.5 py-1 text-[12px] font-medium text-success">
+              <p className="inline-flex items-center gap-1.5 rounded-full border border-success/25 bg-success/10 px-2.5 py-1 text-[12px] font-medium text-success-text">
                 <InfinityIcon className="size-3.5" />
                 Dynamic codes never expire
               </p>
@@ -102,7 +102,7 @@ export async function SiteFooter() {
               <span className="sr-only">(opens naumanellahi.com in a new tab)</span>
             </a>
           </div>
-          <p className="mt-4 text-center text-[11.5px] leading-5 text-muted-foreground/80 sm:text-left">
+          <p className="mt-4 text-center text-[11.5px] leading-5 text-muted-foreground sm:text-left">
             QR Code is a registered trademark of Denso Wave Incorporated. QR ALTRIX is an independent project and is not
             affiliated with any other QR service.
           </p>

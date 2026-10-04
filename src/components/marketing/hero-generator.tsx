@@ -106,7 +106,9 @@ export function HeroGenerator({
             <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
               1 · What should it do?
             </p>
+            <Island>
             <TypePicker value={draft.type} onChange={(type) => setType(type)} types={FEATURED_TYPES} variant="strip" />
+            </Island>
             {def ? (
               <p className="text-[12.5px] leading-5 text-muted-foreground">
                 <span className="font-medium text-foreground">{def.label}:</span> {def.description}
@@ -118,12 +120,14 @@ export function HeroGenerator({
             <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
               2 · Add your content
             </p>
+            <Island>
             <ContentForm
               type={draft.type}
               value={draft.content}
               onChange={patchContent}
               onRequireAccount={(reason) => void openGate('signup', reason)}
             />
+            </Island>
             {def?.kind === 'DYNAMIC' ? (
               <Alert tone="info" title="This is a dynamic code">
                 The printed pattern points at a short link, so you can change where it goes later and see every scan.
@@ -136,6 +140,7 @@ export function HeroGenerator({
             <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
               3 · Make it yours
             </p>
+            <Island>
             <Tabs defaultValue="design">
               <TabsList>
                 <TabsTrigger value="design">
@@ -168,6 +173,7 @@ export function HeroGenerator({
                 </Field>
               </TabsContent>
             </Tabs>
+            </Island>
           </div>
         </div>
       </Card>
@@ -181,6 +187,7 @@ export function HeroGenerator({
           </div>
 
           <div className="flex justify-center rounded-2xl bg-surface-muted/60 p-4">
+            <Island>
             <QrPreview
               data={payload}
               design={draft.design}
@@ -190,15 +197,19 @@ export function HeroGenerator({
                 def ? `Fill in the ${def.label.toLowerCase()} details and your code appears here instantly.` : undefined
               }
             />
+            </Island>
           </div>
 
+          <Island>
           <ScanSafety design={draft.design} moduleCount={moduleCount} compact />
+          </Island>
 
           {signedIn ? (
             <Button variant="brand" size="lg" className="w-full" onClick={() => void continueSignedIn()}>
               Open in my dashboard <ArrowRight />
             </Button>
           ) : (
+            <Island>
             <DownloadGate
               request={{
                 data: payload,
@@ -224,6 +235,7 @@ export function HeroGenerator({
                   : 'Add your content to enable the download.'
               }
             />
+            </Island>
           )}
 
           <ul className="space-y-1.5 text-[12px] leading-5 text-muted-foreground">
@@ -261,4 +273,14 @@ function useLatch(value: boolean): boolean {
   const [latched, setLatched] = React.useState(value);
   if (value && !latched) setLatched(true);
   return latched || value;
+}
+
+/**
+ * A separate hydration unit. React hydrates each Suspense boundary as its own task and
+ * yields to the browser between them, so the generator no longer hydrates as one long
+ * main-thread block (the main cause of mobile Total Blocking Time and a late LCP), while
+ * staying interactive straight away. Nothing inside suspends; the fallback never shows.
+ */
+function Island({ children }: { children: React.ReactNode }) {
+  return <React.Suspense fallback={null}>{children}</React.Suspense>;
 }

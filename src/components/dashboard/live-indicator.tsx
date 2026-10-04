@@ -8,7 +8,7 @@ export function LiveIndicator({ live, className }: { live: boolean; className?: 
     <span
       className={cn(
         'inline-flex h-7 shrink-0 items-center gap-1.5 rounded-full border px-2.5 text-[11.5px] font-semibold',
-        live ? 'border-success/30 bg-success/10 text-success' : 'border-border bg-surface-muted text-muted-foreground',
+        live ? 'border-success/30 bg-success/10 text-success-text' : 'border-border bg-surface-muted text-muted-foreground',
         className,
       )}
       title={live ? 'New scans appear here automatically' : 'Reconnecting…'}
