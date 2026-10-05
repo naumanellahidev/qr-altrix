@@ -322,14 +322,15 @@ export function ContentForm({
               rows={field.name === 'items' ? 5 : 3}
             />
           );
-        case 'select':
+        case 'select': {
+          const selected = String(current ?? field.defaultValue ?? field.options?.[0]?.value ?? '');
+          // The label is given explicitly: Radix only learns it from mounted items, so the
+          // server-rendered (and not-yet-hydrated) trigger would otherwise be blank.
+          const selectedLabel = field.options?.find((option) => option.value === selected)?.label;
           return (
-            <Select
-              value={String(current ?? field.defaultValue ?? field.options?.[0]?.value ?? '')}
-              onValueChange={(next) => onChange({ [field.name]: next })}
-            >
+            <Select value={selected} onValueChange={(next) => onChange({ [field.name]: next })}>
               <SelectTrigger id={fieldId} invalid={Boolean(error)}>
-                <SelectValue placeholder="Choose one" />
+                <SelectValue placeholder="Choose one">{selectedLabel}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {(field.options ?? []).map((option) => (
@@ -340,6 +341,7 @@ export function ContentForm({
               </SelectContent>
             </Select>
           );
+        }
         case 'switch':
           return (
             <div className="flex h-10 items-center">

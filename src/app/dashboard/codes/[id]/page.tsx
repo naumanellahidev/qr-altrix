@@ -10,6 +10,8 @@ import { getSettings } from '@/lib/settings';
 import type { QrDesign } from '@/lib/qr/types';
 import { PageHeader } from '@/components/ui/page-header';
 import { CodeDetail } from '@/components/dashboard/code-detail';
+import { prisma } from '@/lib/db';
+import { FeedbackResponses, type FeedbackItem } from '@/components/dashboard/feedback-responses';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,6 +40,35 @@ export default async function CodeDetailPage({ params }: { params: Promise<{ id:
     { createdAt: qr.createdAt, lastScanAt: qr.lastScanAt },
     expiryPolicyFromSettings(settings),
   );
+
+  // Feedback-form codes: show what people actually said.
+  let feedback: { items: FeedbackItem[]; total: number } | null = null;
+  if (qr.type === 'FEEDBACK') {
+    const where = { qrCodeId: qr.id, kind: 'FEEDBACK' as const };
+    const [rows, total] = await Promise.all([
+      prisma.scanEvent.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        take: 100,
+        select: { id: true, createdAt: true, country: true, meta: true },
+      }),
+      prisma.scanEvent.count({ where }),
+    ]);
+    feedback = {
+      total,
+      items: rows.map((row) => {
+        const data = ((row.meta as { feedback?: Record<string, unknown> } | null)?.feedback ?? {}) as Record<string, unknown>;
+        return {
+          id: row.id,
+          at: row.createdAt.toISOString(),
+          rating: Math.max(0, Math.min(5, Number(data.rating) || 0)),
+          comment: typeof data.comment === 'string' && data.comment.trim() ? data.comment : null,
+          email: typeof data.email === 'string' && data.email ? data.email : null,
+          country: row.country,
+        };
+      }),
+    };
+  }
 
   return (
     <>
@@ -91,6 +122,9 @@ export default async function CodeDetailPage({ params }: { params: Promise<{ id:
           canViewStats: can(auth.role, 'stats.read'),
         }}
       />
+      {feedback ? (
+        <FeedbackResponses items={feedback.items} total={feedback.total} timeZone={auth.user.timezone || 'UTC'} />
+      ) : null}
     </>
   );
 }

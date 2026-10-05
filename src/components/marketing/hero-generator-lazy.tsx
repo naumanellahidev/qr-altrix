@@ -73,8 +73,18 @@ export function LazyHeroGenerator(props: HeroGeneratorProps) {
   }, []);
 
   return (
-    <React.Suspense fallback={null}>
-      <Generator {...props} earlyInput={takeEarlyInput} />
-    </React.Suspense>
+    <>
+      {/*
+        React streams a Suspense boundary larger than ~12.8 KB after the rest of the page
+        even when it is ready, and this one is. Without this, Chrome could paint the page
+        with an empty generator and then shift everything below it when its HTML lands.
+        rel=expect holds first paint until the parser reaches the generator's end marker
+        (#hero-ready). React hoists the link into <head>; other browsers ignore it.
+      */}
+      <link rel="expect" href="#hero-ready" blocking="render" />
+      <React.Suspense fallback={null}>
+        <Generator {...props} earlyInput={takeEarlyInput} />
+      </React.Suspense>
+    </>
   );
 }

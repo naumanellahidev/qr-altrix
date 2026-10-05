@@ -38,6 +38,8 @@ import {
 } from '@/components/qr/use-draft';
 
 export interface HeroGeneratorProps {
+  /** Start on this QR type (type landing pages); the draft of another type is not restored. */
+  initialType?: string;
   /** Values typed before hydration, keyed by input id (see hero-generator-lazy). */
   earlyInput?: () => Record<string, string>;
   googleEnabled: boolean;
@@ -60,9 +62,10 @@ export function HeroGenerator({
   signedIn,
   expiryEnabled = false,
   earlyInput,
+  initialType,
 }: HeroGeneratorProps) {
   const router = useRouter();
-  const { draft, setType, patchContent, patchDesign, setName } = useQrDraft('URL');
+  const { draft, setType, patchContent, patchDesign, setName } = useQrDraft(initialType ?? 'URL', { pinType: Boolean(initialType) });
 
   // Keep whatever the visitor typed before the generator came alive. Runs after the
   // draft hook restores a saved draft, so fresh typing wins over an old draft.
@@ -97,6 +100,11 @@ export function HeroGenerator({
   const [gateReason, setGateReason] = React.useState<string | null>(null);
 
   const def = getTypeDef(draft.type);
+  // The featured strip, plus the page's own type when it is not one of the featured.
+  const stripTypes = React.useMemo(() => {
+    const pinned = initialType ? getTypeDef(initialType) : undefined;
+    return pinned && !FEATURED_TYPES.some((t) => t.type === pinned.type) ? [pinned, ...FEATURED_TYPES] : FEATURED_TYPES;
+  }, [initialType]);
   const payload = previewPayload(draft, shortUrlBase);
   const complete = draftIsComplete(draft);
   const guestDownloadable = allowGuestStaticDownload && draft.kind === 'STATIC';
@@ -143,7 +151,7 @@ export function HeroGenerator({
             <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
               1 · What should it do?
             </p>
-            <TypePicker value={draft.type} onChange={(type) => setType(type)} types={FEATURED_TYPES} variant="strip" />
+            <TypePicker value={draft.type} onChange={(type) => setType(type)} types={stripTypes} variant="strip" />
             {def ? (
               <p className="text-[12.5px] leading-5 text-muted-foreground">
                 <span className="font-medium text-foreground">{def.label}:</span> {def.description}

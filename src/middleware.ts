@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { LOCALE_HEADER, splitLocale } from '@/i18n/locales';
 
 /**
  * Custom-domain routing.
@@ -35,7 +36,12 @@ export function middleware(request: NextRequest) {
   const isPlatformHost =
     !host || host === appHost || host === shortHost || host === 'localhost' || host.endsWith('.localhost');
 
-  if (isPlatformHost) return NextResponse.next();
+  if (isPlatformHost) {
+    // Tell the root layout which language this page is in, for <html lang dir>.
+    const headers = new Headers(request.headers);
+    headers.set(LOCALE_HEADER, splitLocale(request.nextUrl.pathname).locale);
+    return NextResponse.next({ request: { headers } });
+  }
 
   const { pathname } = request.nextUrl;
   const segments = pathname.split('/').filter(Boolean);

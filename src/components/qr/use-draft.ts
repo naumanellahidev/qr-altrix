@@ -37,7 +37,11 @@ function isDraft(value: unknown): value is QrDraft {
  * mirrored into localStorage immediately and pushed to the server right before the
  * account gate, so nothing a visitor designed is ever lost.
  */
-export function useQrDraft(initialType = 'URL') {
+/**
+ * `pinType`: the page is about one type (a /qr-code-generator/<type> page), so a saved
+ * draft of another type is not restored over it.
+ */
+export function useQrDraft(initialType = 'URL', { pinType = false }: { pinType?: boolean } = {}) {
   const [draft, setDraft] = React.useState<QrDraft>(() => emptyDraft(initialType));
   const [restored, setRestored] = React.useState(false);
 
@@ -46,7 +50,7 @@ export function useQrDraft(initialType = 'URL') {
       const raw = window.localStorage.getItem(DRAFT_STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (isDraft(parsed)) {
+        if (isDraft(parsed) && (!pinType || parsed.type === initialType)) {
           setDraft({ ...emptyDraft(parsed.type), ...parsed, design: { ...DEFAULT_DESIGN, ...parsed.design } });
         }
       }

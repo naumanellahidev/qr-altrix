@@ -3,6 +3,7 @@ import { env } from '@/lib/env';
 import { getSettings } from '@/lib/settings';
 import { brandingFromSettings } from '@/lib/qr/branding';
 import type { LlmsFacts } from '@/lib/seo/llms';
+import { PUBLISHED_LOCALES } from '@/content';
 
 /** Live facts for the llms files, read from the platform settings on each request. */
 export async function llmsFacts(): Promise<LlmsFacts> {
@@ -12,6 +13,7 @@ export async function llmsFacts(): Promise<LlmsFacts> {
     expiryEnabled: Boolean(settings?.expiryEnabled),
     brandingEnabled: brandingFromSettings(settings, env.appUrl) !== null,
     guestStaticDownload: settings?.allowGuestStaticDownload ?? env.allowGuestStaticDownload,
+    languages: PUBLISHED_LOCALES,
     bulkMaxRows: settings?.bulkMaxRows ?? env.bulkMaxRows,
     apiRateLimitPerMin: settings?.rateLimitApiPerMin ?? env.rateLimits.apiPerMin,
     maxUploadMb: settings?.maxUploadMb ?? env.storage.maxUploadMb,

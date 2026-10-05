@@ -148,6 +148,8 @@ enum ScanEventKind {
   SCAN
   PASSWORD_FAILED
   BLOCKED
+  /// A feedback-form submission (rating, comment) — not a scan.
+  FEEDBACK
 }
 
 enum AbuseStatus {

@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from 'next';
+import { headers } from 'next/headers';
+import { DEFAULT_LOCALE, LOCALE_HEADER, dirOf, isLocale } from '@/i18n/locales';
 import { Inter, JetBrains_Mono, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
@@ -79,9 +81,12 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Set by middleware from the URL prefix (/es/…, /ar/…); English everywhere else.
+  const requested = (await headers()).get(LOCALE_HEADER);
+  const locale = isLocale(requested) ? requested : DEFAULT_LOCALE;
   return (
-    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${jakarta.variable} ${mono.variable}`}>
+    <html lang={locale} dir={dirOf(locale)} suppressHydrationWarning className={`${inter.variable} ${jakarta.variable} ${mono.variable}`}>
       <body className="min-h-dvh bg-background font-sans">
         <ThemeProvider>
           {children}

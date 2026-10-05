@@ -75,10 +75,15 @@ export function faqSchema(base: string, items: FaqItem[]) {
   };
 }
 
-export function breadcrumbSchema(base: string, trail: { name: string; path: string }[]) {
+export function breadcrumbSchema(
+  base: string,
+  trail: { name: string; path: string }[],
+  homeName = 'Home',
+  homePath = '/',
+) {
   return {
     '@type': 'BreadcrumbList',
-    itemListElement: [{ name: 'Home', path: '/' }, ...trail].map((crumb, index) => ({
+    itemListElement: [{ name: homeName, path: homePath }, ...trail].map((crumb, index) => ({
       '@type': 'ListItem',
       position: index + 1,
       name: crumb.name,

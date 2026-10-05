@@ -1,5 +1,8 @@
 import { QR_TYPES, STATIC_TYPES, DYNAMIC_TYPES } from '@/lib/qr/catalog';
-import { PUBLIC_ROUTES } from '@/lib/seo/routes';
+import { ENGLISH_ROUTES } from '@/lib/seo/routes';
+import { TYPE_KEYS, TYPE_SLUGS, USE_CASES, GUIDES } from '@/content/registry';
+import en from '@/content/locales/en';
+import { LOCALES } from '@/i18n/locales';
 
 /**
  * /llms.txt and /llms-full.txt: a plain-text briefing for AI assistants and answer
@@ -20,6 +23,8 @@ export interface LlmsFacts {
   brandingEnabled: boolean;
   /** Guests may download static codes without an account. */
   guestStaticDownload: boolean;
+  /** Published languages of the public site. */
+  languages: string[];
   bulkMaxRows: number;
   apiRateLimitPerMin: number;
   maxUploadMb: number;
@@ -27,6 +32,12 @@ export interface LlmsFacts {
 
 const PAGE_NOTES: Record<string, { title: string; note: string }> = {
   '/': { title: 'Create a QR code', note: 'The generator: pick a type, design it, download. No account needed for static codes.' },
+  '/qr-code-generator': { title: 'All QR code types', note: 'One page per type (Wi-Fi, vCard, WhatsApp, PDF, menu…) with how-tos and FAQs.' },
+  '/use-cases': { title: 'Use cases', note: 'Restaurant menus, business cards, Google reviews, events, real estate, packaging, social media, payments.' },
+  '/guides': { title: 'Guides', note: 'How to create a QR code, static vs dynamic, print size, design best practices.' },
+  '/best-free-qr-code-generator': { title: 'Choosing a free QR code generator', note: 'A checklist and a comparison of typical free plans with QR ALTRIX.' },
+  '/tools/qr-code-scanner': { title: 'Online QR code scanner', note: 'Read a QR code from an image in the browser; nothing is uploaded.' },
+  '/tools/bulk-qr-code-generator': { title: 'Bulk QR code generator', note: 'Thousands of codes from one CSV, downloaded as a ZIP.' },
   '/developers': { title: 'Developers & API', note: 'REST API with scoped keys, signed webhooks and an OpenAPI description.' },
   '/support': { title: 'Help & support', note: 'Troubleshooting a code, custom domains, analytics, and how to reach a person.' },
   '/signup': { title: 'Create a free account', note: 'Needed for dynamic codes, analytics, folders, teams and the API.' },
@@ -70,6 +81,9 @@ function keyFacts(f: LlmsFacts): string[] {
     `Teams: roles for owner, admin, editor, analyst, viewer and limited members.`,
     `API: REST with scoped API keys (${f.apiRateLimitPerMin} requests/minute by default), signed webhooks and an OpenAPI 3 description.`,
     `Hosting: QR ALTRIX is self-hostable (Docker); this site, ${f.baseUrl}, is the hosted instance.`,
+    ...(f.languages.length > 1
+      ? [`Languages: the public site is available in ${f.languages.map((code) => LOCALES.find((l) => l.code === code)?.name ?? code).join(', ')} (/<code>/ prefix, English at the root).`]
+      : []),
   ];
 }
 
@@ -89,8 +103,18 @@ function typeLine(type: (typeof QR_TYPES)[number]): string {
   return `- ${type.label} (${type.kind === 'STATIC' ? 'static' : 'dynamic'}): ${type.description}`;
 }
 
+const MAIN_PAGES = [
+  '/',
+  '/qr-code-generator',
+  '/use-cases',
+  '/guides',
+  '/best-free-qr-code-generator',
+  '/tools/qr-code-scanner',
+  '/tools/bulk-qr-code-generator',
+];
+
 function pageLinks(f: LlmsFacts): string[] {
-  return PUBLIC_ROUTES.map((route) => {
+  return [...MAIN_PAGES.map((path) => ({ path })), ...ENGLISH_ROUTES].map((route) => {
     const info = PAGE_NOTES[route.path] ?? { title: route.path, note: '' };
     const url = route.path === '/' ? `${f.baseUrl}/` : `${f.baseUrl}${route.path}`;
     return `- [${info.title}](${url})${info.note ? `: ${info.note}` : ''}`;
@@ -185,6 +209,15 @@ export function buildLlmsFullTxt(f: LlmsFacts): string {
     `### Dynamic (${DYNAMIC_TYPES.length})`,
     ``,
     ...DYNAMIC_TYPES.map(typeLine),
+    ``,
+    `## QR code type pages`,
+    ``,
+    ...TYPE_KEYS.map((key) => `- [${en.types[key].h1}](${f.baseUrl}/qr-code-generator/${TYPE_SLUGS[key]}): ${en.types[key].description}`),
+    ``,
+    `## Use cases and guides`,
+    ``,
+    ...USE_CASES.map((u) => `- [${en.useCases[u.slug].h1}](${f.baseUrl}/use-cases/${u.slug}): ${en.useCases[u.slug].description}`),
+    ...GUIDES.map((g) => `- [${en.guides[g.slug].h1}](${f.baseUrl}/guides/${g.slug}): ${en.guides[g.slug].description}`),
     ``,
     `## How to create a QR code`,
     ``,

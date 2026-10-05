@@ -33,7 +33,8 @@ export const POST = withApi(async (request: Request, context: { params: Promise<
     data: {
       qrCodeId: qr.id,
       workspaceId: qr.workspaceId,
-      kind: 'SCAN',
+      // Its own kind: a submission is not another scan of the code.
+      kind: 'FEEDBACK',
       ipHash: hashIp(clientIp(request.headers)),
       country: client.country,
       deviceType: client.deviceType,
