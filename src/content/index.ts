@@ -2,6 +2,7 @@ import 'server-only';
 import type { LocaleContent } from '@/content/schema';
 import { DEFAULT_LOCALE, LOCALE_CODES, type Locale } from '@/i18n/locales';
 import en from './locales/en';
+import es from './locales/es';
 
 /**
  * Translated content, by language. A language is published (routes, sitemap, hreflang,
@@ -11,6 +12,7 @@ import en from './locales/en';
  */
 const CONTENT: Partial<Record<Locale, LocaleContent>> = {
   en,
+  es,
 };
 
 /** Languages with complete content, in LOCALES order. */
