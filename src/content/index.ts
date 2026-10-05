@@ -4,6 +4,7 @@ import { DEFAULT_LOCALE, LOCALE_CODES, type Locale } from '@/i18n/locales';
 import en from './locales/en';
 import es from './locales/es';
 import pt from './locales/pt';
+import fr from './locales/fr';
 
 /**
  * Translated content, by language. A language is published (routes, sitemap, hreflang,
@@ -15,6 +16,7 @@ const CONTENT: Partial<Record<Locale, LocaleContent>> = {
   en,
   es,
   pt,
+  fr,
 };
 
 /** Languages with complete content, in LOCALES order. */
