@@ -11,6 +11,7 @@ import ru from './locales/ru';
 import zh from './locales/zh';
 import ja from './locales/ja';
 import ko from './locales/ko';
+import ar from './locales/ar';
 
 /**
  * Translated content, by language. A language is published (routes, sitemap, hreflang,
@@ -29,6 +30,7 @@ const CONTENT: Partial<Record<Locale, LocaleContent>> = {
   zh,
   ja,
   ko,
+  ar,
 };
 
 /** Languages with complete content, in LOCALES order. */
