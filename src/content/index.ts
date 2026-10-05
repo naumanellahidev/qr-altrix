@@ -16,6 +16,7 @@ import hi from './locales/hi';
 import ur from './locales/ur';
 import id from './locales/id';
 import tr from './locales/tr';
+import vi from './locales/vi';
 
 /**
  * Translated content, by language. A language is published (routes, sitemap, hreflang,
@@ -39,6 +40,7 @@ const CONTENT: Partial<Record<Locale, LocaleContent>> = {
   ur,
   id,
   tr,
+  vi,
 };
 
 /** Languages with complete content, in LOCALES order. */
