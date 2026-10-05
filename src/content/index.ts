@@ -6,6 +6,7 @@ import es from './locales/es';
 import pt from './locales/pt';
 import fr from './locales/fr';
 import de from './locales/de';
+import it from './locales/it';
 
 /**
  * Translated content, by language. A language is published (routes, sitemap, hreflang,
@@ -19,6 +20,7 @@ const CONTENT: Partial<Record<Locale, LocaleContent>> = {
   pt,
   fr,
   de,
+  it,
 };
 
 /** Languages with complete content, in LOCALES order. */
