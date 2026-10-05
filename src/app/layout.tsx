@@ -2,8 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Inter, JetBrains_Mono, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
-import { Toaster } from '@/components/ui/toaster';
-import { TooltipProvider } from '@/components/ui/tooltip';
+import { LazyToaster } from '@/components/ui/lazy-toaster';
 import { env } from '@/lib/env';
 
 // Fonts are downloaded at build time and served from this domain (the Google Fonts
@@ -85,10 +84,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${jakarta.variable} ${mono.variable}`}>
       <body className="min-h-dvh bg-background font-sans">
         <ThemeProvider>
-          <TooltipProvider delayDuration={200}>
-            {children}
-            <Toaster />
-          </TooltipProvider>
+          {children}
+          <LazyToaster />
         </ThemeProvider>
       </body>
     </html>

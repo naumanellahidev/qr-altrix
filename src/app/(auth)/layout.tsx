@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ArrowLeft, BarChart3, Infinity as InfinityIcon, Palette, ShieldCheck } from 'lucide-react';
 import { BrandLogo } from '@/components/brand';
-import { ThemeToggle } from '@/components/theme-provider';
+import { ThemeSwitch } from '@/components/theme-switch';
 
 const POINTS = [
   { icon: InfinityIcon, title: 'Nothing expires', body: 'Dynamic codes keep working until you pause or delete them.' },
@@ -18,7 +18,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <div className="flex items-center justify-between">
           <BrandLogo />
           <div className="flex items-center gap-1">
-            <ThemeToggle />
+            <ThemeSwitch />
             <Link
               href="/"
               className="inline-flex min-h-10 items-center gap-1.5 rounded-lg px-2.5 text-[13px] text-muted-foreground transition-colors hover:text-foreground"

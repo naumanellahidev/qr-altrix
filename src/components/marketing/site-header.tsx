@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { LayoutDashboard, Menu, X } from 'lucide-react';
 import { BrandLogo } from '@/components/brand';
 import { Button } from '@/components/ui/button';
-import { ThemeToggle } from '@/components/theme-provider';
+import { ThemeSwitch } from '@/components/theme-switch';
 import { cn } from '@/lib/utils';
 
 const LINKS = [
@@ -53,7 +53,7 @@ export function SiteHeader({ signedIn }: { signedIn: boolean }) {
         </div>
 
         <div className="flex items-center gap-1.5">
-          <ThemeToggle className="hidden sm:inline-flex" />
+          <ThemeSwitch className="hidden sm:inline-flex" />
           {signedIn ? (
             <Button asChild size="sm" variant="brand">
               <Link href="/dashboard">
@@ -106,7 +106,7 @@ export function SiteHeader({ signedIn }: { signedIn: boolean }) {
               </Link>
             ) : null}
             <div className="py-2">
-              <ThemeToggle />
+              <ThemeSwitch />
             </div>
           </nav>
         </div>

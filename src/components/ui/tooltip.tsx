@@ -6,7 +6,21 @@ import { HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const TooltipProvider = TooltipPrimitive.Provider;
-const Tooltip = TooltipPrimitive.Root;
+
+/**
+ * Each tooltip brings its own provider (Radix supports nesting), so pages without
+ * tooltips — the marketing site — no longer hydrate a provider from the root layout.
+ */
+function Tooltip({
+  delayDuration = 200,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Root>) {
+  return (
+    <TooltipPrimitive.Provider delayDuration={delayDuration}>
+      <TooltipPrimitive.Root delayDuration={delayDuration} {...props} />
+    </TooltipPrimitive.Provider>
+  );
+}
 const TooltipTrigger = TooltipPrimitive.Trigger;
 
 const TooltipContent = React.forwardRef<

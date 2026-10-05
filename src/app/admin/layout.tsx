@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { ArrowLeft, ShieldAlert } from 'lucide-react';
 import { requirePlatformAdmin } from '@/lib/auth';
 import { BrandLogo } from '@/components/brand';
-import { ThemeToggle } from '@/components/theme-provider';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { Badge } from '@/components/ui/badge';
 import { AdminNav } from '@/components/dashboard/admin/admin-nav';
 
