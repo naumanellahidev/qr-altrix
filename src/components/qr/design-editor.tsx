@@ -21,6 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { InfoHint } from '@/components/ui/tooltip';
 import { ColorInput } from '@/components/qr/color-input';
 import { toast } from 'sonner';
+import { fill, useGeneratorCopy } from '@/components/qr/generator-copy';
 
 
 export interface DesignEditorProps {
@@ -62,6 +63,7 @@ function OptionGrid<T extends string>({
   renderSwatch: (option: T, selected: boolean) => React.ReactNode;
   columns?: number;
 }) {
+  const { t } = useGeneratorCopy();
   return (
     <div className={cn('grid gap-2', columns === 4 ? 'grid-cols-4' : 'grid-cols-3')}>
       {options.map((option) => {
@@ -72,7 +74,7 @@ function OptionGrid<T extends string>({
             type="button"
             onClick={() => onSelect(option.value)}
             aria-pressed={selected}
-            title={option.label}
+            title={t(option.label)}
             className={cn(
               'group flex flex-col items-center gap-1.5 rounded-xl border p-2 transition-all',
               selected
@@ -87,7 +89,7 @@ function OptionGrid<T extends string>({
                 selected ? 'font-medium text-primary' : 'text-muted-foreground',
               )}
             >
-              {option.label}
+              {t(option.label)}
             </span>
           </button>
         );
@@ -97,17 +99,19 @@ function OptionGrid<T extends string>({
 }
 
 export function DesignEditor({ design, onChange, uploadLogo, brandColors, className, compact }: DesignEditorProps) {
+  const { copy, t } = useGeneratorCopy();
+  const c = copy.design;
   const [uploading, setUploading] = React.useState(false);
   const fileRef = React.useRef<HTMLInputElement>(null);
 
   async function handleLogoFile(file: File | undefined) {
     if (!file) return;
     if (file.size > 3 * 1024 * 1024) {
-      toast.error('Logo must be 3 MB or smaller');
+      toast.error(c.logoTooBig);
       return;
     }
     if (!/^image\/(png|jpeg|webp|svg\+xml|gif)$/.test(file.type)) {
-      toast.error('Use a PNG, JPG, WebP or SVG image');
+      toast.error(c.logoWrongType);
       return;
     }
     setUploading(true);
@@ -120,13 +124,13 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
         const dataUri = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = () => resolve(String(reader.result));
-          reader.onerror = () => reject(new Error('Could not read that file'));
+          reader.onerror = () => reject(new Error(c.logoUnreadable));
           reader.readAsDataURL(file);
         });
         onChange({ logoUrl: dataUri, logoPreset: null });
       }
       if (design.logoShape === 'none') onChange({ logoShape: 'rounded' });
-      toast.success('Logo added');
+      toast.success(c.logoAdded);
     } catch (error) {
       toast.error((error as Error).message);
     } finally {
@@ -151,27 +155,27 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
     <div className={cn('space-y-4', className)}>
       <Tabs defaultValue="shape">
         <TabsList className="w-full justify-start overflow-x-auto">
-          <TabsTrigger value="shape" aria-label="Shape">
-            <Shapes /> {compact ? null : 'Shape'}
+          <TabsTrigger value="shape" aria-label={c.shape}>
+            <Shapes /> {compact ? null : c.shape}
           </TabsTrigger>
-          <TabsTrigger value="colour" aria-label="Colour">
-            <Palette /> {compact ? null : 'Colour'}
+          <TabsTrigger value="colour" aria-label={c.colour}>
+            <Palette /> {compact ? null : c.colour}
           </TabsTrigger>
-          <TabsTrigger value="logo" aria-label="Logo">
-            <ImagePlus /> {compact ? null : 'Logo'}
+          <TabsTrigger value="logo" aria-label={c.logo}>
+            <ImagePlus /> {compact ? null : c.logo}
           </TabsTrigger>
-          <TabsTrigger value="frame" aria-label="Frame">
-            <Frame /> {compact ? null : 'Frame'}
+          <TabsTrigger value="frame" aria-label={c.frame}>
+            <Frame /> {compact ? null : c.frame}
           </TabsTrigger>
-          <TabsTrigger value="advanced" aria-label="Advanced">
-            <Settings2 /> {compact ? null : 'Advanced'}
+          <TabsTrigger value="advanced" aria-label={c.advanced}>
+            <Settings2 /> {compact ? null : c.advanced}
           </TabsTrigger>
         </TabsList>
 
         {/* ------------------------------------------------------------- shape */}
         <TabsContent value="shape" className="space-y-5 pt-4">
           <div className="space-y-2">
-            <p className="text-[13px] font-medium">Pattern style</p>
+            <p className="text-[13px] font-medium">{c.patternStyle}</p>
             <OptionGrid
               options={BODY_SHAPES}
               value={design.bodyShape}
@@ -184,8 +188,8 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
 
           <div className="space-y-2">
             <p className="flex items-center gap-1.5 text-[13px] font-medium">
-              Corner frame
-              <InfoHint>The three big squares scanners use to find and orient the code.</InfoHint>
+              {c.cornerFrame}
+              <InfoHint>{c.cornerFrameHint}</InfoHint>
             </p>
             <OptionGrid
               options={EYE_FRAME_SHAPES}
@@ -198,7 +202,7 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
           </div>
 
           <div className="space-y-2">
-            <p className="text-[13px] font-medium">Corner centre</p>
+            <p className="text-[13px] font-medium">{c.cornerCentre}</p>
             <OptionGrid
               options={EYE_BALL_SHAPES}
               value={design.eyeBallShape}
@@ -214,14 +218,14 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
         <TabsContent value="colour" className="space-y-5 pt-4">
           <div className="space-y-2">
             <p className="flex items-center gap-1.5 text-[13px] font-medium">
-              <Sparkles className="size-3.5 text-primary" /> Quick looks
+              <Sparkles className="size-3.5 text-primary" /> {c.quickLooks}
             </p>
             <div className="flex flex-wrap gap-2">
               {COLOR_PRESETS.map((preset) => (
                 <button
                   key={preset.id}
                   type="button"
-                  title={preset.label}
+                  title={t(preset.label)}
                   onClick={() =>
                     onChange({
                       fgColor: preset.fg,
@@ -249,7 +253,7 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
                         : preset.fg,
                     }}
                   />
-                  {preset.label}
+                  {t(preset.label)}
                 </button>
               ))}
             </div>
@@ -257,7 +261,7 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
 
           {brandColors && brandColors.length > 0 ? (
             <div className="space-y-2">
-              <p className="text-[13px] font-medium">Brand kit</p>
+              <p className="text-[13px] font-medium">{c.brandKit}</p>
               <div className="flex flex-wrap gap-2">
                 {brandColors.map((color) => (
                   <button
@@ -268,7 +272,7 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
                     className="size-8 rounded-lg border border-border shadow-soft transition-transform hover:scale-105"
                     style={{ background: color }}
                   >
-                    <span className="sr-only">Use {color}</span>
+                    <span className="sr-only">{fill(c.useColour, { colour: color })}</span>
                   </button>
                 ))}
               </div>
@@ -277,13 +281,13 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <ColorInput
-              label="Pattern colour"
+              label={c.patternColour}
               value={design.fgColor}
               onChange={(fgColor) => onChange({ fgColor })}
               disabled={design.gradientEnabled}
             />
             <ColorInput
-              label="Background"
+              label={c.background}
               value={design.bgColor}
               onChange={(bgColor) => onChange({ bgColor })}
               disabled={design.transparentBg}
@@ -294,10 +298,10 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
             <SwitchRow
               label={
                 <span className="flex items-center gap-1.5">
-                  <Blend className="size-3.5" /> Gradient
+                  <Blend className="size-3.5" /> {c.gradient}
                 </span>
               }
-              description="Blend two colours across the pattern."
+              description={c.gradientHint}
               checked={design.gradientEnabled}
               onCheckedChange={(gradientEnabled) => onChange({ gradientEnabled })}
             />
@@ -305,14 +309,14 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
               <div className="space-y-3 pt-1">
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <ColorInput
-                    label="From"
+                    label={c.from}
                     value={design.gradientFrom}
                     onChange={(gradientFrom) => onChange({ gradientFrom })}
                   />
-                  <ColorInput label="To" value={design.gradientTo} onChange={(gradientTo) => onChange({ gradientTo })} />
+                  <ColorInput label={c.to} value={design.gradientTo} onChange={(gradientTo) => onChange({ gradientTo })} />
                 </div>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <Field label="Type">
+                  <Field label={c.type}>
                     <Select
                       value={design.gradientType}
                       onValueChange={(value) => onChange({ gradientType: value as QrDesign['gradientType'] })}
@@ -321,14 +325,14 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="linear">Linear</SelectItem>
-                        <SelectItem value="radial">Radial</SelectItem>
+                        <SelectItem value="linear">{c.linear}</SelectItem>
+                        <SelectItem value="radial">{c.radial}</SelectItem>
                       </SelectContent>
                     </Select>
                   </Field>
                   {design.gradientType === 'linear' ? (
                     <SliderField
-                      label="Angle"
+                      label={c.angle}
                       value={design.gradientRotation}
                       onChange={(gradientRotation) => onChange({ gradientRotation })}
                       min={0}
@@ -343,29 +347,29 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
 
           <div className="space-y-3 rounded-xl border border-border bg-surface-muted/50 p-3.5">
             <SwitchRow
-              label="Transparent background"
-              description="Place the code over your own artwork. Keep the surface plain and light."
+              label={c.transparent}
+              description={c.transparentHint}
               checked={design.transparentBg}
               onCheckedChange={(transparentBg) => onChange({ transparentBg })}
             />
             <SwitchRow
-              label="Invert colours"
-              description="Light pattern on a dark background. Test before printing a large run."
+              label={c.invert}
+              description={c.invertHint}
               checked={design.invert}
               onCheckedChange={(invert) => onChange({ invert })}
             />
           </div>
 
           <details className="group rounded-xl border border-border bg-surface p-3.5">
-            <summary className="cursor-pointer text-[13px] font-medium">Colour the corners separately</summary>
+            <summary className="cursor-pointer text-[13px] font-medium">{c.cornersSeparately}</summary>
             <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
               <ColorInput
-                label="Corner frame"
+                label={c.cornerFrame}
                 value={design.eyeColor ?? design.fgColor}
                 onChange={(eyeColor) => onChange({ eyeColor })}
               />
               <ColorInput
-                label="Corner centre"
+                label={c.cornerCentre}
                 value={design.eyeBallColor ?? design.eyeColor ?? design.fgColor}
                 onChange={(eyeBallColor) => onChange({ eyeBallColor })}
               />
@@ -376,7 +380,7 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
                 className="justify-start text-muted-foreground"
                 onClick={() => onChange({ eyeColor: null, eyeBallColor: null })}
               >
-                <X /> Match the pattern colour
+                <X /> {c.matchPattern}
               </Button>
             </div>
           </details>
@@ -393,7 +397,7 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
               onChange={(event) => void handleLogoFile(event.target.files?.[0])}
             />
             <Button type="button" variant="outline" loading={uploading} onClick={() => fileRef.current?.click()}>
-              <Upload /> Upload logo
+              <Upload /> {c.uploadLogo}
             </Button>
             {design.logoUrl || design.logoPreset ? (
               <Button
@@ -402,14 +406,14 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
                 className="text-muted-foreground"
                 onClick={() => onChange({ logoUrl: null, logoPreset: null, logoShape: 'none' })}
               >
-                <Trash2 /> Remove
+                <Trash2 /> {c.removeLogo}
               </Button>
             ) : null}
-            <span className="text-[12px] text-muted-foreground">PNG, JPG, WebP or SVG · up to 3 MB</span>
+            <span className="text-[12px] text-muted-foreground">{c.logoFormats}</span>
           </div>
 
           <div className="space-y-2">
-            <p className="text-[13px] font-medium">Or pick a built-in icon</p>
+            <p className="text-[13px] font-medium">{c.builtInIcon}</p>
             <div className="grid grid-cols-6 gap-2 sm:grid-cols-8">
               {LOGO_PRESETS.map((preset) => {
                 const selected = design.logoPreset === preset.id;
@@ -417,7 +421,7 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
                   <button
                     key={preset.id}
                     type="button"
-                    title={preset.label}
+                    title={t(preset.label)}
                     onClick={() =>
                       onChange({
                         logoPreset: selected ? null : preset.id,
@@ -435,7 +439,7 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
                     <svg viewBox="0 0 24 24" className="size-5" aria-hidden>
                       <path d={preset.path} fill={preset.color} />
                     </svg>
-                    <span className="sr-only">{preset.label}</span>
+                    <span className="sr-only">{t(preset.label)}</span>
                   </button>
                 );
               })}
@@ -445,22 +449,22 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
           {design.logoUrl || design.logoPreset ? (
             <div className="space-y-4 rounded-xl border border-border bg-surface-muted/50 p-3.5">
               <SliderField
-                label="Logo size"
+                label={c.logoSize}
                 value={design.logoSize}
                 onChange={(logoSize) => onChange({ logoSize })}
                 min={8}
                 max={34}
                 suffix="%"
-                help={design.logoSize > 25 ? 'Above 25% you should raise error correction to Q or H.' : undefined}
+                help={design.logoSize > 25 ? c.logoSizeWarning : undefined}
               />
               <SliderField
-                label="Clear space around logo"
+                label={c.clearSpace}
                 value={design.logoPadding}
                 onChange={(logoPadding) => onChange({ logoPadding })}
                 min={0}
                 max={24}
               />
-              <Field label="Backing shape">
+              <Field label={c.backingShape}>
                 <Select
                   value={design.logoShape}
                   onValueChange={(value) => onChange({ logoShape: value as QrDesign['logoShape'] })}
@@ -469,11 +473,11 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">None</SelectItem>
-                    <SelectItem value="circle">Circle</SelectItem>
-                    <SelectItem value="rounded">Rounded square</SelectItem>
-                    <SelectItem value="square">Square</SelectItem>
-                    <SelectItem value="ribbon">Wide band</SelectItem>
+                    <SelectItem value="none">{c.none}</SelectItem>
+                    <SelectItem value="circle">{c.circle}</SelectItem>
+                    <SelectItem value="rounded">{c.roundedSquare}</SelectItem>
+                    <SelectItem value="square">{c.square}</SelectItem>
+                    <SelectItem value="ribbon">{c.wideBand}</SelectItem>
                   </SelectContent>
                 </Select>
               </Field>
@@ -486,7 +490,7 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
           <div className="space-y-3">
             {framesByGroup.map(([group, presets]) => (
               <div key={group} className="space-y-2">
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{group}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{t(group)}</p>
                 <div className="flex flex-wrap gap-2">
                   {presets.map((preset) => (
                     <button
@@ -508,7 +512,7 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
                           : 'border-border bg-surface hover:border-primary/40 hover:bg-surface-muted',
                       )}
                     >
-                      {preset.label}
+                      {t(preset.label)}
                     </button>
                   ))}
                 </div>
@@ -518,7 +522,7 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
 
           {design.frame !== 'none' ? (
             <div className="space-y-4 rounded-xl border border-border bg-surface-muted/50 p-3.5">
-              <Field label="Call to action" help="Short and direct works best — four words or fewer.">
+              <Field label={c.callToAction} help={c.callToActionHelp}>
                 <Input
                   value={design.ctaText ?? ''}
                   onChange={(event) => onChange({ ctaText: event.target.value })}
@@ -527,14 +531,14 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
                 />
               </Field>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <ColorInput label="Frame colour" value={design.frameColor} onChange={(frameColor) => onChange({ frameColor })} />
+                <ColorInput label={c.frameColour} value={design.frameColor} onChange={(frameColor) => onChange({ frameColor })} />
                 <ColorInput
-                  label="Text colour"
+                  label={c.textColour}
                   value={design.frameTextColor}
                   onChange={(frameTextColor) => onChange({ frameTextColor })}
                 />
               </div>
-              <Field label="Text position">
+              <Field label={c.textPosition}>
                 <Select
                   value={design.ctaPosition}
                   onValueChange={(value) => onChange({ ctaPosition: value as QrDesign['ctaPosition'] })}
@@ -543,8 +547,8 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="bottom">Below the code</SelectItem>
-                    <SelectItem value="top">Above the code</SelectItem>
+                    <SelectItem value="bottom">{c.below}</SelectItem>
+                    <SelectItem value="top">{c.above}</SelectItem>
                   </SelectContent>
                 </Select>
               </Field>
@@ -555,17 +559,17 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
         {/* ---------------------------------------------------------- advanced */}
         <TabsContent value="advanced" className="space-y-5 pt-4">
           <SliderField
-            label="Quiet zone"
+            label={c.quietZone}
             value={design.margin}
             onChange={(margin) => onChange({ margin })}
             min={0}
             max={12}
-            help="Clear space around the code. 4 is the standard; below 2 some scanners struggle."
+            help={c.quietZoneHelp}
           />
 
           <Field
-            label="Error correction"
-            help="Higher levels survive scratches and bigger logos, but make the pattern denser."
+            label={c.errorCorrection}
+            help={c.errorCorrectionHelp}
           >
             <Select
               value={design.errorCorrection}
@@ -575,10 +579,10 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="L">L — recovers ~7% (smallest pattern)</SelectItem>
-                <SelectItem value="M">M — recovers ~15% (recommended)</SelectItem>
-                <SelectItem value="Q">Q — recovers ~25% (logos, outdoor use)</SelectItem>
-                <SelectItem value="H">H — recovers ~30% (harsh conditions)</SelectItem>
+                <SelectItem value="L">{c.ecL}</SelectItem>
+                <SelectItem value="M">{c.ecM}</SelectItem>
+                <SelectItem value="Q">{c.ecQ}</SelectItem>
+                <SelectItem value="H">{c.ecH}</SelectItem>
               </SelectContent>
             </Select>
           </Field>

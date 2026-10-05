@@ -73,7 +73,7 @@ export async function HomePage({ locale }: { locale: Locale }) {
             </div>
           </div>
 
-          <GeneratorSection />
+          <GeneratorSection locale={locale} />
         </div>
       </section>
 

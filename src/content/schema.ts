@@ -236,6 +236,186 @@ export interface HomeCopy {
 /** Short names and taglines of the QR types, as shown in pickers and lists. */
 export type CatalogCopy = Record<TypeKey, { label: string; tagline: string }>;
 
+/**
+ * Strings of the interactive generator (homepage and type pages). `{type}`, `{format}`,
+ * `{count}` are placeholders. Catalogue field labels and preset names are not here: they
+ * come from LocaleContent.phrases, keyed by their English text.
+ */
+export interface GeneratorCopy {
+  makeTitle: string;
+  makeLead: string;
+  neverExpires: string;
+  freeToUse: string;
+  step1: string;
+  step2: string;
+  step3: string;
+  dynamicAlertTitle: string;
+  dynamicAlertBody: string;
+  designTab: string;
+  nameTab: string;
+  nameLabel: string;
+  nameHelp: string;
+  /** "{type} code" */
+  namePlaceholder: string;
+  customiseTitle: string;
+  customiseBody: string;
+  livePreview: string;
+  /** "Fill in the {type} details and your code appears here instantly." */
+  previewPlaceholder: string;
+  hintGuest: string;
+  hintAccount: string;
+  hintAccountExpiry: string;
+  hintEmpty: string;
+  formats: string;
+  liveNever: string;
+  liveExpiry: string;
+  openDashboard: string;
+  signupDescription: string;
+  download: {
+    button: string;
+    saveLabel: string;
+    google: string;
+    googleSub: string;
+    email: string;
+    emailSub: string;
+    guestLabel: string;
+    png: string;
+    svg: string;
+    pdf: string;
+    accountNote: string;
+    /** "{format} downloaded" */
+    downloaded: string;
+    failed: string;
+  };
+  safety: {
+    title: string;
+    excellent: string;
+    good: string;
+    risky: string;
+    fail: string;
+    contrast: string;
+    modules: string;
+    noProblems: string;
+  };
+  form: {
+    uploadReason: string;
+    dropFile: string;
+    needAccount: string;
+    storedOnServer: string;
+    anyFile: string;
+    signupCarries: string;
+    chooseFile: string;
+    createAccount: string;
+    removeFile: string;
+    nothingYet: string;
+    moveUp: string;
+    moveDown: string;
+    remove: string;
+    add: string;
+    choose: string;
+    chooseOne: string;
+  };
+  picker: { label: string; search: string; static: string; dynamic: string };
+  auth: {
+    title: string;
+    welcomeBack: string;
+    ready: string;
+    saved: string;
+    freeForever: string;
+    loginDescription: string;
+    googleSignup: string;
+    googleContinue: string;
+    or: string;
+    name: string;
+    optional: string;
+    namePlaceholder: string;
+    email: string;
+    emailPlaceholder: string;
+    password: string;
+    passwordHelp: string;
+    passwordCreate: string;
+    passwordYours: string;
+    showPassword: string;
+    hidePassword: string;
+    code: string;
+    agree: string;
+    termsLink: string;
+    and: string;
+    privacyLink: string;
+    signup: string;
+    login: string;
+    haveAccount: string;
+    forgot: string;
+    newHere: string;
+    createAccount: string;
+    errorCode: string;
+    errorGeneric: string;
+    errorNetwork: string;
+  };
+  design: {
+    shape: string;
+    colour: string;
+    logo: string;
+    frame: string;
+    advanced: string;
+    patternStyle: string;
+    cornerFrame: string;
+    cornerFrameHint: string;
+    cornerCentre: string;
+    brandKit: string;
+    quickLooks: string;
+    useColour: string;
+    matchPattern: string;
+    patternColour: string;
+    background: string;
+    gradient: string;
+    gradientHint: string;
+    from: string;
+    to: string;
+    type: string;
+    linear: string;
+    radial: string;
+    angle: string;
+    transparent: string;
+    transparentHint: string;
+    invert: string;
+    invertHint: string;
+    cornersSeparately: string;
+    uploadLogo: string;
+    logoFormats: string;
+    builtInIcon: string;
+    removeLogo: string;
+    logoSize: string;
+    logoSizeWarning: string;
+    clearSpace: string;
+    backingShape: string;
+    none: string;
+    circle: string;
+    roundedSquare: string;
+    square: string;
+    wideBand: string;
+    callToAction: string;
+    callToActionHelp: string;
+    frameColour: string;
+    textColour: string;
+    textPosition: string;
+    below: string;
+    above: string;
+    quietZone: string;
+    quietZoneHelp: string;
+    errorCorrection: string;
+    errorCorrectionHelp: string;
+    ecL: string;
+    ecM: string;
+    ecQ: string;
+    ecH: string;
+    logoTooBig: string;
+    logoWrongType: string;
+    logoUnreadable: string;
+    logoAdded: string;
+  };
+}
+
 export type TypeKey =
   | 'URL' | 'TEXT' | 'WIFI' | 'VCARD' | 'EMAIL' | 'WHATSAPP' | 'SMS' | 'PHONE' | 'LOCATION' | 'EVENT'
   | 'CALENDAR' | 'CRYPTO' | 'WEBSITE' | 'PDF' | 'IMAGE_GALLERY' | 'VCARD_PLUS' | 'VIDEO' | 'LINK_LIST'
@@ -253,6 +433,9 @@ export interface LocaleContent {
   ui: UiCopy;
   home: HomeCopy;
   catalog: CatalogCopy;
+  generator: GeneratorCopy;
+  /** English catalogue/preset phrase -> translation (see catalog-phrases.ts). Empty for English. */
+  phrases: Record<string, string>;
   types: Record<TypeKey, TypePageCopy>;
   useCases: Record<UseCaseSlug, UseCaseCopy>;
   guides: Record<GuideSlug, GuideCopy>;

@@ -36,6 +36,8 @@ import {
   previewPayload,
   useQrDraft,
 } from '@/components/qr/use-draft';
+import { fill, useGeneratorCopy } from '@/components/qr/generator-copy';
+import { generator as englishCopy } from '@/content/locales/en/generator';
 
 export interface HeroGeneratorProps {
   /** Start on this QR type (type landing pages); the draft of another type is not restored. */
@@ -65,6 +67,7 @@ export function HeroGenerator({
   initialType,
 }: HeroGeneratorProps) {
   const router = useRouter();
+  const { copy, t } = useGeneratorCopy();
   const { draft, setType, patchContent, patchDesign, setName } = useQrDraft(initialType ?? 'URL', { pinType: Boolean(initialType) });
 
   // Keep whatever the visitor typed before the generator came alive. Runs after the
@@ -100,6 +103,7 @@ export function HeroGenerator({
   const [gateReason, setGateReason] = React.useState<string | null>(null);
 
   const def = getTypeDef(draft.type);
+  const typeLabel = def ? t(def.label) : '';
   // The featured strip, plus the page's own type when it is not one of the featured.
   const stripTypes = React.useMemo(() => {
     const pinned = initialType ? getTypeDef(initialType) : undefined;
@@ -135,33 +139,33 @@ export function HeroGenerator({
           <div className="space-y-0.5">
             <p className="flex items-center gap-1.5 text-[13px] font-semibold">
               <Wand2 className="size-3.5 text-primary" />
-              Make a QR code
+              {copy.makeTitle}
             </p>
             <p className="text-[12.5px] text-muted-foreground">
-              No sign-up needed to design it. Takes about thirty seconds.
+              {copy.makeLead}
             </p>
           </div>
           <Badge variant="success">
-            <InfinityIcon className="size-3" /> {expiryEnabled ? 'Free to use' : 'Never expires'}
+            <InfinityIcon className="size-3" /> {expiryEnabled ? copy.freeToUse : copy.neverExpires}
           </Badge>
         </div>
 
         <div className="space-y-5 p-5">
           <div className="space-y-2">
             <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
-              1 · What should it do?
+              {copy.step1}
             </p>
             <TypePicker value={draft.type} onChange={(type) => setType(type)} types={stripTypes} variant="strip" />
             {def ? (
               <p className="text-[12.5px] leading-5 text-muted-foreground">
-                <span className="font-medium text-foreground">{def.label}:</span> {def.description}
+                <span className="font-medium text-foreground">{typeLabel}:</span> {t(def.description)}
               </p>
             ) : null}
           </div>
 
           <div className="space-y-3">
             <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
-              2 · Add your content
+              {copy.step2}
             </p>
             <ContentForm
               type={draft.type}
@@ -170,24 +174,23 @@ export function HeroGenerator({
               onRequireAccount={(reason) => void openGate('signup', reason)}
             />
             {def?.kind === 'DYNAMIC' ? (
-              <Alert tone="info" title="This is a dynamic code">
-                The printed pattern points at a short link, so you can change where it goes later and see every scan.
-                A free account keeps it editable forever.
+              <Alert tone="info" title={copy.dynamicAlertTitle}>
+                {copy.dynamicAlertBody}
               </Alert>
             ) : null}
           </div>
 
           <div className="space-y-3">
             <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
-              3 · Make it yours
+              {copy.step3}
             </p>
             <Tabs defaultValue="design">
               <TabsList>
                 <TabsTrigger value="design">
-                  <Palette /> Design
+                  <Palette /> {copy.designTab}
                 </TabsTrigger>
                 <TabsTrigger value="name">
-                  <Pencil /> Name
+                  <Pencil /> {copy.nameTab}
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="design" className="pt-3">
@@ -201,9 +204,9 @@ export function HeroGenerator({
                     onClick={() => setDesignOpen(true)}
                   >
                     <span className="flex flex-col">
-                      <span className="text-[13.5px] font-semibold">Customise the design</span>
+                      <span className="text-[13.5px] font-semibold">{copy.customiseTitle}</span>
                       <span className="text-[12px] font-normal text-muted-foreground">
-                        Colours, gradients, shapes, logo and 30+ frames
+                        {copy.customiseBody}
                       </span>
                     </span>
                     <Palette className="size-4 text-primary" />
@@ -212,15 +215,15 @@ export function HeroGenerator({
               </TabsContent>
               <TabsContent value="name" className="pt-3">
                 <Field
-                  label="Name this code"
+                  label={copy.nameLabel}
                   htmlFor="draft-name"
-                  help="Only you see this. It makes the code easy to find later."
+                  help={copy.nameHelp}
                 >
                   <Input
                     id="draft-name"
                     value={draft.name}
                     onChange={(event) => setName(event.target.value)}
-                    placeholder={def ? `${def.label} code` : 'My QR code'}
+                    placeholder={fill(copy.namePlaceholder, { type: typeLabel || 'QR' })}
                     maxLength={120}
                   />
                 </Field>
@@ -234,8 +237,8 @@ export function HeroGenerator({
       <div className="lg:sticky lg:top-24 lg:self-start">
         <Card className="space-y-4 p-5">
           <div className="flex items-center justify-between">
-            <p className="text-[13px] font-semibold">Live preview</p>
-            <Badge variant="outline">{draft.kind === 'DYNAMIC' ? 'Dynamic' : 'Static'}</Badge>
+            <p className="text-[13px] font-semibold">{copy.livePreview}</p>
+            <Badge variant="outline">{draft.kind === 'DYNAMIC' ? copy.picker.dynamic : copy.picker.static}</Badge>
           </div>
 
           <div className="flex justify-center rounded-2xl bg-surface-muted/60 p-4">
@@ -245,7 +248,7 @@ export function HeroGenerator({
               size={272}
               onRender={({ moduleCount: count }) => setModuleCount(count)}
               placeholder={
-                def ? `Fill in the ${def.label.toLowerCase()} details and your code appears here instantly.` : undefined
+                def ? fill(copy.previewPlaceholder, { type: copy === englishCopy ? typeLabel.toLowerCase() : typeLabel }) : undefined
               }
             />
           </div>
@@ -253,7 +256,7 @@ export function HeroGenerator({
 
           {signedIn ? (
             <Button variant="brand" size="lg" className="w-full" onClick={() => void continueSignedIn()}>
-              Open in my dashboard <ArrowRight />
+              {copy.openDashboard} <ArrowRight className="rtl:rotate-180" />
             </Button>
           ) : (
             <DownloadGate
@@ -274,11 +277,11 @@ export function HeroGenerator({
               hint={
                 complete
                   ? guestDownloadable
-                    ? 'Free account keeps your code editable and tracked.'
+                    ? copy.hintGuest
                     : expiryEnabled
-                      ? 'Free account — no card, no subscription.'
-                      : 'Free account — no card, no trial, no expiry.'
-                  : 'Add your content to enable the download.'
+                      ? copy.hintAccountExpiry
+                      : copy.hintAccount
+                  : copy.hintEmpty
               }
             />
           )}
@@ -286,13 +289,11 @@ export function HeroGenerator({
           <ul className="space-y-1.5 text-[12px] leading-5 text-muted-foreground">
             <li className="flex gap-1.5">
               <Sparkles className="mt-0.5 size-3 shrink-0 text-primary" />
-              PNG, SVG, PDF, JPEG, WebP and EPS exports.
+              {copy.formats}
             </li>
             <li className="flex gap-1.5">
               <InfinityIcon className="mt-0.5 size-3 shrink-0 text-success" />
-              {expiryEnabled
-                ? 'Every code shows its expiry date in your dashboard.'
-                : 'Dynamic codes stay live until you pause or delete them.'}
+              {expiryEnabled ? copy.liveExpiry : copy.liveNever}
             </li>
           </ul>
         </Card>
@@ -304,8 +305,8 @@ export function HeroGenerator({
         onOpenChange={setAuthOpen}
         mode={authMode}
         googleEnabled={googleEnabled}
-        preview={payload ? { data: payload, design: draft.design, label: draft.name || def?.label } : null}
-        description={gateReason ?? 'Sign up to download your QR Code'}
+        preview={payload ? { data: payload, design: draft.design, label: draft.name || typeLabel } : null}
+        description={gateReason ?? copy.signupDescription}
         onSuccess={handleAuthSuccess}
       />
       ) : null}

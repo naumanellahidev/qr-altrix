@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { TypeIcon } from '@/components/ui/icon';
+import { useGeneratorCopy } from '@/components/qr/generator-copy';
 
 export interface TypePickerProps {
   value: string;
@@ -26,6 +27,7 @@ export function TypePicker({
   showSearch = true,
   className,
 }: TypePickerProps) {
+  const { copy, t } = useGeneratorCopy();
   const [query, setQuery] = React.useState('');
   const [category, setCategory] = React.useState<'All' | QrTypeDef['category']>('All');
 
@@ -44,7 +46,7 @@ export function TypePicker({
 
   if (variant === 'strip') {
     return (
-      <div className={cn('flex gap-2 overflow-x-auto pb-1', className)} role="radiogroup" aria-label="QR code type">
+      <div className={cn('flex gap-2 overflow-x-auto pb-1', className)} role="radiogroup" aria-label={copy.picker.label}>
         {types.map((type) => {
           const selected = type.type === value;
           return (
@@ -62,7 +64,7 @@ export function TypePicker({
               )}
             >
               <TypeIcon name={type.icon} className={selected ? 'text-primary' : 'text-muted-foreground'} />
-              {type.label}
+              {t(type.label)}
             </button>
           );
         })}
@@ -77,7 +79,7 @@ export function TypePicker({
           <Input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search QR code types…"
+            placeholder={copy.picker.search}
             prefix={<Search className="size-3.5" />}
             className="sm:max-w-xs"
           />
@@ -136,7 +138,7 @@ export function TypePicker({
                   <span className="flex items-center gap-2">
                     <span className="truncate text-[13.5px] font-semibold">{type.label}</span>
                     <Badge variant={type.kind === 'DYNAMIC' ? 'primary' : 'outline'} className="shrink-0">
-                      {type.kind === 'DYNAMIC' ? 'Dynamic' : 'Static'}
+                      {type.kind === 'DYNAMIC' ? copy.picker.dynamic : copy.picker.static}
                     </Badge>
                   </span>
                   <span className="mt-0.5 block text-[12.5px] leading-5 text-muted-foreground">{type.tagline}</span>

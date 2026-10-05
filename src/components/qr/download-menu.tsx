@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { GoogleIcon } from '@/components/auth/google-icon';
 import { toast } from 'sonner';
+import { fill, useGeneratorCopy } from '@/components/qr/generator-copy';
 
 export interface DownloadRequest {
   data: string;
@@ -147,15 +148,17 @@ export function DownloadGate({
   onGoogleSignup,
   hint,
 }: DownloadGateProps) {
+  const { copy } = useGeneratorCopy();
+  const d = copy.download;
   const [busy, setBusy] = React.useState(false);
 
   async function guestDownload(format: ExportFormat) {
     setBusy(true);
     try {
       await downloadQrFile({ ...request, format, size: 1024 });
-      toast.success(`${format.toUpperCase()} downloaded`);
+      toast.success(fill(d.downloaded, { format: format.toUpperCase() }));
     } catch (error) {
-      toast.error((error as Error).message);
+      toast.error((error as Error).message || d.failed);
     } finally {
       setBusy(false);
     }
@@ -166,41 +169,41 @@ export function DownloadGate({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="brand" size="lg" className="w-full" disabled={disabled} loading={busy}>
-            <Download /> Download QR code
+            <Download /> {d.button}
             <ChevronDown className="opacity-70" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[17rem]">
-          <DropdownMenuLabel>Save your code</DropdownMenuLabel>
+          <DropdownMenuLabel>{d.saveLabel}</DropdownMenuLabel>
           <DropdownMenuItem onSelect={onGoogleSignup} className="gap-2.5">
             <GoogleIcon className="size-4" />
             <span className="flex flex-col items-start gap-0.5">
-              <span className="font-medium">Download with Google</span>
-              <span className="text-[11.5px] text-muted-foreground">One tap, no password</span>
+              <span className="font-medium">{d.google}</span>
+              <span className="text-[11.5px] text-muted-foreground">{d.googleSub}</span>
             </span>
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={onEmailSignup} className="gap-2.5">
             <Mail />
             <span className="flex flex-col items-start gap-0.5">
-              <span className="font-medium">Download with Email</span>
-              <span className="text-[11.5px] text-muted-foreground">Free account, keeps your code editable</span>
+              <span className="font-medium">{d.email}</span>
+              <span className="text-[11.5px] text-muted-foreground">{d.emailSub}</span>
             </span>
           </DropdownMenuItem>
 
           {allowGuestDownload ? (
             <>
               <DropdownMenuSeparator />
-              <DropdownMenuLabel>Or download without an account</DropdownMenuLabel>
-              <DropdownMenuItem onSelect={() => void guestDownload('png')}>PNG image</DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => void guestDownload('svg')}>SVG vector</DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => void guestDownload('pdf')}>PDF for print</DropdownMenuItem>
+              <DropdownMenuLabel>{d.guestLabel}</DropdownMenuLabel>
+              <DropdownMenuItem onSelect={() => void guestDownload('png')}>{d.png}</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => void guestDownload('svg')}>{d.svg}</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => void guestDownload('pdf')}>{d.pdf}</DropdownMenuItem>
             </>
           ) : (
             <>
               <DropdownMenuSeparator />
               <div className="flex gap-2 px-2.5 py-2 text-[11.5px] leading-5 text-muted-foreground">
                 <Lock className="mt-0.5 size-3.5 shrink-0" />
-                An account keeps this code editable and tracked. It is free, with no expiry.
+                {d.accountNote}
               </div>
             </>
           )}

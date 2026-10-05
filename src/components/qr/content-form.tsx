@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { ColorInput } from '@/components/qr/color-input';
 import { toast } from 'sonner';
+import { useGeneratorCopy } from '@/components/qr/generator-copy';
 
 export interface UploadedRef {
   url: string;
@@ -46,6 +47,8 @@ function FileDrop({
   onRequireAccount?: ContentFormProps['onRequireAccount'];
   onChange: (value: unknown) => void;
 }) {
+  const { copy } = useGeneratorCopy();
+  const f = copy.form;
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [busy, setBusy] = React.useState(false);
   const [dragging, setDragging] = React.useState(false);
@@ -54,7 +57,7 @@ function FileDrop({
   async function accept(files: FileList | null) {
     if (!files || files.length === 0) return;
     if (!uploadFile) {
-      onRequireAccount?.('Create a free account to upload files — your design is kept.');
+      onRequireAccount?.(f.uploadReason);
       return;
     }
     setBusy(true);
@@ -104,12 +107,12 @@ function FileDrop({
           <Lock className="size-5 text-muted-foreground" aria-hidden />
         )}
         <p className="text-[13px] font-medium">
-          {uploadFile ? 'Drop a file here or choose one' : 'Free account needed to upload'}
+          {uploadFile ? f.dropFile : f.needAccount}
         </p>
         <p className="max-w-xs text-[12px] leading-5 text-muted-foreground">
           {uploadFile
-            ? `${field.accept?.replace('application/', '').replace('/*', ' files') ?? 'Any file'} · stored on your own server`
-            : 'Sign up in two fields and your design carries over.'}
+            ? `${field.accept?.replace('application/', '').replace('/*', ' files') ?? f.anyFile} · ${f.storedOnServer}`
+            : f.signupCarries}
         </p>
         <Button
           type="button"
@@ -119,10 +122,10 @@ function FileDrop({
           onClick={() =>
             uploadFile
               ? inputRef.current?.click()
-              : onRequireAccount?.('Create a free account to upload files — your design is kept.')
+              : onRequireAccount?.(f.uploadReason)
           }
         >
-          {uploadFile ? 'Choose file' : 'Create free account'}
+          {uploadFile ? f.chooseFile : f.createAccount}
         </Button>
       </div>
 
@@ -140,7 +143,7 @@ function FileDrop({
                 onClick={() =>
                   onChange(multiple ? list.filter((_, i) => i !== index) : null)
                 }
-                aria-label="Remove file"
+                aria-label={f.removeFile}
               >
                 <X className="size-3.5" />
               </button>
@@ -161,6 +164,8 @@ function Repeater({
   rows: Record<string, unknown>[];
   onChange: (rows: Record<string, unknown>[]) => void;
 }) {
+  const { copy, t, locale } = useGeneratorCopy();
+  const f = copy.form;
   function update(index: number, patch: Record<string, unknown>) {
     onChange(rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
   }
@@ -177,7 +182,7 @@ function Repeater({
     <div className="space-y-2">
       {rows.length === 0 ? (
         <p className="rounded-lg border border-dashed border-border bg-surface-muted/50 px-3 py-4 text-center text-[12.5px] text-muted-foreground">
-          Nothing added yet.
+          {f.nothingYet}
         </p>
       ) : null}
 
@@ -195,7 +200,7 @@ function Repeater({
                 size="icon-sm"
                 onClick={() => move(index, -1)}
                 disabled={index === 0}
-                aria-label="Move up"
+                aria-label={f.moveUp}
               >
                 ↑
               </Button>
@@ -205,7 +210,7 @@ function Repeater({
                 size="icon-sm"
                 onClick={() => move(index, 1)}
                 disabled={index === rows.length - 1}
-                aria-label="Move down"
+                aria-label={f.moveDown}
               >
                 ↓
               </Button>
@@ -215,7 +220,7 @@ function Repeater({
                 size="icon-sm"
                 className="text-muted-foreground hover:text-destructive"
                 onClick={() => onChange(rows.filter((_, i) => i !== index))}
-                aria-label="Remove"
+                aria-label={f.remove}
               >
                 <Trash2 />
               </Button>
@@ -224,19 +229,19 @@ function Repeater({
 
           <div className={cn('grid gap-2.5', (field.itemFields?.length ?? 0) > 1 && 'sm:grid-cols-2')}>
             {(field.itemFields ?? []).map((sub) => (
-              <Field key={sub.name} label={sub.label}>
+              <Field key={sub.name} label={t(sub.label)}>
                 {sub.type === 'select' ? (
                   <Select
                     value={String(row[sub.name] ?? sub.options?.[0]?.value ?? '')}
                     onValueChange={(value) => update(index, { [sub.name]: value })}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Choose" />
+                      <SelectValue placeholder={f.choose} />
                     </SelectTrigger>
                     <SelectContent>
                       {(sub.options ?? []).map((option) => (
                         <SelectItem key={option.value} value={option.value}>
-                          {option.label}
+                          {t(option.label)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -250,14 +255,14 @@ function Repeater({
                   <Textarea
                     value={String(row[sub.name] ?? '')}
                     onChange={(event) => update(index, { [sub.name]: event.target.value })}
-                    placeholder={sub.placeholder}
+                    placeholder={sub.placeholder && t(sub.placeholder)}
                   />
                 ) : (
                   <Input
                     type={sub.type === 'url' ? 'text' : sub.type === 'time' ? 'time' : sub.type}
                     value={String(row[sub.name] ?? '')}
                     onChange={(event) => update(index, { [sub.name]: event.target.value })}
-                    placeholder={sub.placeholder ?? (sub.type === 'url' ? 'https://' : undefined)}
+                    placeholder={sub.placeholder ? t(sub.placeholder) : sub.type === 'url' ? 'https://' : undefined}
                   />
                 )}
               </Field>
@@ -273,7 +278,7 @@ function Repeater({
         onClick={() => onChange([...rows, {}])}
         disabled={rows.length >= (field.max ?? 50)}
       >
-        <Plus /> Add {field.label.toLowerCase().replace(/s$/, '')}
+        <Plus /> {locale === 'en' ? `${f.add} ${field.label.toLowerCase().replace(/s$/, '')}` : f.add}
       </Button>
     </div>
   );
@@ -292,6 +297,7 @@ export function ContentForm({
   onRequireAccount,
   className,
 }: ContentFormProps) {
+  const { copy, t } = useGeneratorCopy();
   const def = getTypeDef(type);
   if (!def) return null;
 
@@ -316,7 +322,7 @@ export function ContentForm({
               id={fieldId}
               value={String(current ?? '')}
               onChange={(event) => onChange({ [field.name]: event.target.value })}
-              placeholder={field.placeholder}
+              placeholder={field.placeholder && t(field.placeholder)}
               invalid={Boolean(error)}
               maxLength={field.max ?? 5000}
               rows={field.name === 'items' ? 5 : 3}
@@ -326,16 +332,16 @@ export function ContentForm({
           const selected = String(current ?? field.defaultValue ?? field.options?.[0]?.value ?? '');
           // The label is given explicitly: Radix only learns it from mounted items, so the
           // server-rendered (and not-yet-hydrated) trigger would otherwise be blank.
-          const selectedLabel = field.options?.find((option) => option.value === selected)?.label;
+          const selectedLabel = t(field.options?.find((option) => option.value === selected)?.label) || undefined;
           return (
             <Select value={selected} onValueChange={(next) => onChange({ [field.name]: next })}>
               <SelectTrigger id={fieldId} invalid={Boolean(error)}>
-                <SelectValue placeholder="Choose one">{selectedLabel}</SelectValue>
+                <SelectValue placeholder={copy.form.chooseOne}>{selectedLabel}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {(field.options ?? []).map((option) => (
                   <SelectItem key={option.value} value={option.value}>
-                    {option.label}
+                    {t(option.label)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -395,7 +401,7 @@ export function ContentForm({
               inputMode={field.type === 'number' ? 'decimal' : undefined}
               value={String(current ?? field.defaultValue ?? '')}
               onChange={(event) => onChange({ [field.name]: event.target.value })}
-              placeholder={field.placeholder ?? (field.type === 'url' ? 'https://' : undefined)}
+              placeholder={field.placeholder ? t(field.placeholder) : field.type === 'url' ? 'https://' : undefined}
               invalid={Boolean(error)}
               autoComplete={field.type === 'email' ? 'email' : field.type === 'tel' ? 'tel' : 'off'}
             />
@@ -409,10 +415,10 @@ export function ContentForm({
     return (
       <Field
         key={field.name}
-        label={field.label}
+        label={t(field.label)}
         htmlFor={fieldId}
         required={field.required}
-        help={field.help}
+        help={field.help && t(field.help)}
         error={error}
         className={isWide ? 'sm:col-span-2' : undefined}
       >
@@ -426,7 +432,7 @@ export function ContentForm({
       {Array.from(groups.entries()).map(([group, fields]) => (
         <div key={group || 'default'} className="space-y-3">
           {group ? (
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{group}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{t(group)}</p>
           ) : null}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">{fields.map(renderField)}</div>
         </div>

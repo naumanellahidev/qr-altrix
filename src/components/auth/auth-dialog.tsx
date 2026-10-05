@@ -12,6 +12,7 @@ import {
 import { AuthForm } from '@/components/auth/auth-form';
 import { QrThumb } from '@/components/qr/qr-preview';
 import type { QrDesign } from '@/lib/qr/types';
+import { useGeneratorCopy } from '@/components/qr/generator-copy';
 
 export interface AuthDialogProps {
   open: boolean;
@@ -38,9 +39,11 @@ export function AuthDialog({
   next = '/dashboard?claim=1',
   preview,
   onSuccess,
-  title = 'Last step',
-  description = 'Sign up to download your QR Code',
+  title,
+  description,
 }: AuthDialogProps) {
+  const { copy } = useGeneratorCopy();
+  const a = copy.auth;
   const [currentMode, setCurrentMode] = React.useState<'signup' | 'login'>(mode);
 
   React.useEffect(() => {
@@ -52,10 +55,10 @@ export function AuthDialog({
       <DialogContent size="sm" className="gap-4">
         <DialogHeader>
           <DialogTitle className="text-[20px]">
-            {currentMode === 'signup' ? title : 'Welcome back'}
+            {currentMode === 'signup' ? (title ?? a.title) : a.welcomeBack}
           </DialogTitle>
           <DialogDescription>
-            {currentMode === 'signup' ? description : 'Log in to save and download your QR code.'}
+            {currentMode === 'signup' ? (description ?? copy.signupDescription) : a.loginDescription}
           </DialogDescription>
         </DialogHeader>
 
@@ -63,10 +66,10 @@ export function AuthDialog({
           <div className="flex items-center gap-3 rounded-xl border border-border bg-surface-muted/60 p-3">
             <QrThumb data={preview.data} design={preview.design} size={52} />
             <div className="min-w-0">
-              <p className="truncate text-[13px] font-medium">{preview.label ?? 'Your QR code is ready'}</p>
+              <p className="truncate text-[13px] font-medium">{preview.label || a.ready}</p>
               <p className="flex items-center gap-1 text-[12px] text-muted-foreground">
                 <Sparkles className="size-3 text-primary" />
-                Your design is saved and will be waiting inside.
+                {a.saved}
               </p>
             </div>
           </div>

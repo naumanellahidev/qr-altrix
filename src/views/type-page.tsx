@@ -67,7 +67,7 @@ export async function TypePage({ locale, slug }: { locale: Locale; slug: string 
           </div>
         </div>
         <div className="container relative z-10 pb-12">
-          <GeneratorSection initialType={key} />
+          <GeneratorSection initialType={key} locale={locale} />
         </div>
       </section>
 

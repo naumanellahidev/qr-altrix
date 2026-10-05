@@ -5,6 +5,7 @@ import { CheckCircle2, Info, ShieldCheck, TriangleAlert, XCircle } from 'lucide-
 import { checkScanSafety, type ScanSafetyReport } from '@/lib/qr/contrast';
 import type { QrDesign } from '@/lib/qr/types';
 import { cn } from '@/lib/utils';
+import { useGeneratorCopy } from '@/components/qr/generator-copy';
 
 const LEVEL_META = {
   excellent: { label: 'Excellent', tone: 'text-success', ring: 'stroke-success', icon: ShieldCheck },
@@ -29,6 +30,7 @@ export function ScanSafety({
     [design, moduleCount],
   );
 
+  const { copy } = useGeneratorCopy();
   const meta = LEVEL_META[report.level];
   const Icon = meta.icon;
   const circumference = 2 * Math.PI * 16;
@@ -58,12 +60,12 @@ export function ScanSafety({
         <div className="min-w-0 flex-1">
           <p className="flex items-center gap-1.5 text-[13.5px] font-semibold">
             <Icon className={cn('size-4', meta.tone)} />
-            Scan safety: <span className={meta.tone}>{meta.label}</span>
+            {copy.safety.title}: <span className={meta.tone}>{copy.safety[report.level]}</span>
           </p>
           <p className="text-[12px] leading-5 text-muted-foreground">
-            Contrast {report.contrastRatio}:1
-            {moduleCount ? ` · ${moduleCount}×${moduleCount} modules` : ''}
-            {report.issues.length === 0 ? ' · no problems found' : ''}
+            {copy.safety.contrast} {report.contrastRatio}:1
+            {moduleCount ? ` · ${moduleCount}×${moduleCount} ${copy.safety.modules}` : ''}
+            {report.issues.length === 0 ? ` · ${copy.safety.noProblems}` : ''}
           </p>
         </div>
       </div>

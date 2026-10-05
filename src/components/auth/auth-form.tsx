@@ -11,6 +11,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Alert } from '@/components/ui/feedback';
 import { GoogleIcon } from '@/components/auth/google-icon';
 import { Separator } from '@/components/ui/misc';
+import { useGeneratorCopy } from '@/components/qr/generator-copy';
 
 export interface AuthFormProps {
   mode: 'signup' | 'login';
@@ -34,6 +35,7 @@ export function AuthForm({
   compact,
 }: AuthFormProps) {
   const router = useRouter();
+  const a = useGeneratorCopy().copy.auth;
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [name, setName] = React.useState('');
@@ -74,13 +76,13 @@ export function AuthForm({
 
       if (response.status === 401 && payload.requiresTwoFactor) {
         setNeedsTwoFactor(true);
-        setFormError('Enter the 6-digit code from your authenticator app.');
+        setFormError(a.errorCode);
         return;
       }
 
       if (!response.ok || !payload.ok) {
         if (payload.fields) setErrors(payload.fields);
-        setFormError(payload.error ?? 'Something went wrong. Please try again.');
+        setFormError(payload.error ?? a.errorGeneric);
         return;
       }
 
@@ -95,7 +97,7 @@ export function AuthForm({
         router.refresh();
       }
     } catch {
-      setFormError('Network problem — check your connection and try again.');
+      setFormError(a.errorNetwork);
     } finally {
       setLoading(false);
     }
@@ -111,13 +113,13 @@ export function AuthForm({
         <>
           <Button variant="outline" className="w-full" asChild>
             <a href={`/api/auth/google?next=${encodeURIComponent(next)}`}>
-              <GoogleIcon /> {isSignup ? 'Sign up with Google' : 'Continue with Google'}
+              <GoogleIcon /> {isSignup ? a.googleSignup : a.googleContinue}
             </a>
           </Button>
           <div className="relative py-1">
             <Separator />
             <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-[11.5px] uppercase tracking-wide text-muted-foreground">
-              or
+              {a.or}
             </span>
           </div>
         </>
@@ -125,36 +127,36 @@ export function AuthForm({
 
       <form onSubmit={submit} className="space-y-3.5" noValidate>
         {isSignup && !compact ? (
-          <Field label="Your name" htmlFor="auth-name" hint="optional">
+          <Field label={a.name} htmlFor="auth-name" hint={a.optional}>
             <Input
               id="auth-name"
               value={name}
               onChange={(event) => setName(event.target.value)}
               autoComplete="name"
-              placeholder="Ayesha Khan"
+              placeholder={a.namePlaceholder}
             />
           </Field>
         ) : null}
 
-        <Field label="Email" htmlFor="auth-email" required error={errors.email}>
+        <Field label={a.email} htmlFor="auth-email" required error={errors.email}>
           <Input
             id="auth-email"
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             autoComplete="email"
-            placeholder="you@company.com"
+            placeholder={a.emailPlaceholder}
             required
             invalid={Boolean(errors.email)}
           />
         </Field>
 
         <Field
-          label="Password"
+          label={a.password}
           htmlFor="auth-password"
           required
           error={errors.password}
-          help={isSignup ? 'At least 8 characters, with a number.' : undefined}
+          help={isSignup ? a.passwordHelp : undefined}
         >
           <div className="relative">
             <Input
@@ -163,16 +165,16 @@ export function AuthForm({
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               autoComplete={isSignup ? 'new-password' : 'current-password'}
-              placeholder={isSignup ? 'Create a password' : 'Your password'}
+              placeholder={isSignup ? a.passwordCreate : a.passwordYours}
               required
               invalid={Boolean(errors.password)}
-              className="pr-10"
+              className="pe-10"
             />
             <button
               type="button"
               onClick={() => setShowPassword((value) => !value)}
-              className="absolute right-0.5 top-0.5 inline-flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground"
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              className="absolute end-0.5 top-0.5 inline-flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground"
+              aria-label={showPassword ? a.hidePassword : a.showPassword}
             >
               {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
             </button>
@@ -180,7 +182,7 @@ export function AuthForm({
         </Field>
 
         {needsTwoFactor ? (
-          <Field label="Authentication code" htmlFor="auth-code" required>
+          <Field label={a.code} htmlFor="auth-code" required>
             <Input
               id="auth-code"
               value={code}
@@ -203,13 +205,13 @@ export function AuthForm({
               aria-invalid={Boolean(errors.acceptTerms)}
             />
             <span>
-              I agree to the{' '}
+              {a.agree}{' '}
               <Link href="/legal/terms" className="font-medium text-primary hover:underline" target="_blank">
-                terms of service
+                {a.termsLink}
               </Link>{' '}
-              and{' '}
+              {a.and}{' '}
               <Link href="/legal/privacy" className="font-medium text-primary hover:underline" target="_blank">
-                privacy policy
+                {a.privacyLink}
               </Link>
               .
             </span>
@@ -219,25 +221,25 @@ export function AuthForm({
         {formError ? <Alert tone="error">{formError}</Alert> : null}
 
         <Button type="submit" variant="brand" size="lg" className="w-full" loading={loading}>
-          {isSignup ? 'Sign up now' : 'Log in'}
+          {isSignup ? a.signup : a.login}
         </Button>
       </form>
 
       <div className="flex flex-col gap-2 text-center text-[12.5px] text-muted-foreground">
         {isSignup ? (
           <p>
-            Already have an account?{' '}
+            {a.haveAccount}{' '}
             {onSwitchMode ? (
               <button
                 type="button"
                 className="font-medium text-primary hover:underline"
                 onClick={() => onSwitchMode('login')}
               >
-                Log in
+                {a.login}
               </button>
             ) : (
               <Link href="/login" className="font-medium text-primary hover:underline">
-                Log in
+                {a.login}
               </Link>
             )}
           </p>
@@ -245,22 +247,22 @@ export function AuthForm({
           <>
             <p>
               <Link href="/forgot-password" className="font-medium text-primary hover:underline">
-                Forgot your password?
+                {a.forgot}
               </Link>
             </p>
             <p>
-              New to QR ALTRIX?{' '}
+              {a.newHere}{' '}
               {onSwitchMode ? (
                 <button
                   type="button"
                   className="font-medium text-primary hover:underline"
                   onClick={() => onSwitchMode('signup')}
                 >
-                  Create a free account
+                  {a.createAccount}
                 </button>
               ) : (
                 <Link href="/signup" className="font-medium text-primary hover:underline">
-                  Create a free account
+                  {a.createAccount}
                 </Link>
               )}
             </p>
@@ -268,7 +270,7 @@ export function AuthForm({
         )}
         <p className="flex items-center justify-center gap-1.5 pt-1 text-[11.5px]">
           <ShieldCheck className="size-3.5 text-success" />
-          Free forever. Dynamic codes never expire.
+          {a.freeForever}
         </p>
       </div>
     </div>
