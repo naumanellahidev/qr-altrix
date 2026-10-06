@@ -55,6 +55,7 @@ export function TypePicker({
               type="button"
               role="radio"
               aria-checked={selected}
+              data-qr-type={type.type}
               onClick={() => onChange(type.type, type)}
               className={cn(
                 'flex shrink-0 items-center gap-2 rounded-xl border px-3 py-2 text-[13px] font-medium transition-all',
@@ -117,6 +118,7 @@ export function TypePicker({
                 type="button"
                 onClick={() => onChange(type.type, type)}
                 aria-pressed={selected}
+                data-qr-type={type.type}
                 className={cn(
                   'group flex flex-col items-start gap-2 rounded-xl border p-3 text-left transition-all sm:flex-row sm:gap-3 sm:p-3.5',
                   selected

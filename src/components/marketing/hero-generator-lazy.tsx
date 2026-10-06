@@ -41,6 +41,15 @@ const WAKE_EVENTS = ['pointerdown', 'pointermove', 'touchstart', 'keydown', 'foc
  */
 const early: Record<string, string> = {};
 
+/** Key under which a type tapped before hydration is kept (a phone's first tap would be lost). */
+export const EARLY_TYPE = '__type';
+
+function recordEarlyClick(event: Event) {
+  const target = event.target instanceof Element ? event.target.closest('[data-qr-type]') : null;
+  const type = target?.getAttribute('data-qr-type');
+  if (type) early[EARLY_TYPE] = type;
+}
+
 function recordEarlyInput(event: Event) {
   const target = event.target;
   if (!(target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement)) return;
@@ -51,12 +60,16 @@ function takeEarlyInput(): Record<string, string> {
   const values = { ...early };
   for (const key of Object.keys(early)) delete early[key];
   window.removeEventListener('input', recordEarlyInput, true);
+  window.removeEventListener('click', recordEarlyClick, true);
   return values;
 }
 
 export function LazyHeroGenerator(props: HeroGeneratorProps) {
   React.useEffect(() => {
     window.addEventListener('input', recordEarlyInput, true);
+    // React does not reliably replay a tap that lands while the chunk is still loading:
+    // remember which type was tapped and let the generator apply it once it is live.
+    window.addEventListener('click', recordEarlyClick, true);
     if (!release) return;
     const wake = () => {
       release?.();

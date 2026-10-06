@@ -27,6 +27,7 @@ import { QrPreview } from '@/components/qr/qr-preview';
 import { ScanSafety } from '@/components/qr/scan-safety';
 import { DownloadMenu, downloadQrFile } from '@/components/qr/download-menu';
 import { CopyField } from '@/components/ui/copy-button';
+import { QrCode } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 
@@ -445,7 +446,7 @@ export function Builder({
                     disabled={disabled}
                     onClick={() => setStep(item.id)}
                     className={cn(
-                      'flex items-center gap-2 rounded-xl px-3 py-2 text-[13px] font-medium transition-colors',
+                      'flex items-center gap-2 rounded-xl px-2.5 py-2 text-[13px] font-medium transition-colors sm:px-3',
                       active
                         ? 'bg-primary text-primary-foreground shadow-soft'
                         : done
@@ -464,7 +465,7 @@ export function Builder({
                     </span>
                     <span className={cn(!active && 'hidden sm:inline')}>{item.label}</span>
                   </button>
-                  {index < STEPS.length - 1 ? <span className="h-px w-3 bg-border" aria-hidden /> : null}
+                  {index < STEPS.length - 1 ? <span className="hidden h-px w-3 bg-border sm:block" aria-hidden /> : null}
                 </li>
               );
             })}
@@ -1077,8 +1078,12 @@ export function Builder({
               aria-label="Show the live preview"
               className="flex h-10 shrink-0 items-center gap-2 rounded-xl border border-border bg-card pl-1 pr-2.5 text-[12.5px] font-medium"
             >
-              <span className="block size-8 overflow-hidden rounded-md bg-white">
-                <QrPreview data={payload} design={design} size={32} bare />
+              <span className="flex size-8 items-center justify-center overflow-hidden rounded-md bg-white">
+                {payload ? (
+                  <QrPreview data={payload} design={design} size={32} bare />
+                ) : (
+                  <QrCode className="size-4 text-muted-foreground" />
+                )}
               </span>
               Preview
             </button>
@@ -1098,7 +1103,8 @@ export function Builder({
 
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
         <DialogContent className="max-h-[90dvh] max-w-sm overflow-y-auto">
-          <DialogHeader>
+          {/* The panel carries its own "Live preview" heading; this one is for screen readers. */}
+          <DialogHeader className="sr-only">
             <DialogTitle>Live preview</DialogTitle>
             <DialogDescription>Exactly the file you download.</DialogDescription>
           </DialogHeader>

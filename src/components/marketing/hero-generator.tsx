@@ -74,7 +74,10 @@ export function HeroGenerator({
   // draft hook restores a saved draft, so fresh typing wins over an old draft.
   React.useEffect(() => {
     const values = earlyInput?.() ?? {};
+    // A type tapped before hydration first (changing type resets the content), then text.
+    if (values.__type && getTypeDef(values.__type)) setType(values.__type);
     for (const [id, value] of Object.entries(values)) {
+      if (id === '__type') continue;
       if (id === 'draft-name') setName(value);
       else patchContent({ [id.slice('content-'.length)]: value });
     }
