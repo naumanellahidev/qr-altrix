@@ -37,14 +37,15 @@ export function Alert({
   return (
     <div
       role={tone === 'error' ? 'alert' : 'status'}
-      className={cn('flex gap-3 rounded-xl border p-3.5 text-[13.5px] leading-6', alertStyles[tone], className)}
+      className={cn('flex flex-wrap gap-x-3 gap-y-2.5 rounded-xl border p-3.5 text-[13.5px] leading-6', alertStyles[tone], className)}
     >
       <Icon data-icon className="mt-0.5 size-4 shrink-0" />
       <div className="min-w-0 flex-1">
         {title ? <p className="font-semibold leading-5">{title}</p> : null}
         {children ? <div className={cn(title && 'mt-0.5', 'text-muted-foreground')}>{children}</div> : null}
       </div>
-      {action ? <div className="shrink-0 self-center">{action}</div> : null}
+      {/* On a phone the action sits under the text instead of squeezing it into a sliver. */}
+      {action ? <div className="w-full pl-7 sm:w-auto sm:shrink-0 sm:self-center sm:pl-0">{action}</div> : null}
     </div>
   );
 }

@@ -27,6 +27,7 @@ import { QrPreview } from '@/components/qr/qr-preview';
 import { ScanSafety } from '@/components/qr/scan-safety';
 import { DownloadMenu, downloadQrFile } from '@/components/qr/download-menu';
 import { CopyField } from '@/components/ui/copy-button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 
 export interface BuilderOption {
@@ -93,7 +94,7 @@ export interface BuilderProps {
 const STEPS = [
   { id: 'type', label: 'Type', icon: Sparkles },
   { id: 'content', label: 'Content', icon: Link2 },
-  { id: 'behaviour', label: 'Behaviour', icon: Settings2 },
+  { id: 'behaviour', label: 'Options', icon: Settings2 },
   { id: 'design', label: 'Design', icon: Palette },
   { id: 'test', label: 'Test', icon: Smartphone },
   { id: 'save', label: 'Save', icon: Save },
@@ -323,11 +324,115 @@ export function Builder({
     setStep(next.id);
   }
 
+  const previewPanel = (
+        <Card className="space-y-4 p-5">
+          <div className="flex items-center justify-between">
+            <p className="text-[13px] font-semibold">Live preview</p>
+            <Badge variant="outline">{def?.label}</Badge>
+          </div>
+
+          <div className="flex justify-center rounded-2xl bg-surface-muted/60 p-4">
+            <QrPreview
+              data={payload}
+              design={design}
+              size={252}
+              onRender={({ moduleCount: count }) => setModuleCount(count)}
+            />
+          </div>
+
+          <ScanSafety design={design} moduleCount={moduleCount} compact />
+
+          <div className="space-y-2">
+            {savedId ? (
+              <DownloadMenu
+                request={{ data: payload, design, name, qrCodeId: savedId }}
+                label="Download"
+                className="w-full"
+              />
+            ) : (
+              <Button
+                variant="brand"
+                size="lg"
+                className="w-full"
+                disabled={!canSave}
+                loading={saving}
+                onClick={() => void save('stay')}
+              >
+                <Save /> Save and download
+              </Button>
+            )}
+            {savedId ? (
+              <Button variant="outline" className="w-full" loading={saving} onClick={() => void save('list')}>
+                Save and close
+              </Button>
+            ) : null}
+          </div>
+
+          {kind === 'DYNAMIC' ? (
+            <p className="flex items-start gap-1.5 text-[11.5px] leading-5 text-muted-foreground">
+              <Globe className="mt-0.5 size-3 shrink-0" />
+              Dynamic codes encode a short link, so the pattern stays simple and you keep control of the destination.
+            </p>
+          ) : (
+            <p className="flex items-start gap-1.5 text-[11.5px] leading-5 text-muted-foreground">
+              <KeyRound className="mt-0.5 size-3 shrink-0" />
+              Static codes cannot be edited or tracked after printing. Switch to a dynamic type if you need either.
+            </p>
+          )}
+        </Card>
+  );
+
+  // Each step starts at its top. On a phone the previous step leaves the page scrolled far
+  // down, and the user would otherwise land in the middle of the next one.
+  const topRef = React.useRef<HTMLDivElement>(null);
+  const firstStep = React.useRef(true);
+  React.useEffect(() => {
+    if (firstStep.current) {
+      firstStep.current = false;
+      return;
+    }
+    const element = topRef.current;
+    if (!element) return;
+    const top = Math.max(0, element.getBoundingClientRect().top + window.scrollY - 76);
+    if (Math.abs(window.scrollY - top) > 4) window.scrollTo({ top, behavior: 'smooth' });
+  }, [step]);
+
+  const [previewOpen, setPreviewOpen] = React.useState(false);
+
+  // The phone's bottom bar: the way back and the way forward, always within thumb reach.
+  const back: (() => void) | null =
+    step === 'content'
+      ? editing
+        ? null
+        : () => setStep('type')
+      : step === 'behaviour'
+        ? () => setStep('content')
+        : step === 'design'
+          ? () => setStep('behaviour')
+          : step === 'test'
+            ? () => setStep('design')
+            : null;
+  const primary: { label: string; onClick: () => void; disabled?: boolean; loading?: boolean } | null =
+    step === 'type'
+      ? { label: 'Continue', onClick: () => setStep('content') }
+      : step === 'content'
+        ? { label: 'Continue', onClick: goNext }
+        : step === 'behaviour'
+          ? { label: 'Next: design', onClick: () => setStep('design') }
+          : step === 'design'
+            ? { label: 'Preview and test', onClick: () => setStep('test') }
+            : step === 'test'
+              ? { label: editing ? 'Save changes' : 'Save QR code', onClick: () => void save('stay'), disabled: !canSave, loading: saving }
+              : null;
+
   return (
-    <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_352px]">
-      <div className="min-w-0 space-y-5">
+    <div className="grid grid-cols-1 gap-5 pb-24 lg:grid-cols-[minmax(0,1fr)_352px] lg:pb-0">
+      <div ref={topRef} className="min-w-0 space-y-5">
         {/* ------------------------------------------------------------ stepper */}
         <nav aria-label="Builder steps" className="overflow-x-auto">
+          <p className="mb-2 text-[12.5px] font-medium text-muted-foreground sm:hidden">
+            Step {stepIndex + 1} of {STEPS.length} · <span className="text-foreground">{STEPS[stepIndex]?.label}</span>
+          </p>
           <ol className="flex min-w-max items-center gap-1.5">
             {STEPS.map((item, index) => {
               const active = item.id === step;
@@ -357,7 +462,7 @@ export function Builder({
                     >
                       {done ? <Check className="size-3" /> : index + 1}
                     </span>
-                    {item.label}
+                    <span className={cn(!active && 'hidden sm:inline')}>{item.label}</span>
                   </button>
                   {index < STEPS.length - 1 ? <span className="h-px w-3 bg-border" aria-hidden /> : null}
                 </li>
@@ -371,7 +476,7 @@ export function Builder({
           <Card className="p-5">
             <h2 className="mb-1 font-display text-[16px] font-semibold">What should this code do?</h2>
             <p className="mb-4 text-[13px] text-muted-foreground">
-              Pick a type. You can change the design and destination later — the printed pattern stays valid.
+              Tap a type to continue. You can change the design and destination later — the printed pattern stays valid.
             </p>
             <TypePicker
               value={type}
@@ -380,10 +485,11 @@ export function Builder({
                 setKind(nextDef.kind);
                 setContent({});
                 setErrors({});
+                setStep('content');
               }}
               types={QR_TYPES}
             />
-            <div className="mt-5 flex justify-end">
+            <div className="mt-5 hidden justify-end lg:flex">
               <Button variant="brand" onClick={() => setStep('content')}>
                 Continue <ArrowRight />
               </Button>
@@ -428,7 +534,7 @@ export function Builder({
               uploadFile={uploadFile}
             />
 
-            <div className="mt-5 flex items-center justify-between gap-2">
+            <div className="mt-5 hidden items-center justify-between gap-2 lg:flex">
               {!editing ? (
                 <Button variant="ghost" onClick={() => setStep('type')}>
                   <ArrowLeft /> Change type
@@ -446,6 +552,10 @@ export function Builder({
         {/* ---------------------------------------------------------- behaviour */}
         {step === 'behaviour' ? (
           <div className="space-y-4">
+            <Alert tone="info" title="Optional settings">
+              Everything on this step is optional and the defaults work. Change what you need, or go straight on to
+              the design.
+            </Alert>
             <Card className="p-5">
               <h2 className="mb-4 font-display text-[16px] font-semibold">Where it lives</h2>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -811,7 +921,7 @@ export function Builder({
               </Alert>
             )}
 
-            <div className="flex items-center justify-between gap-2">
+            <div className="hidden items-center justify-between gap-2 lg:flex">
               <Button variant="ghost" onClick={() => setStep('content')}>
                 <ArrowLeft /> Back
               </Button>
@@ -859,7 +969,7 @@ export function Builder({
 
             <DesignEditor design={design} onChange={patchDesign} uploadLogo={uploadLogo} brandColors={brandColors} />
 
-            <div className="mt-5 flex items-center justify-between gap-2">
+            <div className="mt-5 hidden items-center justify-between gap-2 lg:flex">
               <Button variant="ghost" onClick={() => setStep('behaviour')}>
                 <ArrowLeft /> Back
               </Button>
@@ -904,7 +1014,7 @@ export function Builder({
               </Alert>
             ) : null}
 
-            <div className="mt-5 flex items-center justify-between gap-2">
+            <div className="mt-5 hidden items-center justify-between gap-2 lg:flex">
               <Button variant="ghost" onClick={() => setStep('design')}>
                 <ArrowLeft /> Back to design
               </Button>
@@ -950,63 +1060,51 @@ export function Builder({
       </div>
 
       {/* ------------------------------------------------------------- preview */}
-      <div className="lg:sticky lg:top-20 lg:self-start">
-        <Card className="space-y-4 p-5">
-          <div className="flex items-center justify-between">
-            <p className="text-[13px] font-semibold">Live preview</p>
-            <Badge variant="outline">{def?.label}</Badge>
-          </div>
+      <div className="hidden lg:sticky lg:top-20 lg:block lg:self-start">{previewPanel}</div>
 
-          <div className="flex justify-center rounded-2xl bg-surface-muted/60 p-4">
-            <QrPreview
-              data={payload}
-              design={design}
-              size={252}
-              onRender={({ moduleCount: count }) => setModuleCount(count)}
-            />
-          </div>
-
-          <ScanSafety design={design} moduleCount={moduleCount} compact />
-
-          <div className="space-y-2">
-            {savedId ? (
-              <DownloadMenu
-                request={{ data: payload, design, name, qrCodeId: savedId }}
-                label="Download"
-                className="w-full"
-              />
-            ) : (
-              <Button
-                variant="brand"
-                size="lg"
-                className="w-full"
-                disabled={!canSave}
-                loading={saving}
-                onClick={() => void save('stay')}
-              >
-                <Save /> Save and download
-              </Button>
-            )}
-            {savedId ? (
-              <Button variant="outline" className="w-full" loading={saving} onClick={() => void save('list')}>
-                Save and close
+      {/* ---------------------------------------------- phone: actions always in reach */}
+      {primary ? (
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur lg:hidden">
+          <div className="mx-auto flex max-w-xl items-center gap-2">
+            {back ? (
+              <Button variant="outline" size="icon" aria-label="Back" onClick={back}>
+                <ArrowLeft />
               </Button>
             ) : null}
+            <button
+              type="button"
+              onClick={() => setPreviewOpen(true)}
+              aria-label="Show the live preview"
+              className="flex h-10 shrink-0 items-center gap-2 rounded-xl border border-border bg-card pl-1 pr-2.5 text-[12.5px] font-medium"
+            >
+              <span className="block size-8 overflow-hidden rounded-md bg-white">
+                <QrPreview data={payload} design={design} size={32} bare />
+              </span>
+              Preview
+            </button>
+            <Button
+              variant="brand"
+              className="min-w-0 flex-1"
+              disabled={primary.disabled}
+              loading={primary.loading}
+              onClick={primary.onClick}
+            >
+              <span className="truncate">{primary.label}</span>
+              {step === 'test' ? <Save /> : <ArrowRight />}
+            </Button>
           </div>
+        </div>
+      ) : null}
 
-          {kind === 'DYNAMIC' ? (
-            <p className="flex items-start gap-1.5 text-[11.5px] leading-5 text-muted-foreground">
-              <Globe className="mt-0.5 size-3 shrink-0" />
-              Dynamic codes encode a short link, so the pattern stays simple and you keep control of the destination.
-            </p>
-          ) : (
-            <p className="flex items-start gap-1.5 text-[11.5px] leading-5 text-muted-foreground">
-              <KeyRound className="mt-0.5 size-3 shrink-0" />
-              Static codes cannot be edited or tracked after printing. Switch to a dynamic type if you need either.
-            </p>
-          )}
-        </Card>
-      </div>
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-h-[90dvh] max-w-sm overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Live preview</DialogTitle>
+            <DialogDescription>Exactly the file you download.</DialogDescription>
+          </DialogHeader>
+          {previewPanel}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

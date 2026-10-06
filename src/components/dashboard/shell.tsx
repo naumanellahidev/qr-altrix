@@ -67,8 +67,8 @@ export function DashboardShell({
               className="mb-5"
               action={<ResendVerification variant="outline" />}
             >
-              We sent a confirmation link to {user.email}. Static codes and downloads work
-              already; dynamic codes open up as soon as you click the link.
+              We sent a link to <span className="break-all font-medium text-foreground">{user.email}</span>. Static
+              codes work already; dynamic codes open up once you click it.
             </Alert>
           ) : null}
           {children}

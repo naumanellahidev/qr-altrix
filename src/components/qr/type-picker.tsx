@@ -108,7 +108,7 @@ export function TypePicker({
           No QR type matches “{query}”.
         </p>
       ) : (
-        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-2 sm:gap-2.5 lg:grid-cols-3">
           {filtered.map((type) => {
             const selected = type.type === value;
             return (
@@ -118,7 +118,7 @@ export function TypePicker({
                 onClick={() => onChange(type.type, type)}
                 aria-pressed={selected}
                 className={cn(
-                  'group flex items-start gap-3 rounded-xl border p-3.5 text-left transition-all',
+                  'group flex flex-col items-start gap-2 rounded-xl border p-3 text-left transition-all sm:flex-row sm:gap-3 sm:p-3.5',
                   selected
                     ? 'border-primary bg-primary-soft/70 shadow-soft ring-1 ring-primary/20'
                     : 'border-border bg-surface hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-card',
@@ -135,13 +135,13 @@ export function TypePicker({
                   <TypeIcon name={type.icon} />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="flex items-center gap-2">
-                    <span className="truncate text-[13.5px] font-semibold">{type.label}</span>
+                  <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <span className="text-[13px] font-semibold leading-5 sm:truncate sm:text-[13.5px]">{type.label}</span>
                     <Badge variant={type.kind === 'DYNAMIC' ? 'primary' : 'outline'} className="shrink-0">
                       {type.kind === 'DYNAMIC' ? copy.picker.dynamic : copy.picker.static}
                     </Badge>
                   </span>
-                  <span className="mt-0.5 block text-[12.5px] leading-5 text-muted-foreground">{type.tagline}</span>
+                  <span className="mt-0.5 hidden text-[12.5px] leading-5 text-muted-foreground sm:block">{type.tagline}</span>
                 </span>
               </button>
             );
