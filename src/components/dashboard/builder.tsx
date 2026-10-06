@@ -317,7 +317,9 @@ export function Builder({
       toast.error(`Fill in: ${missingRequired.join(', ')}`);
       return;
     }
-    const next = STEPS[Math.min(stepIndex + 1, STEPS.length - 1)];
+    let next = STEPS[Math.min(stepIndex + 1, STEPS.length - 1)];
+    // Static codes have nothing on the options step but a folder: go straight to design.
+    if (next.id === 'behaviour' && kind === 'STATIC') next = STEPS[stepIndex + 2];
     if (next.id === 'save' && !savedId) {
       void save('stay');
       return;
@@ -409,7 +411,7 @@ export function Builder({
       : step === 'behaviour'
         ? () => setStep('content')
         : step === 'design'
-          ? () => setStep('behaviour')
+          ? () => setStep(kind === 'STATIC' ? 'content' : 'behaviour')
           : step === 'test'
             ? () => setStep('design')
             : null;
@@ -971,7 +973,7 @@ export function Builder({
             <DesignEditor design={design} onChange={patchDesign} uploadLogo={uploadLogo} brandColors={brandColors} />
 
             <div className="mt-5 hidden items-center justify-between gap-2 lg:flex">
-              <Button variant="ghost" onClick={() => setStep('behaviour')}>
+              <Button variant="ghost" onClick={() => setStep(kind === 'STATIC' ? 'content' : 'behaviour')}>
                 <ArrowLeft /> Back
               </Button>
               <Button variant="brand" onClick={() => setStep('test')}>
