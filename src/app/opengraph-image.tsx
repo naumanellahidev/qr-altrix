@@ -45,7 +45,7 @@ export default async function OpengraphImage() {
     ...(body ? [{ name: 'Body', data: body, weight: 500 as const, style: 'normal' as const }] : []),
   ];
   const qr = renderQr(
-    'https://qr.altrixcore.com',
+    'https://qraltrix.co.uk',
     {
       ...DEFAULT_DESIGN,
       bodyShape: 'rounded',
@@ -117,7 +117,7 @@ export default async function OpengraphImage() {
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', marginTop: 40, fontSize: 24, color: '#94A3B8' }}>qr.altrixcore.com</div>
+          <div style={{ display: 'flex', marginTop: 40, fontSize: 24, color: '#94A3B8' }}>qraltrix.co.uk</div>
         </div>
         <div
           style={{

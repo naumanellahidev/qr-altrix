@@ -11,11 +11,11 @@
 export const BRANDING_MAX_LENGTH = 60;
 
 /**
- * "Free QR codes by QR ALTRIX · qr.altrixcore.com": what it costs, who made it and where
+ * "Free QR codes by QR ALTRIX · qraltrix.co.uk": what it costs, who made it and where
  * to get one, in one short line. The host follows APP_URL.
  */
 export function defaultBrandingText(appUrl?: string | null): string {
-  let host = 'qr.altrixcore.com';
+  let host = 'qraltrix.co.uk';
   if (appUrl) {
     try {
       host = new URL(appUrl).host.replace(/^www\./, '') || host;

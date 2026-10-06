@@ -6,8 +6,8 @@ import { exportQr } from '@/lib/qr/export';
 import { DEFAULT_DESIGN, type QrDesign } from '@/lib/qr/types';
 import { brandingFromSettings, cleanBrandingText, defaultBrandingText } from '@/lib/qr/branding';
 
-const URL_DATA = 'https://qr.altrixcore.com/q/abc1234';
-const CREDIT = 'Free QR codes by QR ALTRIX · qr.altrixcore.com';
+const URL_DATA = 'https://qraltrix.co.uk/q/abc1234';
+const CREDIT = 'Free QR codes by QR ALTRIX · qraltrix.co.uk';
 
 async function decodePng(png: Buffer): Promise<string | null> {
   const { data, info } = await sharp(png).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
@@ -16,11 +16,11 @@ async function decodePng(png: Buffer): Promise<string | null> {
 
 describe('credit line text', () => {
   it('follows the install host and can be switched off', () => {
-    expect(defaultBrandingText('https://qr.altrixcore.com')).toBe(CREDIT);
+    expect(defaultBrandingText('https://qraltrix.co.uk')).toBe(CREDIT);
     expect(defaultBrandingText('https://www.example.org/x')).toBe('Free QR codes by QR ALTRIX · example.org');
     expect(brandingFromSettings({ brandingEnabled: false, brandingText: 'x' })).toBeNull();
-    expect(brandingFromSettings({ brandingEnabled: true, brandingText: '   ' }, 'https://qr.altrixcore.com')).toBe(CREDIT);
-    expect(brandingFromSettings(null, 'https://qr.altrixcore.com')).toBe(CREDIT);
+    expect(brandingFromSettings({ brandingEnabled: true, brandingText: '   ' }, 'https://qraltrix.co.uk')).toBe(CREDIT);
+    expect(brandingFromSettings(null, 'https://qraltrix.co.uk')).toBe(CREDIT);
   });
 
   it('collapses whitespace and clamps the length', () => {
@@ -36,7 +36,7 @@ describe('credit line in the renderer', () => {
     const branded = renderQr(URL_DATA, DEFAULT_DESIGN, { idPrefix: 't', branding: CREDIT });
     expect(branded.units.width).toBe(plain.units.width);
     expect(branded.units.height).toBeGreaterThan(plain.units.height);
-    expect(branded.svg).toContain('Free QR codes by <tspan font-weight="800">QR ALTRIX</tspan> · qr.altrixcore.com');
+    expect(branded.svg).toContain('Free QR codes by <tspan font-weight="800">QR ALTRIX</tspan> · qraltrix.co.uk');
     expect(plain.svg).not.toContain('QR ALTRIX');
     expect(branded.moduleCount).toBe(plain.moduleCount);
   });
@@ -84,13 +84,13 @@ describe('branded exports still scan', () => {
   it('prints the line in the EPS file too', async () => {
     const result = await exportQr({ data: URL_DATA, design: DEFAULT_DESIGN, format: 'eps', branding: CREDIT });
     const text = result.body.toString('latin1');
-    expect(text).toContain('(Free QR codes by QR ALTRIX \\267 qr.altrixcore.com)');
+    expect(text).toContain('(Free QR codes by QR ALTRIX \\267 qraltrix.co.uk)');
     const [, , w, h] = /%%BoundingBox: (\d+) (\d+) (\d+) (\d+)/.exec(text)!.map(Number);
     expect(h).toBeGreaterThan(w);
   });
 
   it('honours an explicit null even when the platform has it on', async () => {
     const result = await exportQr({ data: URL_DATA, design: DEFAULT_DESIGN, format: 'svg', branding: null });
-    expect(result.body.toString()).not.toContain('qr.altrixcore.com</text>');
+    expect(result.body.toString()).not.toContain('qraltrix.co.uk</text>');
   });
 });

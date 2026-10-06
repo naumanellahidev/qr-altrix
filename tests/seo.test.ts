@@ -154,7 +154,7 @@ describe('robots.txt', () => {
 });
 
 const FACTS = {
-  baseUrl: 'https://qr.altrixcore.com',
+  baseUrl: 'https://qraltrix.co.uk',
   expiryEnabled: false,
   brandingEnabled: true,
   guestStaticDownload: true,
@@ -170,7 +170,7 @@ describe('llms.txt', () => {
     const text = buildLlmsTxt(FACTS);
     expect(text.startsWith('# QR ALTRIX\n\n> ')).toBe(true);
     for (const p of ['/', '/qr-code-generator', '/use-cases', '/guides', '/developers', '/legal/privacy']) {
-      expect(text).toContain(p === '/' ? 'https://qr.altrixcore.com/)' : `https://qr.altrixcore.com${p})`);
+      expect(text).toContain(p === '/' ? 'https://qraltrix.co.uk/)' : `https://qraltrix.co.uk${p})`);
     }
     expect(text).toContain('never expire');
     expect(text).toContain('/llms-full.txt');

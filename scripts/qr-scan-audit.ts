@@ -17,16 +17,16 @@ import { exportQr } from '../src/lib/qr/export';
 import type { QrDesign } from '../src/lib/qr/types';
 
 const SAMPLES: Record<string, Record<string, unknown>> = {
-  URL: { url: 'https://qr.altrixcore.com/guides?utm_source=print' },
+  URL: { url: 'https://qraltrix.co.uk/guides?utm_source=print' },
   TEXT: { text: 'Serial 4471-B. Service every 6 months; call +92 300 1234567.' },
   WIFI: { ssid: 'Cafe Guest 5G', encryption: 'WPA', password: 'p@ss;word:2026', hidden: false },
   WIFI_OPEN: { ssid: 'Dana pani', encryption: 'NONE', password: 'ignored', hidden: true },
   VCARD: {
     firstName: 'Nauman', lastName: 'Cheema', company: 'ALTRIX, Ltd.', jobTitle: 'Founder', phone: '+92 300 1234567',
-    email: 'hello@altrixcore.com', website: 'https://altrixcore.com', street: '12 Mall Road', city: 'Lahore',
+    email: 'hello@qraltrix.co.uk', website: 'https://qraltrix.co.uk', street: '12 Mall Road', city: 'Lahore',
     country: 'Pakistan', note: 'Met at Expo; follow up',
   },
-  EMAIL: { to: 'support@altrixcore.com', subject: 'Quote request – Table 12', body: 'Hi team, please call me back.' },
+  EMAIL: { to: 'support@qraltrix.co.uk', subject: 'Quote request – Table 12', body: 'Hi team, please call me back.' },
   WHATSAPP: { phone: '+92 300 1234567', message: 'Hi! I scanned your QR code & want to order' },
   SMS: { phone: '+92 300 1234567', message: 'JOIN rewards' },
   PHONE: { phone: '+92 300 1234567' },
@@ -116,7 +116,7 @@ async function main() {
     console.log(`${key}: ${JSON.stringify(payload)}`);
     for (const [label, design] of DESIGNS) {
       if (process.env.DESIGN && !new RegExp(process.env.DESIGN).test(label)) continue;
-      const { body } = await exportQr({ data: payload, design, format: 'png', size: 600, branding: 'Free QR codes by QR ALTRIX · qr.altrixcore.com' });
+      const { body } = await exportQr({ data: payload, design, format: 'png', size: 600, branding: 'Free QR codes by QR ALTRIX · qraltrix.co.uk' });
       const camera = await cameraFrames(body);
       const checks: Array<[string, string | null]> = [
         ['zxing', await zxing(body)],

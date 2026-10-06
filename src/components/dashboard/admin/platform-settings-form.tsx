@@ -101,7 +101,7 @@ export function PlatformSettingsForm({ initial }: { initial: PlatformSettings })
           </div>
           <div className="mx-auto w-full max-w-[200px]">
             <BrandingProvider value={form.brandingEnabled ? cleanBrandingText(form.brandingText) : null}>
-              <QrPreview data="https://qr.altrixcore.com/q/preview" design={DEFAULT_DESIGN} size={200} />
+              <QrPreview data="https://qraltrix.co.uk/q/preview" design={DEFAULT_DESIGN} size={200} />
             </BrandingProvider>
           </div>
         </div>

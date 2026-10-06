@@ -20,8 +20,8 @@ deploy script copies it into the checkout.
 ```bash
 cat > /opt/qraltrix/.env <<'EOF'
 NODE_ENV=production
-APP_URL=https://qr.altrixcore.com
-SHORT_URL_BASE=https://qr.altrixcore.com
+APP_URL=https://qraltrix.co.uk
+SHORT_URL_BASE=https://qraltrix.co.uk
 APP_NAME="QR ALTRIX"
 APP_PORT=3010
 
@@ -64,21 +64,45 @@ tail -f /opt/qraltrix/logs/deploy.log
 
 ## 4. Nginx and TLS
 
-DNS first: an `A` record for `qr.altrixcore.com` pointing at this server (through
-Cloudflare is fine — proxy on or off both work).
+DNS first: `A` records for `qraltrix.co.uk` and `www.qraltrix.co.uk` pointing at this
+server. `www` redirects to the bare domain.
 
 ```bash
 sudo mkdir -p /var/www/acme-qraltrix
-sudo cp /opt/qraltrix/repo/deploy/vps/nginx-qr.altrixcore.com.conf \
-        /etc/nginx/sites-available/qr.altrixcore.com.conf
-sudo ln -sfn ../sites-available/qr.altrixcore.com.conf \
-        /etc/nginx/sites-enabled/qr.altrixcore.com.conf
+sudo cp /opt/qraltrix/repo/deploy/vps/nginx-qraltrix.co.uk.conf \
+        /etc/nginx/sites-available/qraltrix.co.uk.conf
+sudo ln -sfn ../sites-available/qraltrix.co.uk.conf \
+        /etc/nginx/sites-enabled/qraltrix.co.uk.conf
 
 # Certbot needs port 80 to answer before the TLS block can load, so get the
 # certificate with the HTTP block only, then enable the rest.
-sudo certbot certonly --webroot -w /var/www/acme-qraltrix -d qr.altrixcore.com
+sudo certbot certonly --webroot -w /var/www/acme-qraltrix -d qraltrix.co.uk -d www.qraltrix.co.uk
 sudo nginx -t && sudo systemctl reload nginx
 ```
+
+### Visitor location
+
+Scan analytics read the visitor's country, region and city from proxy headers. Without
+Cloudflare in front, nginx adds them with the geoip2 module and the free DB-IP City Lite
+database (CC BY 4.0):
+
+```bash
+sudo apt-get install -y libnginx-mod-http-geoip2
+sudo mkdir -p /usr/share/GeoIP
+curl -fsSL "https://download.db-ip.com/free/dbip-city-lite-$(date -u +%Y-%m).mmdb.gz" | gunzip \
+  | sudo tee /usr/share/GeoIP/dbip-city-lite.mmdb >/dev/null
+sudo tee /etc/nginx/conf.d/geoip2.conf >/dev/null <<'CONF'
+geoip2 /usr/share/GeoIP/dbip-city-lite.mmdb {
+    auto_reload 24h;
+    $geoip2_country_code country iso_code;
+    $geoip2_region subdivisions 0 names en;
+    $geoip2_city city names en;
+}
+CONF
+```
+
+Repeat the download monthly (for example from `/etc/cron.monthly`) so new IP ranges are
+located correctly.
 
 ## 5. First administrator
 

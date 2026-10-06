@@ -40,12 +40,12 @@ describe('exportQr raster sizes', () => {
   ] as const) {
     it(`renders ${format} at ${size} px`, async () => {
       const result = await exportQr({
-        data: 'https://qr.altrixcore.com/q/abc1234',
+        data: 'https://qraltrix.co.uk/q/abc1234',
         design: { ...design, logoUrl: await photoLogo(), logoShape: 'rounded' } as never,
         format,
         size,
         // Explicit, so the test needs no database to look up the platform setting.
-        branding: 'Free QR codes by QR ALTRIX · qr.altrixcore.com',
+        branding: 'Free QR codes by QR ALTRIX · qraltrix.co.uk',
       });
       const meta = await sharp(result.body).metadata();
       expect(meta.width).toBe(size);

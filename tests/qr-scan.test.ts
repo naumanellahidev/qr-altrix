@@ -41,18 +41,18 @@ async function render(payload: string, design: Partial<QrDesign>): Promise<Buffe
     design,
     format: 'png',
     size: 600,
-    branding: 'Free QR codes by QR ALTRIX · qr.altrixcore.com',
+    branding: 'Free QR codes by QR ALTRIX · qraltrix.co.uk',
   });
   return body;
 }
 
 const SAMPLES: Array<[string, Record<string, unknown>]> = [
-  ['URL', { url: 'https://qr.altrixcore.com/guides?utm_source=print' }],
+  ['URL', { url: 'https://qraltrix.co.uk/guides?utm_source=print' }],
   ['TEXT', { text: 'Serial 4471-B. Service every 6 months; call +92 300 1234567.' }],
   ['WIFI', { ssid: 'Cafe Guest 5G', encryption: 'WPA', password: 'p@ss;word:2026' }],
   ['WIFI', { ssid: 'Dana pani', encryption: 'NONE', password: 'ignored', hidden: true }],
-  ['VCARD', { firstName: 'Nauman', lastName: 'Cheema', company: 'ALTRIX', phone: '+92 300 1234567', email: 'hello@altrixcore.com', city: 'Lahore' }],
-  ['EMAIL', { to: 'support@altrixcore.com', subject: 'Quote request', body: 'Please call me back.' }],
+  ['VCARD', { firstName: 'Nauman', lastName: 'Cheema', company: 'ALTRIX', phone: '+92 300 1234567', email: 'hello@qraltrix.co.uk', city: 'Lahore' }],
+  ['EMAIL', { to: 'support@qraltrix.co.uk', subject: 'Quote request', body: 'Please call me back.' }],
   ['WHATSAPP', { phone: '+92 300 1234567', message: 'Hi! I scanned your QR code' }],
   ['SMS', { phone: '+92 300 1234567', message: 'JOIN' }],
   ['PHONE', { phone: '+92 300 1234567' }],
@@ -110,7 +110,7 @@ describe('logos never break a code', () => {
   });
 
   it('a maximum-size logo at error correction L still scans', async () => {
-    const payload = buildStaticPayload('URL', { url: 'https://qr.altrixcore.com/menu' });
+    const payload = buildStaticPayload('URL', { url: 'https://qraltrix.co.uk/menu' });
     const png = await render(payload, { logoPreset: 'menu', logoSize: 34, logoPadding: 24, logoShape: 'square', errorCorrection: 'L' });
     expect(await scan(png)).toBe(payload);
   });
