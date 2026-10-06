@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, Infinity as InfinityIcon, Palette, Pencil, Sparkles, Wand2 } from 'lucide-react';
+import { ArrowRight, Download, Infinity as InfinityIcon, Palette, Pencil, Sparkles, Wand2 } from 'lucide-react';
 import { FEATURED_TYPES, getTypeDef } from '@/lib/qr/catalog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -114,6 +114,32 @@ export function HeroGenerator({
   }, [initialType]);
   const payload = previewPayload(draft, shortUrlBase);
   const complete = draftIsComplete(draft);
+
+  // On a phone the preview and the download button sit below the form, out of sight. Once
+  // the code is ready, a bar at the bottom says so and takes the visitor there, but only
+  // while the generator is on screen and the download button is not.
+  const rootRef = React.useRef<HTMLDivElement>(null);
+  const downloadRef = React.useRef<HTMLDivElement>(null);
+  const [inView, setInView] = React.useState({ generator: false, download: false });
+  React.useEffect(() => {
+    const root = rootRef.current;
+    const download = downloadRef.current;
+    if (!root || !download || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver((entries) => {
+      setInView((current) => {
+        const next = { ...current };
+        for (const entry of entries) {
+          if (entry.target === root) next.generator = entry.isIntersecting;
+          if (entry.target === download) next.download = entry.isIntersecting;
+        }
+        return next;
+      });
+    });
+    observer.observe(root);
+    observer.observe(download);
+    return () => observer.disconnect();
+  }, []);
+  const showReadyBar = complete && inView.generator && !inView.download;
   const guestDownloadable = allowGuestStaticDownload && draft.kind === 'STATIC';
 
   async function openGate(mode: 'signup' | 'login', reason?: string) {
@@ -135,7 +161,7 @@ export function HeroGenerator({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-6">
+    <div ref={rootRef} className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-6">
       {/* ------------------------------------------------------------- builder */}
       <Card className="relative overflow-hidden p-0">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
@@ -257,6 +283,7 @@ export function HeroGenerator({
           </div>
           <ScanSafety design={draft.design} moduleCount={moduleCount} compact />
 
+          <div ref={downloadRef} className="scroll-mt-24">
           {signedIn ? (
             <Button variant="brand" size="lg" className="w-full" onClick={() => void continueSignedIn()}>
               {copy.openDashboard} <ArrowRight className="rtl:rotate-180" />
@@ -288,6 +315,7 @@ export function HeroGenerator({
               }
             />
           )}
+          </div>
 
           <ul className="space-y-1.5 text-[12px] leading-5 text-muted-foreground">
             <li className="flex gap-1.5">
@@ -312,6 +340,23 @@ export function HeroGenerator({
         description={gateReason ?? copy.signupDescription}
         onSuccess={handleAuthSuccess}
       />
+      ) : null}
+      {showReadyBar ? (
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur lg:hidden">
+          <div className="mx-auto flex max-w-xl items-center gap-3">
+            <span className="block size-10 shrink-0 overflow-hidden rounded-lg border border-border bg-white">
+              <QrPreview data={payload} design={draft.design} size={40} bare />
+            </span>
+            <p className="min-w-0 flex-1 text-[13px] font-semibold leading-5">{copy.auth.ready}</p>
+            <Button
+              variant="brand"
+              className="shrink-0"
+              onClick={() => downloadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+            >
+              <Download /> {copy.download.button}
+            </Button>
+          </div>
+        </div>
       ) : null}
       {/* Render-blocking marker for the homepage: see <link rel="expect"> in app/page.tsx. */}
       <span id="hero-ready" hidden />
