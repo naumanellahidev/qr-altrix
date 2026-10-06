@@ -120,6 +120,7 @@ export function HeroGenerator({
   // while the generator is on screen and the download button is not.
   const rootRef = React.useRef<HTMLDivElement>(null);
   const downloadRef = React.useRef<HTMLDivElement>(null);
+  const previewRef = React.useRef<HTMLDivElement>(null);
   const [inView, setInView] = React.useState({ generator: false, download: false });
   React.useEffect(() => {
     const root = rootRef.current;
@@ -263,7 +264,7 @@ export function HeroGenerator({
       </Card>
 
       {/* ------------------------------------------------------------- preview */}
-      <div className="lg:sticky lg:top-24 lg:self-start">
+      <div ref={previewRef} className="scroll-mt-20 lg:sticky lg:top-24 lg:self-start">
         <Card className="space-y-4 p-5">
           <div className="flex items-center justify-between">
             <p className="text-[13px] font-semibold">{copy.livePreview}</p>
@@ -351,7 +352,7 @@ export function HeroGenerator({
             <Button
               variant="brand"
               className="shrink-0"
-              onClick={() => downloadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+              onClick={() => previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
             >
               <Download /> {copy.download.button}
             </Button>
