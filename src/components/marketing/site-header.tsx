@@ -37,8 +37,11 @@ export function SiteHeader({
   nav = EN_NAV,
   home = '/',
   languages = [],
+  showApi = false,
 }: {
   signedIn: boolean;
+  /** The API link appears only while a platform admin has the developer API switched on. */
+  showApi?: boolean;
   /** Labels in the page's language. */
   nav?: UiCopy['nav'];
   /** Home path in the page's language ("/" or "/es"). */
@@ -62,7 +65,7 @@ export function SiteHeader({
     { href: `${prefix}/use-cases`, label: nav.useCases },
     { href: `${prefix}/guides`, label: nav.guides },
     { href: `${home}#faq`, label: nav.faq },
-    { href: '/developers', label: nav.api },
+    ...(showApi ? [{ href: '/developers', label: nav.api }] : []),
   ];
   const current = languages.find((language) => language.current);
 

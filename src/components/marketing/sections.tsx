@@ -8,14 +8,23 @@ import { TYPE_SLUGS } from '@/content/registry';
 import type { CatalogCopy, HomeCopy, TypeKey } from '@/content/schema';
 import { localePath, type Locale } from '@/i18n/locales';
 
-export function TrustBar({ copy, expiryEnabled = false }: { copy: HomeCopy; expiryEnabled?: boolean }) {
+export function TrustBar({
+  copy,
+  expiryEnabled = false,
+  showApi = false,
+}: {
+  copy: HomeCopy;
+  expiryEnabled?: boolean;
+  /** The API claim appears only while a platform admin has the developer API switched on. */
+  showApi?: boolean;
+}) {
   const items = [
     // The claim has to match what the operator has actually configured.
     expiryEnabled ? { icon: 'CalendarClock', label: copy.trust.clearExpiry } : { icon: 'Infinity', label: copy.trust.noExpiry },
     { icon: 'ShieldCheck', label: copy.trust.privacy },
     { icon: 'Globe2', label: copy.trust.domain },
     { icon: 'Boxes', label: copy.trust.unlimited },
-    { icon: 'Code2', label: copy.trust.api },
+    ...(showApi ? [{ icon: 'Code2', label: copy.trust.api }] : []),
   ];
   return (
     <div className="border-y border-border bg-surface">
@@ -33,8 +42,10 @@ export function TrustBar({ copy, expiryEnabled = false }: { copy: HomeCopy; expi
 
 /** Icons for HomeCopy.features, in order. */
 const FEATURE_ICONS = ['Palette', 'Infinity', 'BarChart3', 'Globe2', 'Layers', 'Users', 'Lock', 'Smartphone', 'Code2'];
+/** HomeCopy.features[API_FEATURE] is "API and webhooks" in every language. */
+const API_FEATURE = FEATURE_ICONS.indexOf('Code2');
 
-export function Features({ copy }: { copy: HomeCopy }) {
+export function Features({ copy, showApi = false }: { copy: HomeCopy; showApi?: boolean }) {
   return (
     <section id="features" className="cv-auto container scroll-mt-24 py-16 sm:py-24">
       <div className="mx-auto max-w-2xl text-center">
@@ -46,7 +57,7 @@ export function Features({ copy }: { copy: HomeCopy }) {
       </div>
 
       <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {copy.features.map((feature, index) => (
+        {copy.features.map((feature, index) => (showApi || index !== API_FEATURE) && (
           <Card key={feature.title} className="group p-5 transition-all hover:-translate-y-0.5 hover:shadow-lifted">
             <span className="mb-4 flex size-10 items-center justify-center rounded-xl border border-border bg-surface-muted text-primary-soft-foreground transition-colors group-hover:border-primary/30 group-hover:bg-primary-soft">
               <MaskIcon name={FEATURE_ICONS[index] ?? 'Sparkles'} className="size-[18px]" />
@@ -160,7 +171,7 @@ export function TypesShowcase({
   );
 }
 
-export function CtaBand({ copy }: { copy: HomeCopy }) {
+export function CtaBand({ copy, showApi = false }: { copy: HomeCopy; showApi?: boolean }) {
   return (
     <section className="cv-auto container py-16 sm:py-20">
       <div className="qa-glow relative overflow-hidden rounded-3xl border border-border bg-card px-6 py-12 text-center shadow-card sm:px-12">
@@ -174,9 +185,11 @@ export function CtaBand({ copy }: { copy: HomeCopy }) {
             <Button asChild size="lg" variant="brand">
               <Link href="/signup">{copy.ctaSignup}</Link>
             </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link href="/developers">{copy.ctaApi}</Link>
-            </Button>
+            {showApi ? (
+              <Button asChild size="lg" variant="outline">
+                <Link href="/developers">{copy.ctaApi}</Link>
+              </Button>
+            ) : null}
           </div>
         </div>
       </div>

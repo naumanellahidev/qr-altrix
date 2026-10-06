@@ -15,6 +15,7 @@ export async function llmsFacts(): Promise<LlmsFacts> {
     guestStaticDownload: settings?.allowGuestStaticDownload ?? env.allowGuestStaticDownload,
     languages: PUBLISHED_LOCALES,
     bulkMaxRows: settings?.bulkMaxRows ?? env.bulkMaxRows,
+    developerApi: Boolean(settings?.developerApiEnabled),
     apiRateLimitPerMin: settings?.rateLimitApiPerMin ?? env.rateLimits.apiPerMin,
     maxUploadMb: settings?.maxUploadMb ?? env.storage.maxUploadMb,
   };

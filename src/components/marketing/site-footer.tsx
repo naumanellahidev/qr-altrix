@@ -15,6 +15,7 @@ export async function SiteFooter({ locale = DEFAULT_LOCALE, path = '/' }: { loca
   // switched off. Settings are cached, so this costs nothing.
   const settings = await getSettings().catch(() => null);
   const expiryEnabled = Boolean(settings?.expiryEnabled);
+  const developerApiEnabled = Boolean(settings?.developerApiEnabled);
   const { ui } = getContent(locale);
   const f = ui.footer;
   const lp = (href: string) => localePath(locale, href);
@@ -36,7 +37,7 @@ export async function SiteFooter({ locale = DEFAULT_LOCALE, path = '/' }: { loca
         { href: lp('/guides'), label: ui.nav.guides },
         { href: lp('/best-free-qr-code-generator'), label: f.compare },
         { href: `${lp('/')}#faq`, label: ui.nav.faq },
-        { href: '/developers', label: f.developers },
+        ...(developerApiEnabled ? [{ href: '/developers', label: f.developers }] : []),
         { href: '/support', label: f.support },
       ],
     },

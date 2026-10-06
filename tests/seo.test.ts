@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import sitemap from '@/app/sitemap';
@@ -6,6 +6,12 @@ import robots from '@/app/robots';
 import { ENGLISH_ROUTES, localizedRoutes } from '@/lib/seo/routes';
 import { PUBLISHED_LOCALES } from '@/content';
 import { DEFAULT_LOCALE, localePath } from '@/i18n/locales';
+
+const developerApi = vi.hoisted(() => ({ enabled: false }));
+vi.mock('@/lib/settings', () => ({
+  isDeveloperApiEnabled: async () => developerApi.enabled,
+  getSettings: async () => ({ developerApiEnabled: developerApi.enabled }),
+}));
 
 const APP_DIR = path.resolve(__dirname, '../src/app');
 
@@ -46,12 +52,26 @@ function pageFileFor(route: string, allowLocale = false): string | null {
 }
 
 describe('sitemap', () => {
-  const entries = sitemap();
-  const urls = entries.map((entry) => entry.url);
+  let entries: Awaited<ReturnType<typeof sitemap>> = [];
+  let urls: string[] = [];
+  beforeAll(async () => {
+    developerApi.enabled = false;
+    entries = await sitemap();
+    urls = entries.map((entry) => entry.url);
+  });
 
   it('lists every page once per published language, with no duplicates', () => {
     expect(new Set(urls).size).toBe(urls.length);
-    expect(urls).toHaveLength(localizedRoutes().length * PUBLISHED_LOCALES.length + ENGLISH_ROUTES.length);
+    // The API guide is left out while the developer API is switched off.
+    expect(urls).toHaveLength(localizedRoutes().length * PUBLISHED_LOCALES.length + ENGLISH_ROUTES.length - 1);
+  });
+
+  it('lists the API guide only while the developer API is switched on', async () => {
+    expect(urls.some((url) => url.endsWith('/developers'))).toBe(false);
+    developerApi.enabled = true;
+    const withApi = (await sitemap()).map((entry) => entry.url);
+    developerApi.enabled = false;
+    expect(withApi.some((url) => url.endsWith('/developers'))).toBe(true);
   });
 
   it('points only at pages that exist, in English and under a language prefix', () => {
@@ -64,7 +84,7 @@ describe('sitemap', () => {
     }
   });
 
-  it('uses real, stable content dates — not the time of the request', () => {
+  it('uses real, stable content dates — not the time of the request', async () => {
     const tomorrow = Date.now() + 864e5;
     for (const entry of entries) {
       const date = new Date(entry.lastModified as Date);
@@ -72,7 +92,7 @@ describe('sitemap', () => {
       expect(date.getTime()).toBeLessThanOrEqual(tomorrow);
       expect(date.toISOString().endsWith('T00:00:00.000Z')).toBe(true);
     }
-    expect(JSON.stringify(sitemap())).toBe(JSON.stringify(entries));
+    expect(JSON.stringify(await sitemap())).toBe(JSON.stringify(entries));
   });
 
   it('gives each translated entry reciprocal language alternates and an English x-default', () => {
@@ -159,6 +179,7 @@ const FACTS = {
   brandingEnabled: true,
   guestStaticDownload: true,
   bulkMaxRows: 20000,
+  developerApi: true,
   apiRateLimitPerMin: 120,
   maxUploadMb: 15,
   languages: ['en'],
@@ -212,5 +233,19 @@ describe('homepage FAQ and structured data', () => {
     expect(data['@graph'][0].mainEntity).toHaveLength(items.length);
     expect(data['@graph'][1].offers.price).toBe('0');
     expect(data['@graph'][1].aggregateRating).toBeUndefined();
+  });
+});
+
+describe('llms files without the developer API', () => {
+  it('leaves out the API section, the API guide and API claims', async () => {
+    const { buildLlmsTxt, buildLlmsFullTxt } = await import('@/lib/seo/llms');
+    const facts = { ...FACTS, developerApi: false };
+    const short = buildLlmsTxt(facts);
+    const full = buildLlmsFullTxt(facts);
+    for (const text of [short, full]) {
+      expect(text).not.toContain('/developers');
+      expect(text).not.toContain('openapi.json');
+      expect(text).not.toMatch(/REST API|the API\b/);
+    }
   });
 });

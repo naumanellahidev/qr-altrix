@@ -3,6 +3,7 @@ import { createHmac } from 'node:crypto';
 import { prisma } from '../db';
 import { logger } from '../logger';
 import { enqueue } from '../queue';
+import { isDeveloperApiEnabled } from '../settings';
 
 /** Outgoing webhooks are signed so receivers can verify the payload came from here. */
 
@@ -15,6 +16,8 @@ export async function deliverWebhookEvent(
   event: string,
   payload: Record<string, unknown>,
 ): Promise<void> {
+  // Webhooks belong to the developer API: nothing is sent while an admin has it off.
+  if (!(await isDeveloperApiEnabled())) return;
   const hooks = await prisma.webhook.findMany({
     where: { workspaceId, isActive: true, events: { has: event } },
     select: { id: true },
@@ -29,6 +32,7 @@ export async function deliverWebhook(input: {
   event: string;
   payload: Record<string, unknown>;
 }): Promise<void> {
+  if (!(await isDeveloperApiEnabled())) return;
   const hook = await prisma.webhook.findUnique({ where: { id: input.webhookId } });
   if (!hook || !hook.isActive) return;
 

@@ -8,6 +8,7 @@ import { JsonLd } from '@/components/seo/json-ld';
 import { breadcrumbSchema, graph } from '@/lib/seo/schema';
 import { env } from '@/lib/env';
 import type { Faq } from '@/content/schema';
+import { isDeveloperApiEnabled } from '@/lib/settings';
 
 /** Header + footer for a translated marketing page, with the language switcher wired to `path`. */
 export async function MarketingShell({
@@ -20,7 +21,7 @@ export async function MarketingShell({
   path: string;
   children: React.ReactNode;
 }) {
-  const auth = await getAuthContext().catch(() => null);
+  const [auth, showApi] = await Promise.all([getAuthContext().catch(() => null), isDeveloperApiEnabled()]);
   const { ui } = getContent(locale);
   const languages = PUBLISHED_LOCALES.map((code) => ({
     code,
@@ -30,7 +31,7 @@ export async function MarketingShell({
   }));
   return (
     <div className="flex min-h-dvh flex-col">
-      <SiteHeader signedIn={Boolean(auth)} nav={ui.nav} home={localePath(locale, '/')} languages={languages} />
+      <SiteHeader signedIn={Boolean(auth)} nav={ui.nav} home={localePath(locale, '/')} languages={languages} showApi={showApi} />
       <main className="flex-1">{children}</main>
       <SiteFooter locale={locale} path={path} />
     </div>

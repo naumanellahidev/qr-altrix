@@ -4,11 +4,15 @@ import { env } from '@/lib/env';
 import { requirePermission } from '@/lib/auth';
 import { PageHeader } from '@/components/ui/page-header';
 import { DevelopersView } from '@/components/dashboard/developers-view';
+import { notFound } from 'next/navigation';
+import { isDeveloperApiEnabled } from '@/lib/settings';
 
 export const metadata: Metadata = { title: 'Developers & API' };
 export const dynamic = 'force-dynamic';
 
 export default async function DevelopersPage() {
+  // The page exists only while a platform admin has the developer API switched on.
+  if (!(await isDeveloperApiEnabled())) notFound();
   const auth = await requirePermission('apikey.manage', '/dashboard/developers');
 
   const [keys, webhooks] = await Promise.all([

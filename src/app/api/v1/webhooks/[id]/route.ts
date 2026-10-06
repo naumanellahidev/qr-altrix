@@ -3,10 +3,13 @@ import { actorCan, resolveActor } from '@/lib/api/actor';
 import { fail, ok, readJson, withApi } from '@/lib/api/respond';
 import { webhookSchema } from '@/lib/validation';
 import { deliverWebhook } from '@/lib/jobs/webhook';
+import { developerApiGate } from '@/lib/api/developer';
 
 type Context = { params: Promise<{ id: string }> };
 
 export const PATCH = withApi(async (request: Request, context: Context) => {
+  const gate = await developerApiGate();
+  if (gate) return gate;
   const { id } = await context.params;
   const result = await resolveActor(request);
   if (!result.ok) return fail(result.error, result.status, { headers: result.headers });
@@ -45,6 +48,8 @@ export const PATCH = withApi(async (request: Request, context: Context) => {
 });
 
 export const DELETE = withApi(async (request: Request, context: Context) => {
+  const gate = await developerApiGate();
+  if (gate) return gate;
   const { id } = await context.params;
   const result = await resolveActor(request);
   if (!result.ok) return fail(result.error, result.status, { headers: result.headers });

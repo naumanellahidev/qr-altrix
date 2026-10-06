@@ -10,6 +10,7 @@ import { pageMeta } from '@/lib/seo/meta';
 import { JsonLd } from '@/components/seo/json-ld';
 import { breadcrumbSchema, graph } from '@/lib/seo/schema';
 import { env } from '@/lib/env';
+import { isDeveloperApiEnabled } from '@/lib/settings';
 
 export const metadata: Metadata = pageMeta({
   path: '/report-abuse',
@@ -25,7 +26,7 @@ export default async function ReportAbusePage({ searchParams }: { searchParams: 
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <SiteHeader signedIn={Boolean(auth)} />
+      <SiteHeader signedIn={Boolean(auth)} showApi={await isDeveloperApiEnabled()} />
 
       <main className="container flex-1 py-12">
         <div className="mx-auto max-w-xl">

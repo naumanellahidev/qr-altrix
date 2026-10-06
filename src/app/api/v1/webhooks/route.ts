@@ -4,8 +4,11 @@ import { created, fail, ok, readJson, withApi } from '@/lib/api/respond';
 import { webhookSchema } from '@/lib/validation';
 import { randomToken } from '@/lib/utils';
 import { logSecurity } from '@/lib/audit';
+import { developerApiGate } from '@/lib/api/developer';
 
 export const GET = withApi(async (request: Request) => {
+  const gate = await developerApiGate();
+  if (gate) return gate;
   const result = await resolveActor(request);
   if (!result.ok) return fail(result.error, result.status, { headers: result.headers });
   if (!actorCan(result.actor, 'webhook.manage')) return fail('This key cannot read webhooks', 403);
@@ -32,6 +35,8 @@ export const GET = withApi(async (request: Request) => {
 });
 
 export const POST = withApi(async (request: Request) => {
+  const gate = await developerApiGate();
+  if (gate) return gate;
   const result = await resolveActor(request);
   if (!result.ok) return fail(result.error, result.status, { headers: result.headers });
   const { actor } = result;

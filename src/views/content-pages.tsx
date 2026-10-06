@@ -11,6 +11,7 @@ import { MaskIcon } from '@/components/ui/mask-icon';
 import { Button } from '@/components/ui/button';
 import { Breadcrumbs, FaqSection, MarketingShell } from '@/views/marketing-shell';
 import { QrScanner } from '@/components/marketing/qr-scanner';
+import { isDeveloperApiEnabled } from '@/lib/settings';
 
 function meta(locale: Locale, path: string, title: string, description: string): Metadata {
   return pageMeta({ path, title, description, locale, languages: PUBLISHED_LOCALES });
@@ -388,10 +389,12 @@ export function bulkPageMeta(locale: Locale): Metadata {
   return meta(locale, '/tools/bulk-qr-code-generator', bulk.title, bulk.description);
 }
 
-export function BulkToolPage({ locale }: { locale: Locale }) {
+export async function BulkToolPage({ locale }: { locale: Locale }) {
   const content = getContent(locale);
   const { ui } = content;
   const bulk = content.tools.bulk;
+  // The last feature line is "Also available through the REST API" in every language.
+  const features = (await isDeveloperApiEnabled()) ? bulk.features : bulk.features.slice(0, -1);
   const path = '/tools/bulk-qr-code-generator';
   return (
     <MarketingShell locale={locale} path={path}>
@@ -423,7 +426,7 @@ export function BulkToolPage({ locale }: { locale: Locale }) {
           <section>
             <h2 className="mb-4 font-display text-[22px] font-bold tracking-[-0.02em] sm:text-[26px]">{ui.typePage.whyHeading}</h2>
             <ul className="space-y-2.5">
-              {bulk.features.map((feature) => (
+              {features.map((feature) => (
                 <li key={feature} className="flex gap-2.5 text-[14.5px] leading-7 text-muted-foreground">
                   <MaskIcon name="ShieldCheck" className="mt-1.5 size-4 text-success-text" />
                   <span>{feature}</span>

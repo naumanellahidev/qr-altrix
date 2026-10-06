@@ -13,6 +13,7 @@ export interface DashboardShellProps {
   workspaces: { id: string; name: string; role: Role }[];
   codeCount: number;
   expiryEnabled?: boolean;
+  developerApiEnabled?: boolean;
   maintenanceNote?: string | null;
   /** Platform setting: unverified accounts cannot create dynamic codes until they confirm. */
   emailVerificationRequired?: boolean;
@@ -26,6 +27,7 @@ export function DashboardShell({
   workspaces,
   codeCount,
   expiryEnabled,
+  developerApiEnabled,
   maintenanceNote,
   emailVerificationRequired,
   children,
@@ -41,6 +43,7 @@ export function DashboardShell({
         onClose={() => setSidebarOpen(false)}
         codeCount={codeCount}
         expiryEnabled={expiryEnabled}
+        developerApiEnabled={developerApiEnabled}
       />
 
       <div className="flex min-w-0 flex-1 flex-col">

@@ -6,12 +6,15 @@ import { randomToken } from '@/lib/utils';
 import { apiKeySchema } from '@/lib/validation';
 import { created, fail, ok, readJson, withApi } from '@/lib/api/respond';
 import { logSecurity } from '@/lib/audit';
+import { developerApiGate } from '@/lib/api/developer';
 
 /**
  * API keys are shown once at creation and stored only as a hash. The prefix is kept in
  * clear so the dashboard can identify a key and a request can look it up cheaply.
  */
 export const GET = withApi(async () => {
+  const gate = await developerApiGate();
+  if (gate) return gate;
   const auth = await requireAuth();
   if (!can(auth.role, 'apikey.manage')) return fail('Your role cannot manage API keys', 403);
 
@@ -37,6 +40,8 @@ export const GET = withApi(async () => {
 });
 
 export const POST = withApi(async (request: Request) => {
+  const gate = await developerApiGate();
+  if (gate) return gate;
   const auth = await requireAuth();
   if (!can(auth.role, 'apikey.manage')) return fail('Your role cannot manage API keys', 403);
 

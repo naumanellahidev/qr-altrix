@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/misc';
 import { CopyField } from '@/components/ui/copy-button';
+import { isDeveloperApiEnabled } from '@/lib/settings';
 
 export const metadata: Metadata = { title: 'Contact & support' };
 export const dynamic = 'force-dynamic';
@@ -45,6 +46,9 @@ const HELP = [
 
 export default async function SupportPage() {
   const auth = await requireAuth('/dashboard/support');
+  const developerApiEnabled = await isDeveloperApiEnabled();
+  // Without the developer API there is no REST API to mention.
+  const help = developerApiEnabled ? HELP : HELP.map((item) => ({ ...item, a: item.a.replace(' The REST API can read everything too.', '') }));
 
   return (
     <>
@@ -59,7 +63,7 @@ export default async function SupportPage() {
           <Card className="p-5">
             <SectionHeader title="Common questions" />
             <Accordion type="single" collapsible>
-              {HELP.map((item, index) => (
+              {help.map((item, index) => (
                 <AccordionItem key={item.q} value={`help-${index}`}>
                   <AccordionTrigger className="text-[14px]">{item.q}</AccordionTrigger>
                   <AccordionContent>{item.a}</AccordionContent>
@@ -87,11 +91,13 @@ export default async function SupportPage() {
                   <Flag /> Report a QR code
                 </Link>
               </Button>
-              <Button asChild variant="outline">
-                <Link href="/developers" target="_blank">
-                  <BookOpen /> API reference <ExternalLink />
-                </Link>
-              </Button>
+              {developerApiEnabled ? (
+                <Button asChild variant="outline">
+                  <Link href="/developers" target="_blank">
+                    <BookOpen /> API reference <ExternalLink />
+                  </Link>
+                </Button>
+              ) : null}
             </div>
             <p className="mt-4 text-[12.5px] leading-6 text-muted-foreground">
               This is a self-hosted install, so the administrator who runs this server is your first line of support.

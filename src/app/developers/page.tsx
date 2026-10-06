@@ -14,6 +14,8 @@ import { CodeBlock } from '@/components/marketing/code-block';
 import { pageMeta } from '@/lib/seo/meta';
 import { JsonLd } from '@/components/seo/json-ld';
 import { breadcrumbSchema, graph } from '@/lib/seo/schema';
+import { notFound } from 'next/navigation';
+import { isDeveloperApiEnabled } from '@/lib/settings';
 
 export const metadata: Metadata = pageMeta({
   path: '/developers',
@@ -46,12 +48,14 @@ const ENDPOINTS: { method: string; path: string; description: string; scope: str
 ];
 
 export default async function DevelopersDocsPage() {
+  // The API guide exists only while a platform admin has the developer API switched on.
+  if (!(await isDeveloperApiEnabled())) notFound();
   const auth = await getAuthContext().catch(() => null);
   const base = env.appUrl;
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <SiteHeader signedIn={Boolean(auth)} />
+      <SiteHeader signedIn={Boolean(auth)} showApi />
 
       <main className="container flex-1 py-10">
         <PageHeader

@@ -408,6 +408,7 @@ export const platformSettingsSchema = z.object({
   ipStorageMode: z.enum(['hashed', 'never']).optional(),
   abuseKeywords: z.array(z.string().trim().max(60)).max(200).optional(),
   maintenanceNote: z.string().trim().max(400).optional(),
+  developerApiEnabled: z.boolean().optional(),
 });
 
 export const feedbackSubmissionSchema = z.object({

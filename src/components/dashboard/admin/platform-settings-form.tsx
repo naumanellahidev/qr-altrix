@@ -131,6 +131,23 @@ export function PlatformSettingsForm({ initial }: { initial: PlatformSettings })
         </div>
       </Card>
 
+      <Card className="p-5">
+        <SectionHeader
+          title="Developer API"
+          description="API keys, webhooks and the public API docs. Off by default."
+        />
+        <SwitchRow
+          label={
+            <span className="flex items-center gap-1.5">
+              <KeyRound className="size-3.5" /> Enable the developer API
+            </span>
+          }
+          description="While this is off, users see no API or developer pages, existing API keys are refused and webhooks are not sent. Keys and webhooks are kept, so switching it back on restores them."
+          checked={form.developerApiEnabled}
+          onCheckedChange={(checked) => patch({ developerApiEnabled: checked })}
+        />
+      </Card>
+
       {/* ------------------------------------------------------------- expiry */}
       <Card className={form.expiryEnabled ? 'border-warning/35 p-5' : 'p-5'}>
         <SectionHeader

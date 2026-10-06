@@ -19,9 +19,11 @@ export interface SidebarProps {
   codeCount: number;
   /** True when an administrator has switched the expiry policy on. */
   expiryEnabled?: boolean;
+  /** True when a platform admin has switched the developer API on. */
+  developerApiEnabled?: boolean;
 }
 
-export function Sidebar({ role, isPlatformAdmin, open, onClose, codeCount, expiryEnabled }: SidebarProps) {
+export function Sidebar({ role, isPlatformAdmin, open, onClose, codeCount, expiryEnabled, developerApiEnabled }: SidebarProps) {
   const pathname = usePathname();
 
   // Close the drawer whenever navigation happens on mobile.
@@ -50,7 +52,11 @@ export function Sidebar({ role, isPlatformAdmin, open, onClose, codeCount, expir
 
       <nav className="flex-1 space-y-5" aria-label="Dashboard">
         {NAV_SECTIONS.map((section, index) => {
-          const items = section.items.filter((item) => !item.permission || can(role, item.permission));
+          const items = section.items.filter(
+            (item) =>
+              (!item.permission || can(role, item.permission)) &&
+              (item.feature !== 'developerApi' || developerApiEnabled),
+          );
           if (items.length === 0) return null;
 
           return (

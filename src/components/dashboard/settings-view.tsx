@@ -81,12 +81,15 @@ export function SettingsView({
   workspace,
   initialTab = 'general',
   twoFactorRequired = false,
+  developerApiEnabled = false,
 }: {
   user: SettingsUser;
   workspace: SettingsWorkspace;
   initialTab?: string;
   /** The admin gate sent this administrator here because the platform requires 2FA. */
   twoFactorRequired?: boolean;
+  /** API keys and webhooks only appear while a platform admin has the developer API on. */
+  developerApiEnabled?: boolean;
 }) {
   const formatDate = useDateFormat();
   const router = useRouter();
@@ -387,14 +390,16 @@ export function SettingsView({
 
         <TwoFactorSetup enabled={user.twoFactorEnabled} hasPassword={user.hasPassword} />
 
-        <Card className="p-5">
-          <SectionHeader title="API keys" description="Programmatic access lives on the developers page." />
-          <Button asChild variant="outline">
-            <Link href="/dashboard/developers">
-              <KeyRound /> Manage API keys
-            </Link>
-          </Button>
-        </Card>
+        {developerApiEnabled ? (
+          <Card className="p-5">
+            <SectionHeader title="API keys" description="Programmatic access lives on the developers page." />
+            <Button asChild variant="outline">
+              <Link href="/dashboard/developers">
+                <KeyRound /> Manage API keys
+              </Link>
+            </Button>
+          </Card>
+        ) : null}
       </TabsContent>
 
       {/* ------------------------------------------------------- notifications */}
@@ -471,9 +476,11 @@ export function SettingsView({
               />
             </Field>
           </div>
-          <Alert tone="info" className="mt-4">
-            Webhooks give you raw scan events in your own systems. Set them up on the developers page.
-          </Alert>
+          {developerApiEnabled ? (
+            <Alert tone="info" className="mt-4">
+              Webhooks give you raw scan events in your own systems. Set them up on the developers page.
+            </Alert>
+          ) : null}
           {workspace.canManage ? (
             <div className="mt-5">
               <Button

@@ -5,6 +5,7 @@ import { can } from '@/lib/rbac';
 import { ROLE_LABELS } from '@/lib/rbac';
 import { PageHeader } from '@/components/ui/page-header';
 import { SettingsView } from '@/components/dashboard/settings-view';
+import { isDeveloperApiEnabled } from '@/lib/settings';
 
 export const metadata: Metadata = { title: 'Settings' };
 export const dynamic = 'force-dynamic';
@@ -23,6 +24,7 @@ export default async function SettingsPage({
   const initialTab = (TABS as readonly string[]).includes(query.tab ?? '') ? query.tab! : 'general';
   const twoFactorRequired = query.enroll2fa === '1' && auth.user.isPlatformAdmin && !auth.user.twoFactorEnabled;
 
+  const developerApiEnabled = await isDeveloperApiEnabled();
   const workspace = await prisma.workspace.findUniqueOrThrow({
     where: { id: auth.workspace.id },
     select: { id: true, name: true, slug: true, storageUsed: true, tracking: true, brandColors: true },
@@ -39,6 +41,7 @@ export default async function SettingsPage({
       <SettingsView
         initialTab={twoFactorRequired ? 'security' : initialTab}
         twoFactorRequired={twoFactorRequired}
+        developerApiEnabled={developerApiEnabled}
         user={{
           id: auth.user.id,
           email: auth.user.email,

@@ -3,9 +3,12 @@ import { requireAuth } from '@/lib/auth';
 import { can } from '@/lib/rbac';
 import { fail, ok, withApi } from '@/lib/api/respond';
 import { logSecurity } from '@/lib/audit';
+import { developerApiGate } from '@/lib/api/developer';
 
 /** Revokes a key immediately. Revoked keys are kept so the audit trail stays complete. */
 export const DELETE = withApi(async (request: Request, context: { params: Promise<{ id: string }> }) => {
+  const gate = await developerApiGate();
+  if (gate) return gate;
   const { id } = await context.params;
   const auth = await requireAuth();
   if (!can(auth.role, 'apikey.manage')) return fail('Your role cannot manage API keys', 403);

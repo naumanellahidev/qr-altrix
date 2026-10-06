@@ -8,6 +8,8 @@ export interface NavItem {
   permission?: Permission;
   description?: string;
   exact?: boolean;
+  /** Hidden unless a platform admin has switched this feature on. */
+  feature?: 'developerApi';
 }
 
 export interface NavSection {
@@ -41,7 +43,7 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: '/dashboard/team', label: 'Users & team', icon: 'Users' },
       { href: '/dashboard/security', label: 'Security history', icon: 'ShieldCheck' },
-      { href: '/dashboard/developers', label: 'Developers & API', icon: 'Code2', permission: 'apikey.manage' },
+      { href: '/dashboard/developers', label: 'Developers & API', icon: 'Code2', permission: 'apikey.manage', feature: 'developerApi' },
       { href: '/dashboard/settings', label: 'Settings', icon: 'Settings' },
       { href: '/dashboard/support', label: 'Contact & support', icon: 'LifeBuoy' },
     ],

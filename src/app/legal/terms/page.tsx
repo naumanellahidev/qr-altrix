@@ -7,6 +7,7 @@ import { LegalDocument } from '@/components/marketing/legal-document';
 import { pageMeta } from '@/lib/seo/meta';
 import { JsonLd } from '@/components/seo/json-ld';
 import { breadcrumbSchema, graph } from '@/lib/seo/schema';
+import { isDeveloperApiEnabled } from '@/lib/settings';
 
 export const metadata: Metadata = pageMeta({
   path: '/legal/terms',
@@ -22,7 +23,7 @@ export default async function TermsPage() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <SiteHeader signedIn={Boolean(auth)} />
+      <SiteHeader signedIn={Boolean(auth)} showApi={await isDeveloperApiEnabled()} />
       <main className="flex-1">
         <LegalDocument
           title="Terms of service"

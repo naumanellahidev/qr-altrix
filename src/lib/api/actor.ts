@@ -5,7 +5,8 @@ import { hashToken } from '../hash';
 import { getAuthContext } from '../auth';
 import { can, type Permission } from '../rbac';
 import { rateLimit, rateLimitHeaders, type RateLimitResult } from '../rate-limit';
-import { getSettings } from '../settings';
+import { getSettings, isDeveloperApiEnabled } from '../settings';
+import { DEVELOPER_API_OFF } from './developer';
 import { clientIp } from '../request';
 
 /**
@@ -59,6 +60,8 @@ export async function resolveActor(request: Request): Promise<ActorResult> {
   const bearer = header.replace(/^Bearer\s+/i, '').trim();
 
   if (bearer) {
+    // API keys only work while a platform admin has the developer API switched on.
+    if (!(await isDeveloperApiEnabled())) return { ok: false, status: 403, error: DEVELOPER_API_OFF };
     const parsed = parseApiKey(bearer);
     if (!parsed) return { ok: false, status: 401, error: 'That API key is not valid' };
 

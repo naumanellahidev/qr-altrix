@@ -12,6 +12,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { pageMeta } from '@/lib/seo/meta';
 import { JsonLd } from '@/components/seo/json-ld';
 import { breadcrumbSchema, graph } from '@/lib/seo/schema';
+import { isDeveloperApiEnabled } from '@/lib/settings';
 
 export const metadata: Metadata = pageMeta({
   path: '/support',
@@ -52,10 +53,14 @@ const FAQ = [
 export default async function PublicSupportPage() {
   const auth = await getAuthContext().catch(() => null);
   const host = new URL(env.appUrl).hostname;
+  const developerApiEnabled = await isDeveloperApiEnabled();
+  const faq = developerApiEnabled
+    ? FAQ
+    : FAQ.map((item) => ({ ...item, a: item.a.replace('custom domains, bulk generation and the API', 'custom domains and bulk generation') }));
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <SiteHeader signedIn={Boolean(auth)} />
+      <SiteHeader signedIn={Boolean(auth)} showApi={await isDeveloperApiEnabled()} />
 
       <main className="container flex-1 py-12">
         <PageHeader
@@ -67,7 +72,7 @@ export default async function PublicSupportPage() {
           <Card className="p-5">
             <SectionHeader title="Frequently asked" />
             <Accordion type="single" collapsible>
-              {FAQ.map((item, index) => (
+              {faq.map((item, index) => (
                 <AccordionItem key={item.q} value={`faq-${index}`}>
                   <AccordionTrigger className="text-[14px]">{item.q}</AccordionTrigger>
                   <AccordionContent>{item.a}</AccordionContent>
@@ -90,11 +95,13 @@ export default async function PublicSupportPage() {
                     <Flag /> Report a harmful QR code
                   </Link>
                 </Button>
-                <Button asChild variant="outline" className="w-full justify-start">
-                  <Link href="/developers">
-                    <BookOpen /> API reference
-                  </Link>
-                </Button>
+                {developerApiEnabled ? (
+                  <Button asChild variant="outline" className="w-full justify-start">
+                    <Link href="/developers">
+                      <BookOpen /> API reference
+                    </Link>
+                  </Button>
+                ) : null}
                 {auth ? (
                   <Button asChild variant="ghost" className="w-full justify-start">
                     <Link href="/dashboard/support">

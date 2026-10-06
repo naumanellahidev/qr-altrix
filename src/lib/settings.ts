@@ -52,6 +52,12 @@ export interface PlatformSettings {
   abuseKeywords: string[];
   /** Shown as a banner across the dashboard when set. */
   maintenanceNote: string;
+  /**
+   * The public developer surface: API-key access, API keys, webhooks and the API docs.
+   * Off until a platform admin switches it on. The dashboard's own session calls to
+   * /api/v1 are not affected.
+   */
+  developerApiEnabled: boolean;
 }
 
 const SETTINGS_KEY = 'platform';
@@ -81,6 +87,7 @@ function defaults(): PlatformSettings {
     ipStorageMode: env.ipStorageMode,
     abuseKeywords: [],
     maintenanceNote: '',
+    developerApiEnabled: false,
   };
 }
 
@@ -122,6 +129,12 @@ export async function updateSettings(patch: Partial<PlatformSettings>): Promise<
   });
   cache = { value: next, expiresAt: Date.now() + CACHE_MS };
   return next;
+}
+
+/** Whether the developer API is switched on. Fails closed: a settings read error means off. */
+export async function isDeveloperApiEnabled(): Promise<boolean> {
+  const settings = await getSettings().catch(() => null);
+  return Boolean(settings?.developerApiEnabled);
 }
 
 export function invalidateSettingsCache(): void {

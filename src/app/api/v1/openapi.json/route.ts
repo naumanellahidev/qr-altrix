@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { env } from '@/lib/env';
 import { QR_TYPES } from '@/lib/qr/catalog';
+import { developerApiGate } from '@/lib/api/developer';
 
 // The server URL comes from the runtime environment, so this must not be baked in at
 // build time — a self-hosted image is built once and configured per deployment.
@@ -11,6 +12,8 @@ export const dynamic = 'force-dynamic';
  * server validates against, so the docs cannot drift from the implementation.
  */
 export async function GET() {
+  const gate = await developerApiGate();
+  if (gate) return gate;
   const qrTypes = QR_TYPES.map((type) => type.type);
 
   const errorResponse = {

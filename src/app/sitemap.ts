@@ -3,6 +3,7 @@ import { env } from '@/lib/env';
 import { ENGLISH_ROUTES, localizedRoutes } from '@/lib/seo/routes';
 import { PUBLISHED_LOCALES } from '@/content';
 import { DEFAULT_LOCALE, localePath } from '@/i18n/locales';
+import { isDeveloperApiEnabled } from '@/lib/settings';
 
 // Generated per request: APP_URL is configured at runtime, not at build time.
 export const dynamic = 'force-dynamic';
@@ -16,7 +17,9 @@ export const dynamic = 'force-dynamic';
  * - No <changefreq> or <priority>: Google ignores both.
  * - Sign-in, password and account pages are left out on purpose; they are noindex.
  */
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // The API guide is listed only while a platform admin has the developer API switched on.
+  const developerApiEnabled = await isDeveloperApiEnabled();
   const base = env.appUrl.replace(/\/+$/, '');
   const abs = (path: string) => (path === '/' ? `${base}/` : `${base}${path}`);
   const date = (updated: string) => new Date(`${updated}T00:00:00Z`);
@@ -38,6 +41,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     })),
   );
 
-  const english = ENGLISH_ROUTES.map((route) => ({ url: abs(route.path), lastModified: date(route.updated) }));
+  const english = ENGLISH_ROUTES.filter((route) => developerApiEnabled || route.path !== '/developers').map((route) => ({
+    url: abs(route.path),
+    lastModified: date(route.updated),
+  }));
   return [...translated, ...english];
 }

@@ -38,6 +38,7 @@ export async function HomePage({ locale }: { locale: Locale }) {
   // The hero copy must describe this install: an operator can switch expiry on.
   const expiryEnabled = Boolean(settings?.expiryEnabled);
   const guestStaticDownload = settings?.allowGuestStaticDownload ?? env.allowGuestStaticDownload;
+  const showApi = Boolean(settings?.developerApiEnabled);
   const faqs = homeFaqs({ expiryEnabled, guestStaticDownload }, home);
   const base = env.appUrl.replace(/\/+$/, '');
 
@@ -77,8 +78,8 @@ export async function HomePage({ locale }: { locale: Locale }) {
         </div>
       </section>
 
-      <TrustBar copy={home} expiryEnabled={expiryEnabled} />
-      <Features copy={home} />
+      <TrustBar copy={home} expiryEnabled={expiryEnabled} showApi={showApi} />
+      <Features copy={home} showApi={showApi} />
       <UseCases copy={home} locale={locale} />
       <TypesShowcase
         copy={home}
@@ -116,7 +117,7 @@ export async function HomePage({ locale }: { locale: Locale }) {
       </section>
 
       <Faq items={faqs} title={home.faqTitle} lead={home.faqLead} />
-      <CtaBand copy={home} />
+      <CtaBand copy={home} showApi={showApi} />
 
       <JsonLd
         data={graph(organizationSchema(base), websiteSchema(base), applicationSchema(base, { expiryEnabled }), faqSchema(base, faqs))}
