@@ -12,13 +12,14 @@ export interface FaqItem {
 }
 
 export function homeFaqs(
-  opts: { expiryEnabled: boolean; guestStaticDownload: boolean },
+  opts: { expiryEnabled: boolean; guestStaticDownload: boolean; developerApi?: boolean },
   copy: HomeCopy = englishHome,
 ): FaqItem[] {
   const [free, staticVsDynamic, ...rest] = copy.faqs;
   return [
     opts.expiryEnabled ? copy.faqExpiry : copy.faqNeverExpire,
-    free,
+    // "Is it really free?" lists the API only while the developer API is switched on.
+    opts.developerApi ? free : { ...free, a: copy.noApi.freeAnswer },
     staticVsDynamic,
     opts.guestStaticDownload ? copy.faqAccountGuest : copy.faqAccountNoGuest,
     ...rest,

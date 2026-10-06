@@ -5,6 +5,12 @@ export const home: HomeCopy = {
   titleExpiry: 'Free QR Code Generator – Dynamic QR Codes & Analytics | QR ALTRIX',
   description: 'Free QR codes with your logo and frames. Unlimited dynamic QR codes that never expire, live scan analytics, bulk and API. No card, no trial.',
   descriptionExpiry: 'Free QR codes with your logo, colours and frames. Unlimited dynamic QR codes you can edit after printing, live scan analytics, bulk and an API.',
+  /** Used while the developer API is switched off: the same copy without the API. */
+  noApi: {
+    description: 'Free QR codes with your logo and frames. Unlimited dynamic QR codes that never expire, live scan analytics and bulk generation. No card, no trial.',
+    descriptionExpiry: 'Free QR codes with your logo, colours and frames. Unlimited dynamic QR codes you can edit after printing, live scan analytics and bulk generation.',
+    freeAnswer: 'Yes. Every feature is free: unlimited dynamic QR codes, analytics, bulk generation, custom domains and teams. There are no paid plans or upgrades, and nothing asks for a card.',
+  },
   badge: 'Dynamic QR codes that never expire',
   badgeExpiry: 'Free QR codes with full analytics',
   eyebrow: 'Free QR code generator',

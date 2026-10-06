@@ -59,6 +59,13 @@ export interface CompareCopy {
   tableHeading: string;
   tableColumns: [string, string, string];
   table: { feature: string; typical: string; ours: string }[];
+  /** Copy used while the developer API is switched off (no API mentions). */
+  noApi: {
+    /** Replaces the "why" of the last checklist point ("Can you leave with your data?"). */
+    lockInWhy: string;
+    /** Replaces the "Bulk generation and API" row label of the comparison table. */
+    bulkFeature: string;
+  };
   verdictHeading: string;
   verdict: string[];
   faqs: Faq[];
@@ -186,6 +193,13 @@ export interface HomeCopy {
   titleExpiry: string;
   description: string;
   descriptionExpiry: string;
+  /** Copy used while the developer API is switched off (no API mentions). */
+  noApi: {
+    description: string;
+    descriptionExpiry: string;
+    /** Answer to the first FAQ ("Is QR ALTRIX really free?"). */
+    freeAnswer: string;
+  };
   badge: string;
   badgeExpiry: string;
   eyebrow: string;

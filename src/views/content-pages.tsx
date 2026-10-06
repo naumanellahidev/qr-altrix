@@ -305,9 +305,24 @@ export function comparePageMeta(locale: Locale): Metadata {
   return meta(locale, '/best-free-qr-code-generator', compare.title, compare.description);
 }
 
-export function ComparePage({ locale }: { locale: Locale }) {
+/** Index of the "Bulk generation and API" row in CompareCopy.table, in every language. */
+const BULK_API_ROW = 6;
+
+export async function ComparePage({ locale }: { locale: Locale }) {
   const content = getContent(locale);
-  const { ui, compare } = content;
+  const { ui } = content;
+  // Without the developer API there is no API to promise: use the copy that leaves it out.
+  const compare = (await isDeveloperApiEnabled())
+    ? content.compare
+    : {
+        ...content.compare,
+        checklist: content.compare.checklist.map((item, index, all) =>
+          index === all.length - 1 ? { ...item, why: content.compare.noApi.lockInWhy } : item,
+        ),
+        table: content.compare.table.map((row, index) =>
+          index === BULK_API_ROW ? { ...row, feature: content.compare.noApi.bulkFeature } : row,
+        ),
+      };
   const path = '/best-free-qr-code-generator';
   return (
     <MarketingShell locale={locale} path={path}>

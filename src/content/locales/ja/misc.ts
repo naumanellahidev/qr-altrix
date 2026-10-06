@@ -117,6 +117,11 @@ export const compare: CompareCopy = {
     { feature: '一括作成とAPI', typical: '有料プラン', ours: '無料' },
     { feature: 'セルフホスト', typical: '非対応', ours: '対応' },
   ],
+  /** Used while the developer API is switched off. */
+  noApi: {
+    lockInWhy: 'CSV・XLSXのエクスポートとベクター形式のダウンロードがあれば囲い込まれません。',
+    bulkFeature: '一括作成',
+  },
   verdictHeading: '選び方',
   verdict: [
     'Wi-Fiのパスワードなど、静的コードが1つだけ必要なら、ほとんどのツールで十分です。',

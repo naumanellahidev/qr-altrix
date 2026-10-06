@@ -249,3 +249,26 @@ describe('llms files without the developer API', () => {
     }
   });
 });
+
+describe('home copy without the developer API', () => {
+  it('drops the API from the FAQ answer and the structured data, in every language', async () => {
+    const { homeFaqs } = await import('@/lib/seo/faq');
+    const { applicationSchema } = await import('@/lib/seo/schema');
+    const { getContent } = await import('@/content');
+    for (const locale of PUBLISHED_LOCALES) {
+      const home = getContent(locale).home;
+      const off = homeFaqs({ expiryEnabled: false, guestStaticDownload: true, developerApi: false }, home);
+      const on = homeFaqs({ expiryEnabled: false, guestStaticDownload: true, developerApi: true }, home);
+      expect(off[1].a).toBe(home.noApi.freeAnswer);
+      expect(on[1].a).toBe(home.faqs[0].a);
+      for (const text of [home.noApi.description, home.noApi.descriptionExpiry, home.noApi.freeAnswer]) {
+        expect(text, `${locale} still mentions the API`).not.toMatch(/\bAPI\b/);
+      }
+      const compare = getContent(locale).compare.noApi;
+      expect(`${compare.lockInWhy} ${compare.bulkFeature}`, `${locale} compare copy`).not.toMatch(/\bAPI\b/);
+    }
+    const app = JSON.stringify(applicationSchema('https://x.test', { expiryEnabled: false, developerApi: false }));
+    expect(app).not.toMatch(/REST API/);
+    expect(JSON.stringify(applicationSchema('https://x.test', { expiryEnabled: false, developerApi: true }))).toMatch(/REST API/);
+  });
+});

@@ -117,6 +117,11 @@ export const compare: CompareCopy = {
     { feature: 'Pembuatan massal dan API', typical: 'Paket berbayar', ours: 'Gratis' },
     { feature: 'Hosting sendiri', typical: 'Tidak tersedia', ours: 'Tersedia' },
   ],
+  /** Used while the developer API is switched off. */
+  noApi: {
+    lockInWhy: 'Ekspor CSV dan XLSX serta unduhan vektor membuat Anda tidak terkunci.',
+    bulkFeature: 'Pembuatan massal',
+  },
   verdictHeading: 'Cara memilih',
   verdict: [
     'Jika Anda hanya butuh satu kode statis — misalnya kata sandi Wi-Fi — hampir semua generator bisa dipakai.',

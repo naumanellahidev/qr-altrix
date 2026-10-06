@@ -117,6 +117,11 @@ export const compare: CompareCopy = {
     { feature: 'बल्क जनरेशन और API', typical: 'पेड प्लान', ours: 'मुफ़्त' },
     { feature: 'सेल्फ़-होस्टिंग', typical: 'उपलब्ध नहीं', ours: 'उपलब्ध' },
   ],
+  /** Used while the developer API is switched off. */
+  noApi: {
+    lockInWhy: 'CSV और XLSX एक्सपोर्ट और वेक्टर फ़ाइलें होने से आप बंधते नहीं।',
+    bulkFeature: 'बल्क जनरेशन',
+  },
   verdictHeading: 'कैसे चुनें',
   verdict: [
     'अगर आपको सिर्फ़ एक स्टैटिक कोड चाहिए — जैसे Wi-Fi पासवर्ड — तो लगभग कोई भी जनरेटर चलेगा।',

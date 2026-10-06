@@ -117,6 +117,11 @@ export const compare: CompareCopy = {
     { feature: '대량 생성 및 API', typical: '유료 요금제', ours: '무료' },
     { feature: '셀프 호스팅', typical: '지원 안 함', ours: '지원' },
   ],
+  /** Used while the developer API is switched off. */
+  noApi: {
+    lockInWhy: 'CSV·XLSX 내보내기와 벡터 파일 다운로드가 있으면 종속되지 않습니다.',
+    bulkFeature: '대량 생성',
+  },
   verdictHeading: '고르는 방법',
   verdict: [
     'Wi-Fi 비밀번호처럼 정적 코드 하나만 필요하다면 거의 어떤 생성기든 괜찮습니다.',

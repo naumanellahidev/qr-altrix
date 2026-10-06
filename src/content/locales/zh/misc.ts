@@ -117,6 +117,11 @@ export const compare: CompareCopy = {
     { feature: '批量生成与 API', typical: '付费套餐', ours: '免费' },
     { feature: '自托管', typical: '不支持', ours: '支持' },
   ],
+  /** Used while the developer API is switched off. */
+  noApi: {
+    lockInWhy: 'CSV 和 XLSX 导出以及矢量文件下载让您不被锁定。',
+    bulkFeature: '批量生成',
+  },
   verdictHeading: '如何选择',
   verdict: [
     '如果您只需要一个静态二维码（比如 Wi-Fi 密码），几乎任何生成器都行。',

@@ -117,6 +117,11 @@ export const compare: CompareCopy = {
     { feature: 'Toplu oluşturma ve API', typical: 'Ücretli planlar', ours: 'Ücretsiz' },
     { feature: 'Kendi sunucunda barındırma', typical: 'Mevcut değil', ours: 'Mevcut' },
   ],
+  /** Used while the developer API is switched off. */
+  noApi: {
+    lockInWhy: 'CSV ve XLSX dışa aktarma ile vektör dosyalar, tek bir sağlayıcıya bağlı kalmamanızı sağlar.',
+    bulkFeature: 'Toplu oluşturma',
+  },
   verdictHeading: 'Nasıl seçmeli',
   verdict: [
     'Yalnızca tek bir statik koda ihtiyacınız varsa — örneğin bir Wi-Fi şifresi — neredeyse her oluşturucu iş görür.',

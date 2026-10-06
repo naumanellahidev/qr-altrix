@@ -5,6 +5,12 @@ export const home: HomeCopy = {
   titleExpiry: '無料QRコード作成 – 動的QRコードとアクセス解析 | QR ALTRIX',
   description: 'ロゴやフレーム付きのQRコードを無料で作成。期限切れにならない動的QRコードが無制限、リアルタイム解析、一括作成、API。カード登録・お試し期間なし。',
   descriptionExpiry: 'ロゴ・色・フレーム付きのQRコードを無料で。印刷後も編集できる動的QRコードが無制限、リアルタイム解析、一括作成、API。',
+  /** Used while the developer API is switched off: the same copy without the API. */
+  noApi: {
+    description: 'ロゴやフレーム付きのQRコードを無料で作成。期限切れにならない動的QRコードが無制限、リアルタイム解析、一括作成。カード登録・お試し期間なし。',
+    descriptionExpiry: 'ロゴ・色・フレーム付きのQRコードを無料で。印刷後も編集できる動的QRコードが無制限、リアルタイム解析、一括作成。',
+    freeAnswer: 'はい。無制限の動的QRコード、解析、一括作成、独自ドメイン、チームなど、すべての機能が無料です。有料プランやアップグレードはなく、カードを求められることもありません。',
+  },
   badge: '期限切れにならない動的QRコード',
   badgeExpiry: 'すべての解析付き無料QRコード',
   eyebrow: '無料QRコード作成',

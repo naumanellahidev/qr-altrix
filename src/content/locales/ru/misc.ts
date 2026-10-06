@@ -117,6 +117,11 @@ export const compare: CompareCopy = {
     { feature: 'Массовая генерация и API', typical: 'Платные тарифы', ours: 'Бесплатно' },
     { feature: 'Размещение у себя', typical: 'Недоступно', ours: 'Доступно' },
   ],
+  /** Used while the developer API is switched off. */
+  noApi: {
+    lockInWhy: 'Экспорт в CSV и XLSX и векторные файлы не дают оказаться в ловушке.',
+    bulkFeature: 'Массовая генерация',
+  },
   verdictHeading: 'Как выбрать',
   verdict: [
     'Если нужен всего один статический код — например, пароль от Wi-Fi, — подойдёт почти любой генератор.',

@@ -5,6 +5,12 @@ export const home: HomeCopy = {
   titleExpiry: '免费二维码生成器 – 动态二维码与数据分析 | QR ALTRIX',
   description: '免费制作带 Logo 和边框的二维码。无限量动态二维码永不过期，实时扫描统计、批量生成和 API。无需信用卡，无试用期。',
   descriptionExpiry: '免费制作带 Logo、配色和边框的二维码。无限量动态二维码，印刷后仍可修改，实时扫描统计、批量生成和 API。',
+  /** Used while the developer API is switched off: the same copy without the API. */
+  noApi: {
+    description: '免费制作带 Logo 和边框的二维码。无限量动态二维码永不过期，实时扫描统计和批量生成。无需信用卡，无试用期。',
+    descriptionExpiry: '免费制作带 Logo、配色和边框的二维码。无限量动态二维码，印刷后仍可修改，实时扫描统计和批量生成。',
+    freeAnswer: '是的。所有功能都免费：无限量动态二维码、数据分析、批量生成、自定义域名和团队。没有付费套餐或升级，任何地方都不会要求信用卡。',
+  },
   badge: '动态二维码，永不过期',
   badgeExpiry: '免费二维码，完整数据分析',
   eyebrow: '免费二维码生成器',

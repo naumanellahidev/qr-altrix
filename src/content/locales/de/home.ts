@@ -5,6 +5,12 @@ export const home: HomeCopy = {
   titleExpiry: 'Kostenloser QR-Code-Generator – Dynamische QR-Codes & Statistik | QR ALTRIX',
   description: 'Kostenlose QR-Codes mit Logo und Rahmen. Unbegrenzt dynamische QR-Codes, die nie ablaufen, Live-Statistiken, Massenerstellung und API. Ohne Karte, ohne Testphase.',
   descriptionExpiry: 'Kostenlose QR-Codes mit Logo, Farben und Rahmen. Unbegrenzt dynamische QR-Codes, nach dem Druck änderbar, Live-Statistiken, Massenerstellung und API.',
+  /** Used while the developer API is switched off: the same copy without the API. */
+  noApi: {
+    description: 'Kostenlose QR-Codes mit Logo und Rahmen. Unbegrenzt dynamische QR-Codes, die nie ablaufen, Live-Statistiken und Massenerstellung. Ohne Karte, ohne Testphase.',
+    descriptionExpiry: 'Kostenlose QR-Codes mit Logo, Farben und Rahmen. Unbegrenzt dynamische QR-Codes, nach dem Druck änderbar, Live-Statistiken und Massenerstellung.',
+    freeAnswer: 'Ja. Jede Funktion ist kostenlos: unbegrenzt dynamische QR-Codes, Statistiken, Massenerstellung, eigene Domains und Teams. Es gibt keine Bezahlpläne oder Upgrades, und nichts verlangt eine Karte.',
+  },
   badge: 'Dynamische QR-Codes, die nie ablaufen',
   badgeExpiry: 'Kostenlose QR-Codes mit vollständiger Statistik',
   eyebrow: 'Kostenloser QR-Code-Generator',

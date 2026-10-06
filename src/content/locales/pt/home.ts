@@ -5,6 +5,12 @@ export const home: HomeCopy = {
   titleExpiry: 'Gerador de QR Code grátis – QR dinâmicos e análises | QR ALTRIX',
   description: 'QR codes grátis com seu logo e molduras. QR codes dinâmicos ilimitados que nunca expiram, análises ao vivo, geração em massa e API. Sem cartão, sem teste.',
   descriptionExpiry: 'QR codes grátis com seu logo, cores e molduras. QR dinâmicos ilimitados que você edita depois de impressos, análises ao vivo, geração em massa e API.',
+  /** Used while the developer API is switched off: the same copy without the API. */
+  noApi: {
+    description: 'QR codes grátis com seu logo e molduras. QR codes dinâmicos ilimitados que nunca expiram, análises ao vivo e geração em massa. Sem cartão, sem teste.',
+    descriptionExpiry: 'QR codes grátis com seu logo, cores e molduras. QR dinâmicos ilimitados que você edita depois de impressos, análises ao vivo e geração em massa.',
+    freeAnswer: 'Sim. Todos os recursos são grátis: QR codes dinâmicos ilimitados, análises, geração em massa, domínios próprios e equipes. Não há planos pagos nem upgrades, e nada pede cartão.',
+  },
   badge: 'QR codes dinâmicos que nunca expiram',
   badgeExpiry: 'QR codes grátis com análises completas',
   eyebrow: 'Gerador de QR code grátis',

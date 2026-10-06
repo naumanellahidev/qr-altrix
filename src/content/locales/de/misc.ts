@@ -117,6 +117,11 @@ export const compare: CompareCopy = {
     { feature: 'Massenerstellung und API', typical: 'Bezahlpläne', ours: 'Kostenlos' },
     { feature: 'Selbst-Hosting', typical: 'Nicht verfügbar', ours: 'Verfügbar' },
   ],
+  /** Used while the developer API is switched off. */
+  noApi: {
+    lockInWhy: 'CSV- und XLSX-Exporte und Vektordateien verhindern, dass Sie festsitzen.',
+    bulkFeature: 'Massenerstellung',
+  },
   verdictHeading: 'So wählen Sie',
   verdict: [
     'Wenn Sie nur einen statischen Code brauchen – etwa ein WLAN-Passwort –, reicht fast jeder Generator.',

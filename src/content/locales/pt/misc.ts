@@ -117,6 +117,11 @@ export const compare: CompareCopy = {
     { feature: 'Geração em massa e API', typical: 'Planos pagos', ours: 'Grátis' },
     { feature: 'Auto-hospedagem', typical: 'Indisponível', ours: 'Disponível' },
   ],
+  /** Used while the developer API is switched off. */
+  noApi: {
+    lockInWhy: 'Exportações em CSV e XLSX e downloads vetoriais evitam que você fique preso.',
+    bulkFeature: 'Geração em massa',
+  },
   verdictHeading: 'Como escolher',
   verdict: [
     'Se você só precisa de um código estático — a senha do Wi-Fi, por exemplo — quase qualquer gerador serve.',

@@ -5,6 +5,12 @@ export const home: HomeCopy = {
   titleExpiry: 'Generatore di codici QR gratis – QR dinamici e statistiche | QR ALTRIX',
   description: 'Codici QR gratis con il tuo logo e cornici. QR dinamici illimitati che non scadono mai, statistiche in tempo reale, generazione massiva e API. Senza carta né prova.',
   descriptionExpiry: 'Codici QR gratis con logo, colori e cornici. QR dinamici illimitati modificabili dopo la stampa, statistiche in tempo reale, generazione massiva e API.',
+  /** Used while the developer API is switched off: the same copy without the API. */
+  noApi: {
+    description: 'Codici QR gratis con il tuo logo e cornici. QR dinamici illimitati che non scadono mai, statistiche in tempo reale e generazione massiva. Senza carta né prova.',
+    descriptionExpiry: 'Codici QR gratis con logo, colori e cornici. QR dinamici illimitati modificabili dopo la stampa, statistiche in tempo reale e generazione massiva.',
+    freeAnswer: 'Sì. Ogni funzione è gratis: codici QR dinamici illimitati, statistiche, generazione massiva, domini personalizzati e team. Non ci sono piani a pagamento né upgrade, e nulla chiede una carta.',
+  },
   badge: 'Codici QR dinamici che non scadono mai',
   badgeExpiry: 'Codici QR gratis con statistiche complete',
   eyebrow: 'Generatore di codici QR gratis',

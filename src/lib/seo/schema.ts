@@ -30,15 +30,16 @@ export function websiteSchema(base: string) {
   };
 }
 
-export function applicationSchema(base: string, opts: { expiryEnabled: boolean }) {
+export function applicationSchema(base: string, opts: { expiryEnabled: boolean; developerApi?: boolean }) {
+  const extras = opts.developerApi ? ', custom domains and a REST API.' : ' and custom domains.';
   return {
     '@type': 'WebApplication',
     '@id': `${base}/#app`,
     name: 'QR ALTRIX',
     url: `${base}/`,
     description: opts.expiryEnabled
-      ? 'Free QR code generator for static and dynamic QR codes with logos, frames, live scan analytics, bulk generation, custom domains and a REST API.'
-      : 'Free QR code generator for static and dynamic QR codes that never expire, with logos, frames, live scan analytics, bulk generation, custom domains and a REST API.',
+      ? `Free QR code generator for static and dynamic QR codes with logos, frames, live scan analytics, bulk generation${extras}`
+      : `Free QR code generator for static and dynamic QR codes that never expire, with logos, frames, live scan analytics, bulk generation${extras}`,
     applicationCategory: 'BusinessApplication',
     applicationSubCategory: 'QR code generator',
     operatingSystem: 'Any (runs in a web browser)',
@@ -55,7 +56,7 @@ export function applicationSchema(base: string, opts: { expiryEnabled: boolean }
       'Bulk generation from CSV',
       'Free custom short-link domains',
       'Team roles',
-      'REST API with webhooks',
+      ...(opts.developerApi ? ['REST API with webhooks'] : []),
     ],
     image: `${base}/opengraph-image`,
     creator: CREATOR,

@@ -117,6 +117,11 @@ export const compare: CompareCopy = {
     { feature: 'Generazione massiva e API', typical: 'Piani a pagamento', ours: 'Gratis' },
     { feature: 'Self-hosting', typical: 'Non disponibile', ours: 'Disponibile' },
   ],
+  /** Used while the developer API is switched off. */
+  noApi: {
+    lockInWhy: 'Esportazioni CSV e XLSX e file vettoriali evitano di restare bloccati.',
+    bulkFeature: 'Generazione massiva',
+  },
   verdictHeading: 'Come scegliere',
   verdict: [
     'Se ti serve un solo codice statico — la password del Wi-Fi, per esempio — va bene quasi qualsiasi generatore.',

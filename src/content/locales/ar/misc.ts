@@ -117,6 +117,11 @@ export const compare: CompareCopy = {
     { feature: 'الإنشاء الجماعي وواجهة API', typical: 'خطط مدفوعة', ours: 'مجاني' },
     { feature: 'الاستضافة الذاتية', typical: 'غير متاحة', ours: 'متاحة' },
   ],
+  /** Used while the developer API is switched off. */
+  noApi: {
+    lockInWhy: 'التصدير إلى CSV وXLSX وتنزيل الملفات المتجهية يمنعان احتجازك.',
+    bulkFeature: 'الإنشاء الجماعي',
+  },
   verdictHeading: 'كيف تختار',
   verdict: [
     'إذا كنت تحتاج رمزًا ثابتًا واحدًا فقط — مثل كلمة مرور Wi-Fi — فأي مولّد تقريبًا سيفي بالغرض.',

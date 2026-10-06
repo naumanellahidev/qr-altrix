@@ -79,7 +79,7 @@ export function homeMeta(
     description:
       opts.description ??
       (expiryEnabled
-        ? 'Free QR codes with your logo, colours and frames. Unlimited dynamic QR codes you can edit after printing, live scan analytics, bulk and an API.'
-        : `Free QR codes with your logo and frames. Unlimited dynamic QR codes that never expire, live scan analytics, bulk and API. ${signup}`),
+        ? 'Free QR codes with your logo, colours and frames. Unlimited dynamic QR codes you can edit after printing, live scan analytics and bulk generation.'
+        : `Free QR codes with your logo and frames. Unlimited dynamic QR codes that never expire, live scan analytics and bulk generation. ${signup}`),
   });
 }

@@ -5,6 +5,12 @@ export const home: HomeCopy = {
   titleExpiry: 'Trình tạo mã QR miễn phí – Mã QR động & phân tích | QR ALTRIX',
   description: 'Mã QR miễn phí với logo và khung của bạn. Mã QR động không giới hạn, không bao giờ hết hạn, phân tích lượt quét trực tiếp, tạo hàng loạt và API. Không cần thẻ, không dùng thử.',
   descriptionExpiry: 'Mã QR miễn phí với logo, màu sắc và khung của bạn. Mã QR động không giới hạn, sửa được sau khi in, phân tích lượt quét trực tiếp, tạo hàng loạt và API.',
+  /** Used while the developer API is switched off: the same copy without the API. */
+  noApi: {
+    description: 'Mã QR miễn phí với logo và khung của bạn. Mã QR động không giới hạn, không bao giờ hết hạn, phân tích lượt quét trực tiếp và tạo hàng loạt. Không cần thẻ, không dùng thử.',
+    descriptionExpiry: 'Mã QR miễn phí với logo, màu sắc và khung của bạn. Mã QR động không giới hạn, sửa được sau khi in, phân tích lượt quét trực tiếp và tạo hàng loạt.',
+    freeAnswer: 'Có. Mọi tính năng đều miễn phí: mã QR động không giới hạn, phân tích, tạo hàng loạt, tên miền riêng và nhóm. Không có gói trả phí hay nâng cấp, và không có gì đòi thẻ.',
+  },
   badge: 'Mã QR động không bao giờ hết hạn',
   badgeExpiry: 'Mã QR miễn phí với phân tích đầy đủ',
   eyebrow: 'Trình tạo mã QR miễn phí',

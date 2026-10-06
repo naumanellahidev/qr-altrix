@@ -21,11 +21,13 @@ export async function homePageMeta(locale: Locale): Promise<Metadata> {
   const settings = await getSettings().catch(() => null);
   const { home } = getContent(locale);
   const expiry = Boolean(settings?.expiryEnabled);
+  // No API in the description unless a platform admin has switched the developer API on.
+  const copy = settings?.developerApiEnabled ? home : { ...home, ...home.noApi };
   return homeMeta(expiry, settings?.allowGuestStaticDownload ?? env.allowGuestStaticDownload, {
     locale,
     languages: PUBLISHED_LOCALES,
     title: expiry ? home.titleExpiry : home.title,
-    description: expiry ? home.descriptionExpiry : home.description,
+    description: expiry ? copy.descriptionExpiry : copy.description,
   });
 }
 
@@ -39,7 +41,7 @@ export async function HomePage({ locale }: { locale: Locale }) {
   const expiryEnabled = Boolean(settings?.expiryEnabled);
   const guestStaticDownload = settings?.allowGuestStaticDownload ?? env.allowGuestStaticDownload;
   const showApi = Boolean(settings?.developerApiEnabled);
-  const faqs = homeFaqs({ expiryEnabled, guestStaticDownload }, home);
+  const faqs = homeFaqs({ expiryEnabled, guestStaticDownload, developerApi: Boolean(settings?.developerApiEnabled) }, home);
   const base = env.appUrl.replace(/\/+$/, '');
 
   return (
@@ -120,7 +122,7 @@ export async function HomePage({ locale }: { locale: Locale }) {
       <CtaBand copy={home} showApi={showApi} />
 
       <JsonLd
-        data={graph(organizationSchema(base), websiteSchema(base), applicationSchema(base, { expiryEnabled }), faqSchema(base, faqs))}
+        data={graph(organizationSchema(base), websiteSchema(base), applicationSchema(base, { expiryEnabled, developerApi: Boolean(settings?.developerApiEnabled) }), faqSchema(base, faqs))}
       />
     </MarketingShell>
   );

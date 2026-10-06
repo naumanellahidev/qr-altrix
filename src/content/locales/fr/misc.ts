@@ -117,6 +117,11 @@ export const compare: CompareCopy = {
     { feature: 'Génération en masse et API', typical: 'Offres payantes', ours: 'Gratuit' },
     { feature: 'Auto-hébergement', typical: 'Indisponible', ours: 'Disponible' },
   ],
+  /** Used while the developer API is switched off. */
+  noApi: {
+    lockInWhy: 'Les exports CSV et XLSX et les fichiers vectoriels évitent d’être captif.',
+    bulkFeature: 'Génération en masse',
+  },
   verdictHeading: 'Comment choisir',
   verdict: [
     'Si vous n’avez besoin que d’un code statique — un mot de passe Wi-Fi par exemple — presque n’importe quel générateur fera l’affaire.',

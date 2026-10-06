@@ -5,6 +5,12 @@ export const home: HomeCopy = {
   titleExpiry: 'Generator Kode QR Gratis – Kode QR Dinamis & Analitik | QR ALTRIX',
   description: 'Kode QR gratis dengan logo dan bingkai Anda. Kode QR dinamis tanpa batas yang tidak pernah kedaluwarsa, analitik langsung, massal, dan API. Tanpa kartu, tanpa uji coba.',
   descriptionExpiry: 'Kode QR gratis dengan logo, warna, dan bingkai. Kode QR dinamis tanpa batas yang bisa diubah setelah dicetak, analitik langsung, massal, dan API.',
+  /** Used while the developer API is switched off: the same copy without the API. */
+  noApi: {
+    description: 'Kode QR gratis dengan logo dan bingkai Anda. Kode QR dinamis tanpa batas yang tidak pernah kedaluwarsa, analitik langsung, dan pembuatan massal. Tanpa kartu, tanpa uji coba.',
+    descriptionExpiry: 'Kode QR gratis dengan logo, warna, dan bingkai. Kode QR dinamis tanpa batas yang bisa diubah setelah dicetak, analitik langsung, dan pembuatan massal.',
+    freeAnswer: 'Ya. Semua fitur gratis: kode QR dinamis tanpa batas, analitik, pembuatan massal, domain kustom, dan tim. Tidak ada paket berbayar atau upgrade, dan tidak ada yang meminta kartu.',
+  },
   badge: 'Kode QR dinamis yang tidak pernah kedaluwarsa',
   badgeExpiry: 'Kode QR gratis dengan analitik lengkap',
   eyebrow: 'Generator kode QR gratis',

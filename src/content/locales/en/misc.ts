@@ -117,6 +117,11 @@ export const compare: CompareCopy = {
     { feature: 'Bulk generation and API', typical: 'Paid plans', ours: 'Free' },
     { feature: 'Self-hosting', typical: 'Not available', ours: 'Available' },
   ],
+  /** Used while the developer API is switched off. */
+  noApi: {
+    lockInWhy: 'CSV and XLSX exports and vector downloads mean you are not locked in.',
+    bulkFeature: 'Bulk generation',
+  },
   verdictHeading: 'How to choose',
   verdict: [
     'If you only need one static code — a Wi-Fi password, say — almost any generator will do.',

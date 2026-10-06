@@ -100,7 +100,7 @@ export default async function OpengraphImage() {
             Unlimited dynamic QR codes, your logo and colours, live scan analytics.
           </div>
           <div style={{ display: 'flex', gap: 12, marginTop: 36 }}>
-            {['No card needed', 'No paid plans', 'API & bulk'].map((label) => (
+            {['No card needed', 'No paid plans', 'Bulk & analytics'].map((label) => (
               <div
                 key={label}
                 style={{

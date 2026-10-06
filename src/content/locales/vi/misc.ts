@@ -117,6 +117,11 @@ export const compare: CompareCopy = {
     { feature: 'Tạo hàng loạt và API', typical: 'Gói trả phí', ours: 'Miễn phí' },
     { feature: 'Tự lưu trữ', typical: 'Không có', ours: 'Có' },
   ],
+  /** Used while the developer API is switched off. */
+  noApi: {
+    lockInWhy: 'Xuất CSV, XLSX và tải tệp vector giúp bạn không bị ràng buộc.',
+    bulkFeature: 'Tạo hàng loạt',
+  },
   verdictHeading: 'Cách chọn',
   verdict: [
     'Nếu bạn chỉ cần một mã tĩnh — ví dụ mật khẩu Wi-Fi — gần như trình tạo nào cũng được.',

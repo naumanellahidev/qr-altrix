@@ -5,6 +5,12 @@ export const home: HomeCopy = {
   titleExpiry: 'Ücretsiz QR Kod Oluşturucu – Dinamik QR Kodlar ve Analitik | QR ALTRIX',
   description: 'Logonuz ve çerçevelerinizle ücretsiz QR kodlar. Süresi asla dolmayan sınırsız dinamik QR kod, canlı tarama analitiği, toplu oluşturma ve API. Kart yok, deneme yok.',
   descriptionExpiry: 'Logonuz, renkleriniz ve çerçevelerinizle ücretsiz QR kodlar. Baskıdan sonra düzenlenebilen sınırsız dinamik QR kod, canlı tarama analitiği, toplu oluşturma ve API.',
+  /** Used while the developer API is switched off: the same copy without the API. */
+  noApi: {
+    description: 'Logonuz ve çerçevelerinizle ücretsiz QR kodlar. Süresi asla dolmayan sınırsız dinamik QR kod, canlı tarama analitiği ve toplu oluşturma. Kart yok, deneme yok.',
+    descriptionExpiry: 'Logonuz, renkleriniz ve çerçevelerinizle ücretsiz QR kodlar. Baskıdan sonra düzenlenebilen sınırsız dinamik QR kod, canlı tarama analitiği ve toplu oluşturma.',
+    freeAnswer: 'Evet. Her özellik ücretsiz: sınırsız dinamik QR kod, analitik, toplu oluşturma, özel alan adları ve ekipler. Ücretli plan ya da yükseltme yok ve hiçbir şey kart istemez.',
+  },
   badge: 'Süresi asla dolmayan dinamik QR kodlar',
   badgeExpiry: 'Tam analitikli ücretsiz QR kodlar',
   eyebrow: 'Ücretsiz QR kod oluşturucu',

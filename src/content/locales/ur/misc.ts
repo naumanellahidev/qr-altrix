@@ -117,6 +117,11 @@ export const compare: CompareCopy = {
     { feature: 'بلک جنریشن اور API', typical: 'پیڈ پلانز', ours: 'مفت' },
     { feature: 'سیلف ہوسٹنگ', typical: 'دستیاب نہیں', ours: 'دستیاب' },
   ],
+  /** Used while the developer API is switched off. */
+  noApi: {
+    lockInWhy: 'CSV اور XLSX ایکسپورٹ اور ویکٹر فائلیں ہونے سے آپ بندھے نہیں رہتے۔',
+    bulkFeature: 'بلک جنریشن',
+  },
   verdictHeading: 'کیسے چنیں',
   verdict: [
     'اگر آپ کو صرف ایک اسٹیٹک کوڈ چاہیے — جیسے Wi-Fi پاس ورڈ — تو تقریباً کوئی بھی جنریٹر کام دے گا۔',

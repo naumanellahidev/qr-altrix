@@ -5,6 +5,12 @@ export const home: HomeCopy = {
   titleExpiry: '무료 QR 코드 생성기 – 동적 QR 코드와 분석 | QR ALTRIX',
   description: '로고와 프레임을 넣은 QR 코드를 무료로. 만료되지 않는 동적 QR 코드 무제한, 실시간 스캔 분석, 대량 생성과 API. 카드도 체험판도 필요 없습니다.',
   descriptionExpiry: '로고, 색상, 프레임을 넣은 무료 QR 코드. 인쇄 후에도 수정할 수 있는 동적 QR 코드 무제한, 실시간 분석, 대량 생성과 API.',
+  /** Used while the developer API is switched off: the same copy without the API. */
+  noApi: {
+    description: '로고와 프레임을 넣은 QR 코드를 무료로. 만료되지 않는 동적 QR 코드 무제한, 실시간 스캔 분석과 대량 생성. 카드도 체험판도 필요 없습니다.',
+    descriptionExpiry: '로고, 색상, 프레임을 넣은 무료 QR 코드. 인쇄 후에도 수정할 수 있는 동적 QR 코드 무제한, 실시간 분석과 대량 생성.',
+    freeAnswer: '네. 동적 QR 코드 무제한, 분석, 대량 생성, 맞춤 도메인, 팀까지 모든 기능이 무료입니다. 유료 요금제나 업그레이드가 없고 카드를 요구하지도 않습니다.',
+  },
   badge: '만료되지 않는 동적 QR 코드',
   badgeExpiry: '전체 분석을 갖춘 무료 QR 코드',
   eyebrow: '무료 QR 코드 생성기',
