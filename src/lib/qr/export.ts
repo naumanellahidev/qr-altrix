@@ -2,11 +2,11 @@ import 'server-only';
 import { buildMatrix, EYE_ORIGINS } from './matrix';
 import { renderQr } from './render';
 import { DEFAULT_DESIGN, type ExportFormat, type QrDesign } from './types';
-import { getLogoPreset, logoPresetDataUri } from './presets';
 import { readFileBuffer } from '../storage';
 import { logger } from '../logger';
 import { env } from '../env';
 import { brandingFromSettings, cleanBrandingText, defaultBrandingText } from './branding';
+import { designHasLogo, effectiveErrorCorrection } from './scan-safe';
 
 export interface ExportRequest {
   data: string;
@@ -78,6 +78,7 @@ export async function resolveLogoDataUri(design: Partial<QrDesign>): Promise<str
         const buffer = await readFileBuffer(key);
         if (buffer) {
           const ext = key.split('.').pop()?.toLowerCase() ?? 'png';
+          if (ext === 'svg') return await rasterizeSvgLogo(buffer);
           return `data:${MIME_BY_EXT[ext] ?? 'image/png'};base64,${buffer.toString('base64')}`;
         }
       }
@@ -88,6 +89,7 @@ export async function resolveLogoDataUri(design: Partial<QrDesign>): Promise<str
           if (type.startsWith('image/')) {
             const buf = Buffer.from(await res.arrayBuffer());
             if (buf.byteLength <= 3 * 1024 * 1024) {
+              if (type.startsWith('image/svg')) return await rasterizeSvgLogo(buf);
               return `data:${type};base64,${buf.toString('base64')}`;
             }
           }
@@ -97,13 +99,27 @@ export async function resolveLogoDataUri(design: Partial<QrDesign>): Promise<str
       logger.warn('logo inline failed', { error: (error as Error).message });
     }
   }
-  const preset = getLogoPreset(design.logoPreset);
-  return preset ? logoPresetDataUri(preset) : null;
+  // Built-in logos are drawn by the renderer as vector paths, so nothing to inline.
+  return null;
+}
+
+/**
+ * An SVG logo nested inside the QR's SVG is rasterised at its size in QR units (a few
+ * pixels) and then scaled up, which blurs it. A 512 px PNG keeps it sharp in every export.
+ */
+async function rasterizeSvgLogo(svg: Buffer): Promise<string> {
+  const sharp = (await import('sharp')).default;
+  const png = await sharp(svg, { density: 300 })
+    .resize({ width: 512, height: 512, fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .png()
+    .toBuffer();
+  return `data:image/png;base64,${png.toString('base64')}`;
 }
 
 /** Minimal EPS writer so print shops with legacy workflows are still served. */
 function renderEps(data: string, design: QrDesign, branding: string | null = null): Buffer {
-  const matrix = buildMatrix(data, design.errorCorrection);
+  // Same symbol as every other format, so a logo design raises error correction here too.
+  const matrix = buildMatrix(data, effectiveErrorCorrection(design, designHasLogo(design)));
   const quiet = Math.max(0, Math.min(12, Math.round(design.margin)));
   const units = matrix.size + quiet * 2;
   const scale = 8; // points per module → ~ 9 cm at 33 modules

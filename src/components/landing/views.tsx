@@ -58,6 +58,11 @@ function fileList(value: unknown): FileRef[] {
   return out;
 }
 
+/** tel: link without the spaces and brackets people type into phone numbers. */
+function telHref(value: string): string {
+  return `tel:${value.replace(/[^\d+]/g, '')}`;
+}
+
 function rows(value: unknown): Json[] {
   return Array.isArray(value) ? (value.filter((item) => item && typeof item === 'object') as Json[]) : [];
 }
@@ -147,6 +152,12 @@ function PdfView({ content, qrId }: LandingProps) {
       <LandingHeader title={title} subtitle={str(content.description) || null} />
       {url ? (
         <>
+          {/* Phone browsers rarely render a PDF inline, so the open action is always on screen. */}
+          <div className="mb-4">
+            <AccentButton href={url}>
+              <FileText className="size-4" /> Open the PDF
+            </AccentButton>
+          </div>
           <Card className="overflow-hidden p-0">
             <object data={url} type="application/pdf" className="h-[70dvh] w-full">
               <div className="flex flex-col items-center gap-3 p-8 text-center">
@@ -324,10 +335,10 @@ function VCardPlusView({ content, qrId }: LandingProps) {
 
       <div className="mt-4 space-y-2">
         {str(content.phone) ? (
-          <LinkRow href={`tel:${str(content.phone)}`} label={str(content.phone)} detail="Mobile" icon={<Phone />} />
+          <LinkRow href={telHref(str(content.phone))} label={str(content.phone)} detail="Mobile" icon={<Phone />} />
         ) : null}
         {str(content.phoneWork) ? (
-          <LinkRow href={`tel:${str(content.phoneWork)}`} label={str(content.phoneWork)} detail="Work" icon={<Phone />} />
+          <LinkRow href={telHref(str(content.phoneWork))} label={str(content.phoneWork)} detail="Work" icon={<Phone />} />
         ) : null}
         {str(content.email) ? (
           <LinkRow href={`mailto:${str(content.email)}`} label={str(content.email)} detail="Email" icon={<Mail />} />
@@ -365,10 +376,13 @@ function VCardPlusView({ content, qrId }: LandingProps) {
 function embedUrl(raw: string): string | null {
   try {
     const url = new URL(raw);
-    if (/(^|\.)youtube\.com$/.test(url.hostname)) {
+    if (/(^|\.)youtube(-nocookie)?\.com$/.test(url.hostname)) {
       const id = url.searchParams.get('v');
       if (id) return `https://www.youtube.com/embed/${id}`;
       if (url.pathname.startsWith('/embed/')) return raw;
+      // youtube.com/shorts/<id> and youtube.com/live/<id>
+      const path = /^\/(?:shorts|live)\/([\w-]{6,})/.exec(url.pathname);
+      if (path) return `https://www.youtube.com/embed/${path[1]}`;
     }
     if (url.hostname === 'youtu.be') {
       return `https://www.youtube.com/embed${url.pathname}`;
@@ -565,7 +579,7 @@ function BusinessView({ content }: LandingProps) {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           {str(content.phone) ? (
-            <LinkRow href={`tel:${str(content.phone)}`} label="Call us" detail={str(content.phone)} icon={<Phone />} />
+            <LinkRow href={telHref(str(content.phone))} label="Call us" detail={str(content.phone)} icon={<Phone />} />
           ) : null}
           {str(content.whatsapp) ? (
             <LinkRow

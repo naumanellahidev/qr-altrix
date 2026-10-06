@@ -19,15 +19,39 @@ function escapeVcard(value: string): string {
   return value.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
 }
 
-function toICalDate(value: unknown, allDay = false): string {
-  const raw = s(value);
+const LOCAL_DATE_TIME = /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2}))?)?$/;
+
+/**
+ * iCalendar date for a QR event. A value without a time zone (what a datetime-local
+ * input produces) becomes "floating" local time, so the phone shows the time the
+ * organiser typed — whichever machine builds the code. Values with a zone stay in UTC.
+ */
+function toICalDate(value: unknown, allDay = false, addDays = 0): string {
+  const raw = s(value).trim();
   if (!raw) return '';
+  const local = LOCAL_DATE_TIME.exec(raw);
+  if (local) {
+    const [, y, mo, d, h = '00', mi = '00', sec = '00'] = local;
+    const date = new Date(Date.UTC(Number(y), Number(mo) - 1, Number(d) + addDays));
+    if (Number.isNaN(date.getTime())) return '';
+    const day = date.toISOString().slice(0, 10).replace(/-/g, '');
+    return allDay ? day : `${day}T${h}${mi}${sec}`;
+  }
   const d = new Date(raw);
   if (Number.isNaN(d.getTime())) return '';
+  if (addDays) d.setUTCDate(d.getUTCDate() + addDays);
   if (allDay) {
     return `${d.getUTCFullYear()}${String(d.getUTCMonth() + 1).padStart(2, '0')}${String(d.getUTCDate()).padStart(2, '0')}`;
   }
   return `${d.toISOString().replace(/[-:]/g, '').split('.')[0]}Z`;
+}
+
+/** Query string with %20 for spaces: mail and wallet apps show a literal "+" otherwise. */
+function query(params: Array<[string, unknown]>): string {
+  const parts = params
+    .filter(([, value]) => s(value).trim() !== '')
+    .map(([key, value]) => `${key}=${encodeURIComponent(s(value))}`);
+  return parts.length ? `?${parts.join('&')}` : '';
 }
 
 function digitsOnly(value: unknown): string {
@@ -63,13 +87,8 @@ export function buildVcardPayload(c: StaticContent): string {
 }
 
 export function buildEmailPayload(c: StaticContent): string {
-  const to = s(c.to || c.email);
-  const params = new URLSearchParams();
-  if (c.subject) params.set('subject', s(c.subject));
-  if (c.body) params.set('body', s(c.body));
-  if (c.cc) params.set('cc', s(c.cc));
-  const qs = params.toString();
-  return `mailto:${to}${qs ? `?${qs}` : ''}`;
+  const to = s(c.to || c.email).trim();
+  return `mailto:${to}${query([['subject', c.subject], ['body', c.body], ['cc', c.cc]])}`;
 }
 
 export function buildSmsPayload(c: StaticContent): string {
@@ -85,32 +104,27 @@ export function buildWhatsappPayload(c: StaticContent): string {
 }
 
 export function buildLocationPayload(c: StaticContent): string {
-  const lat = s(c.latitude);
-  const lng = s(c.longitude);
-  if (c.query && !lat) {
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s(c.query))}`;
-  }
-  const label = s(c.label);
-  return label ? `geo:${lat},${lng}?q=${lat},${lng}(${encodeURIComponent(label)})` : `geo:${lat},${lng}`;
+  // A Google Maps link rather than a geo: URI: the iPhone camera does nothing with geo:,
+  // while this opens the maps app (or the browser) on every phone.
+  const lat = s(c.latitude).trim();
+  const lng = s(c.longitude).trim();
+  const target = lat && lng ? `${lat},${lng}` : s(c.query).trim();
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(target)}`;
 }
 
 export function buildEventPayload(c: StaticContent): string {
   const allDay = Boolean(c.allDay);
-  const lines = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//QR ALTRIX//EN',
-    'BEGIN:VEVENT',
-    `SUMMARY:${escapeVcard(s(c.title))}`,
-  ];
+  // A bare VEVENT is the event format iPhone and Android cameras recognise in a QR code.
+  const lines = ['BEGIN:VEVENT', `SUMMARY:${escapeVcard(s(c.title))}`];
   const start = toICalDate(c.start, allDay);
-  const end = toICalDate(c.end, allDay);
+  // An all-day event's end date is exclusive: a one-day event ends the following day.
+  const end = allDay ? toICalDate(c.end || c.start, true, 1) : toICalDate(c.end, false);
   if (start) lines.push(allDay ? `DTSTART;VALUE=DATE:${start}` : `DTSTART:${start}`);
   if (end) lines.push(allDay ? `DTEND;VALUE=DATE:${end}` : `DTEND:${end}`);
   if (c.location) lines.push(`LOCATION:${escapeVcard(s(c.location))}`);
   if (c.description) lines.push(`DESCRIPTION:${escapeVcard(s(c.description))}`);
   if (c.url) lines.push(`URL:${escapeVcard(s(c.url))}`);
-  lines.push('END:VEVENT', 'END:VCALENDAR');
+  lines.push('END:VEVENT');
   return lines.join('\r\n');
 }
 
@@ -131,20 +145,18 @@ const CRYPTO_SCHEMES: Record<string, string> = {
 export function buildCryptoPayload(c: StaticContent): string {
   const coin = s(c.coin || 'bitcoin').toLowerCase();
   const scheme = CRYPTO_SCHEMES[coin] ?? coin;
-  const address = s(c.address);
-  const params = new URLSearchParams();
-  if (c.amount) params.set('amount', s(c.amount));
-  if (c.label) params.set('label', s(c.label));
-  if (c.message) params.set('message', s(c.message));
-  const qs = params.toString();
-  return `${scheme}:${address}${qs ? `?${qs}` : ''}`;
+  const address = s(c.address).trim();
+  return `${scheme}:${address}${query([['amount', s(c.amount).trim()], ['label', c.label], ['message', c.message]])}`;
 }
 
 /** Builds the string encoded in a STATIC QR code. */
 export function buildStaticPayload(type: string, content: StaticContent): string {
   switch (type) {
-    case 'URL':
-      return s(content.url);
+    case 'URL': {
+      // Without a scheme phones show "example.com" as text instead of opening it.
+      const url = s(content.url).trim();
+      return url && !/^[a-z][a-z0-9+.-]*:/i.test(url) ? `https://${url}` : url;
+    }
     case 'TEXT':
       return s(content.text);
     case 'WIFI':

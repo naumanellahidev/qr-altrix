@@ -126,10 +126,10 @@ describe('renderQr', () => {
     expect(svg).toContain(DEFAULT_DESIGN.fgColor);
   });
 
-  it('draws a built-in logo preset as an inline data URI', () => {
+  it('draws a built-in logo preset as vector paths (an embedded SVG image rasterises blurry)', () => {
     const svg = renderQrSvg(PAYLOAD, { logoPreset: LOGO_PRESETS[0].id, logoShape: 'circle' });
-    expect(svg).toContain('<image');
-    expect(svg).toContain('data:image/svg+xml;base64,');
+    expect(svg).not.toContain('<image');
+    expect(svg).toContain(`d="${LOGO_PRESETS[0].path}"`);
     expect(svg).toContain('clip-path="url(#');
   });
 
@@ -177,14 +177,15 @@ describe('scan safety', () => {
     expect(report.issues.some((issue) => issue.severity === 'error')).toBe(true);
   });
 
-  it('flags an oversized logo as an error', () => {
+  it('notes that an oversized logo is scaled down (the renderer caps it, so it is not an error)', () => {
     const report = checkScanSafety({ ...DEFAULT_DESIGN, logoPreset: 'wifi', logoSize: 33 }, 29);
-    expect(report.issues.some((issue) => issue.severity === 'error' && issue.title.includes('Logo'))).toBe(true);
+    expect(report.issues.some((issue) => issue.severity === 'info' && issue.title.includes('scaled down'))).toBe(true);
+    expect(report.issues.some((issue) => issue.severity === 'error')).toBe(false);
   });
 
-  it('warns about a large logo with weak error correction', () => {
+  it('notes that error correction is raised automatically for a logo', () => {
     const report = checkScanSafety({ ...DEFAULT_DESIGN, logoPreset: 'wifi', logoSize: 28, errorCorrection: 'M' }, 29);
-    expect(report.issues.some((issue) => issue.title.includes('error correction'))).toBe(true);
+    expect(report.issues.some((issue) => issue.title === 'Error correction raised to H for the logo')).toBe(true);
   });
 
   it('warns when there is no quiet zone', () => {

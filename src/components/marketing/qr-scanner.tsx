@@ -11,6 +11,34 @@ type State = { kind: 'idle' } | { kind: 'reading' } | { kind: 'found'; text: str
 /** Longest side the image is scaled to before decoding: enough for any real code, fast. */
 const MAX_SIDE = 1600;
 
+/**
+ * ZXing (the decoder family phone cameras use) handles styled codes, logos and text near
+ * the code far better than jsQR. Its WebAssembly is served from this site, never a CDN.
+ */
+let zxingReady: Promise<typeof import('zxing-wasm/reader')> | null = null;
+function loadZxing() {
+  zxingReady ??= import('zxing-wasm/reader').then(async (reader) => {
+    await reader.prepareZXingModule({
+      overrides: { locateFile: (path: string, prefix: string) => (path.endsWith('.wasm') ? '/vendor/zxing_reader.wasm' : prefix + path) },
+      fireImmediately: true,
+    });
+    return reader;
+  });
+  return zxingReady;
+}
+
+async function decodeWithZxing(image: ImageData): Promise<string | null> {
+  try {
+    const reader = await loadZxing();
+    const results = await reader.readBarcodes(image, { formats: ['QRCode'], tryHarder: true, tryInvert: true });
+    return results.find((result) => result.isValid)?.text ?? null;
+  } catch {
+    // The WebAssembly could not load (old browser, blocked file): jsQR still runs.
+    zxingReady = null;
+    return null;
+  }
+}
+
 async function decode(file: Blob): Promise<string | null> {
   const [{ default: jsQR }, bitmap] = await Promise.all([import('jsqr'), createImageBitmap(file)]);
   const scale = Math.min(1, MAX_SIDE / Math.max(bitmap.width, bitmap.height));
@@ -26,8 +54,12 @@ async function decode(file: Blob): Promise<string | null> {
   context.fillRect(0, 0, width, height);
   context.drawImage(bitmap, 0, 0, width, height);
   bitmap.close?.();
-  const { data } = context.getImageData(0, 0, width, height);
-  return jsQR(data, width, height, { inversionAttempts: 'attemptBoth' })?.data ?? null;
+  const image = context.getImageData(0, 0, width, height);
+  return (
+    (await decodeWithZxing(image)) ??
+    jsQR(image.data, width, height, { inversionAttempts: 'attemptBoth' })?.data ??
+    null
+  );
 }
 
 function isWebLink(text: string): boolean {

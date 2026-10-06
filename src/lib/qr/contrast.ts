@@ -1,4 +1,5 @@
 import type { QrDesign } from './types';
+import { designHasLogo, effectiveErrorCorrection, logoPlate } from './scan-safe';
 
 /**
  * Scan-safety checker. Runs in the editor (live) and before export, so a user never
@@ -114,30 +115,30 @@ export function checkScanSafety(design: Partial<QrDesign>, moduleCount = 33): Sc
     });
   }
 
-  const logoSize = design.logoSize ?? 0;
-  const hasLogo = Boolean(design.logoUrl || design.logoPreset);
+  const hasLogo = designHasLogo({ logoUrl: design.logoUrl ?? null, logoPreset: design.logoPreset ?? null });
   const ec = design.errorCorrection ?? 'M';
   if (hasLogo) {
-    if (logoSize > 30) {
-      score -= 35;
-      issues.push({
-        severity: 'error',
-        title: `Logo covers ${logoSize}% of the code`,
-        fix: 'Keep the logo at 25% or less, or the data underneath cannot be recovered.',
-      });
-    } else if (logoSize > 24 && (ec === 'L' || ec === 'M')) {
-      score -= 18;
-      issues.push({
-        severity: 'warning',
-        title: 'Large logo with low error correction',
-        fix: 'Switch error correction to Q or H when the logo is larger than 24%.',
-      });
-    } else if (ec === 'L') {
-      score -= 8;
+    // The renderer raises error correction for a logo and caps the logo plate, so a logo
+    // can no longer break the code — these notes say what was adjusted, they do not warn.
+    const requested = logoPlate({ logoSize: design.logoSize ?? 22, logoPadding: design.logoPadding ?? 6 });
+    const askedFor = ((design.logoSize ?? 22) + (design.logoPadding ?? 6)) / 100;
+    if (askedFor > requested.plate + 0.001) {
+      score -= 4;
       issues.push({
         severity: 'info',
-        title: 'Error correction L with a logo',
-        fix: 'Level M or Q recovers better if the print is scratched or the logo grows later.',
+        title: 'Logo scaled down to keep the code scannable',
+        fix: 'The logo and its clear space are kept to the largest size phones can read past. Reduce the clear space to make the logo itself bigger.',
+      });
+    }
+    const effective = effectiveErrorCorrection(
+      { errorCorrection: ec, logoSize: design.logoSize ?? 22, logoPadding: design.logoPadding ?? 6 },
+      true,
+    );
+    if (effective !== ec) {
+      issues.push({
+        severity: 'info',
+        title: `Error correction raised to ${effective} for the logo`,
+        fix: 'Done automatically, so the part of the code under the logo can be recovered.',
       });
     }
   }

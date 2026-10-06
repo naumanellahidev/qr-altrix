@@ -2,6 +2,7 @@ import { buildMatrix, EYE_ORIGINS, type QrMatrix } from './matrix';
 import { getFramePreset, getLogoPreset, logoPresetDataUri } from './presets';
 import { DEFAULT_DESIGN, type QrDesign, type RenderOptions } from './types';
 import { cleanBrandingText } from './branding';
+import { effectiveErrorCorrection, logoPlate } from './scan-safe';
 
 /**
  * QR ALTRIX SVG renderer.
@@ -75,8 +76,9 @@ function roundedSquare(x: number, y: number, size: number, r: number, c: Corners
   return parts.join(' ');
 }
 
+/** Drawn clockwise, like roundedSquare, so overlapping shapes merge under the nonzero rule. */
 function circlePath(cx: number, cy: number, r: number): string {
-  return `M ${n(cx - r)} ${n(cy)} a ${n(r)} ${n(r)} 0 1 0 ${n(r * 2)} 0 a ${n(r)} ${n(r)} 0 1 0 ${n(-r * 2)} 0 Z`;
+  return `M ${n(cx - r)} ${n(cy)} a ${n(r)} ${n(r)} 0 1 1 ${n(r * 2)} 0 a ${n(r)} ${n(r)} 0 1 1 ${n(-r * 2)} 0 Z`;
 }
 
 function diamondPath(x: number, y: number, size: number): string {
@@ -105,7 +107,8 @@ function bodyModulePath(
     case 'dots':
       return circlePath(x + 0.5, y + 0.5, 0.44);
     case 'diamond':
-      return diamondPath(x + 0.04, y + 0.04, 0.92);
+      // Full-cell diamonds (touching at the tips): smaller ones lose too much ink to blur.
+      return diamondPath(x, y, 1);
     case 'rounded':
       return roundedSquare(x, y, 1, 0.32, {
         tl: !top && !left,
@@ -149,12 +152,14 @@ function eyeFramePath(ox: number, oy: number, shape: QrDesign['eyeFrameShape']):
       return `${outer(1.8)} ${inner(1.1)}`;
     case 'circle':
       return `${circlePath(ox + 3.5, oy + 3.5, 3.5)} ${circlePath(ox + 3.5, oy + 3.5, 2.5)}`;
+    // Corner radii stay below ~2.6 modules: rounder rings bend the finder pattern far
+    // enough that some phones stop recognising it.
     case 'leaf':
-      return `${outer(3.2, { tl: true, tr: false, br: true, bl: false })} ${inner(2.2, { tl: true, tr: false, br: true, bl: false })}`;
+      return `${outer(2.6, { tl: true, tr: false, br: true, bl: false })} ${inner(1.6, { tl: true, tr: false, br: true, bl: false })}`;
     case 'leaf-flipped':
-      return `${outer(3.2, { tl: false, tr: true, br: false, bl: true })} ${inner(2.2, { tl: false, tr: true, br: false, bl: true })}`;
+      return `${outer(2.6, { tl: false, tr: true, br: false, bl: true })} ${inner(1.6, { tl: false, tr: true, br: false, bl: true })}`;
     case 'shield':
-      return `${outer(3.4, { tl: true, tr: true, br: false, bl: false })} ${inner(2.4, { tl: true, tr: true, br: false, bl: false })}`;
+      return `${outer(2.6, { tl: true, tr: true, br: false, bl: false })} ${inner(1.6, { tl: true, tr: true, br: false, bl: false })}`;
     case 'cut':
       return `${outer(2.6, { tl: false, tr: true, br: false, bl: true })} ${inner(1.7, { tl: false, tr: true, br: false, bl: true })}`;
     case 'frame-dots': {
@@ -189,19 +194,23 @@ function eyeBallPath(ox: number, oy: number, shape: QrDesign['eyeBallShape']): s
     case 'leaf':
       return roundedSquare(x, y, 3, 1.5, { tl: true, tr: false, br: true, bl: false });
     case 'flower': {
+      // Petals overlap a solid core, so the centre still reads as a filled 3×3 block.
       const petals = [
-        circlePath(x + 1.5, y + 0.85, 0.85),
-        circlePath(x + 1.5, y + 2.15, 0.85),
-        circlePath(x + 0.85, y + 1.5, 0.85),
-        circlePath(x + 2.15, y + 1.5, 0.85),
+        circlePath(x + 1.5, y + 0.95, 0.95),
+        circlePath(x + 1.5, y + 2.05, 0.95),
+        circlePath(x + 0.95, y + 1.5, 0.95),
+        circlePath(x + 2.05, y + 1.5, 0.95),
+        roundedSquare(x + 0.45, y + 0.45, 2.1, 0.5, { tl: true, tr: true, br: true, bl: true }),
       ];
       return petals.join(' ');
     }
     case 'dot-grid': {
-      const dots: string[] = [];
+      // Dots sit on a solid core that runs through their centres: the edge still looks
+      // dotted, but no light gap is left inside the finder, even on its diagonals.
+      const dots: string[] = [roundedSquare(x + 0.5, y + 0.5, 2, 0, { tl: false, tr: false, br: false, bl: false })];
       for (let i = 0; i < 3; i += 1) {
         for (let j = 0; j < 3; j += 1) {
-          dots.push(circlePath(x + i + 0.5, y + j + 0.5, 0.4));
+          dots.push(circlePath(x + i + 0.5, y + j + 0.5, 0.5));
         }
       }
       return dots.join(' ');
@@ -221,7 +230,14 @@ export interface RenderResult {
 export function renderQr(data: string, partialDesign: Partial<QrDesign>, options: RenderOptions = {}): RenderResult {
   const design: QrDesign = { ...DEFAULT_DESIGN, ...partialDesign };
   const idp = options.idPrefix ?? 'qa';
-  const matrix = buildMatrix(data, design.errorCorrection);
+  const preset = getLogoPreset(design.logoPreset);
+  const imageSrc = sanitizeImageSrc(options.logoDataUri) ?? sanitizeImageSrc(design.logoUrl);
+  // A built-in logo is drawn as vector paths, not an embedded image: rasterisers draw a
+  // nested SVG image at its tiny size in QR units and scale it up, which blurs it.
+  const vectorLogo = imageSrc ? null : preset;
+  const logoSrc = imageSrc ?? (vectorLogo ? logoPresetDataUri(vectorLogo) : null);
+  // A logo hides modules, so error correction is raised to cover it whatever the design says.
+  const matrix = buildMatrix(data, effectiveErrorCorrection(design, Boolean(logoSrc)));
   const quiet = clamp(Math.round(design.margin), 0, 12);
   const qrUnits = matrix.size + quiet * 2;
 
@@ -295,23 +311,21 @@ export function renderQr(data: string, partialDesign: Partial<QrDesign>, options
   const body: string[] = [];
   body.push(
     `<g transform="translate(${n(qrX)} ${n(qrY)})">`,
-    `<path fill="${bodyFill}" fill-rule="evenodd" d="${bodyPaths.join(' ')}"/>`,
+    // Modules and eye centres are unions of shapes: nonzero keeps overlaps filled (evenodd
+    // would punch holes where petals or dots overlap and break the finder pattern). Eye
+    // frames are rings — an outer shape around an inner hole — so they need evenodd.
+    `<path fill="${bodyFill}" fill-rule="nonzero" d="${bodyPaths.join(' ')}"/>`,
     `<path fill="${eyeFill}" fill-rule="evenodd" d="${eyeFramePaths.join(' ')}"/>`,
-    `<path fill="${eyeBallFill}" fill-rule="evenodd" d="${eyeBallPaths.join(' ')}"/>`,
+    `<path fill="${eyeBallFill}" fill-rule="nonzero" d="${eyeBallPaths.join(' ')}"/>`,
     `</g>`,
   );
 
   // Logo ---------------------------------------------------------------------
-  const preset = getLogoPreset(design.logoPreset);
-  const logoSrc =
-    sanitizeImageSrc(options.logoDataUri) ??
-    sanitizeImageSrc(design.logoUrl) ??
-    (preset ? logoPresetDataUri(preset) : null);
-
   if (logoSrc) {
-    const pct = clamp(design.logoSize, 8, 34) / 100;
-    const logoW = matrix.size * pct;
-    const padUnits = (clamp(design.logoPadding, 0, 24) / 100) * matrix.size * 0.5;
+    // Oversized logos are scaled down to the largest plate phones can still read past.
+    const geometry = logoPlate(design);
+    const logoW = matrix.size * geometry.logo;
+    const padUnits = matrix.size * geometry.padding;
     const plateW = logoW + padUnits * 2;
     const cx = qrX + matrix.size / 2;
     const cy = qrY + matrix.size / 2;
@@ -345,9 +359,18 @@ export function renderQr(data: string, partialDesign: Partial<QrDesign>, options
     if (needsClip) {
       defs.push(`<clipPath id="${clipId}"><path d="${circlePath(cx, cy, logoW / 2)}"/></clipPath>`);
     }
-    body.push(
-      `<image href="${esc(logoSrc)}" x="${n(cx - logoW / 2)}" y="${n(cy - logoW / 2)}" width="${n(logoW)}" height="${n(logoW)}" preserveAspectRatio="xMidYMid meet"${needsClip ? ` clip-path="url(#${clipId})"` : ''}/>`,
-    );
+    const clip = needsClip ? ` clip-path="url(#${clipId})"` : '';
+    if (vectorLogo) {
+      // Preset paths are drawn on a 24-unit grid. The clip sits on an untransformed group so
+      // its circle stays in QR units.
+      body.push(
+        `<g${clip}><g transform="translate(${n(cx - logoW / 2)} ${n(cy - logoW / 2)}) scale(${n(logoW / 24)})"><path d="${esc(vectorLogo.path)}" fill="${sanitizeColor(vectorLogo.color, fg)}"/></g></g>`,
+      );
+    } else {
+      body.push(
+        `<image href="${esc(logoSrc)}" x="${n(cx - logoW / 2)}" y="${n(cy - logoW / 2)}" width="${n(logoW)}" height="${n(logoW)}" preserveAspectRatio="xMidYMid meet"${clip}/>`,
+      );
+    }
   }
 
   // Frame + label ------------------------------------------------------------
@@ -475,7 +498,9 @@ export function renderQr(data: string, partialDesign: Partial<QrDesign>, options
   const brandText = cleanBrandingText(options.branding);
   let canvasH = totalH;
   if (brandText) {
-    const below = frame.decoration === 'pin' ? 2.6 : 0;
+    // One extra module of air between the quiet zone and the text, so no scanner mistakes
+    // the lettering for part of the symbol.
+    const below = (frame.decoration === 'pin' ? 2.6 : 0) + 1;
     const fontSize = clamp((totalW * 0.9) / (brandText.length * 0.56), 1.15, 2.1);
     const band = fontSize * 2.2;
     const top = totalH + below;
@@ -622,6 +647,8 @@ export function renderShapeSwatch(
   pixels = 44,
 ): string {
   const fill = sanitizeColor(color, '#334155');
+  // Same fill rules as the real code: rings need evenodd, filled shapes need nonzero.
+  let ring = '';
   let d: string;
   if (kind === 'body') {
     const sample: QrMatrix = {
@@ -637,9 +664,12 @@ export function renderShapeSwatch(
     }
     d = paths.join(' ');
   } else if (kind === 'eyeFrame') {
-    d = `${eyeFramePath(0, 0, shape as QrDesign['eyeFrameShape'])} ${eyeBallPath(0, 0, DEFAULT_DESIGN.eyeBallShape)}`;
+    ring = eyeFramePath(0, 0, shape as QrDesign['eyeFrameShape']);
+    d = eyeBallPath(0, 0, DEFAULT_DESIGN.eyeBallShape);
   } else {
-    d = `${eyeFramePath(0, 0, DEFAULT_DESIGN.eyeFrameShape)} ${eyeBallPath(0, 0, shape as QrDesign['eyeBallShape'])}`;
+    ring = eyeFramePath(0, 0, DEFAULT_DESIGN.eyeFrameShape);
+    d = eyeBallPath(0, 0, shape as QrDesign['eyeBallShape']);
   }
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${pixels}" height="${pixels}" viewBox="-0.75 -0.75 8.5 8.5" shape-rendering="geometricPrecision" aria-hidden="true"><path fill="${fill}" fill-rule="evenodd" d="${d}"/></svg>`;
+  const ringPath = ring ? `<path fill="${fill}" fill-rule="evenodd" d="${ring}"/>` : '';
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${pixels}" height="${pixels}" viewBox="-0.75 -0.75 8.5 8.5" shape-rendering="geometricPrecision" aria-hidden="true">${ringPath}<path fill="${fill}" fill-rule="nonzero" d="${d}"/></svg>`;
 }

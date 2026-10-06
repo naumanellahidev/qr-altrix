@@ -17,3 +17,6 @@ backups/
 *.tsbuildinfo
 next-env.d.ts
 prisma/dev.db*
+
+# copied from node_modules at build time (scripts/copy-zxing-wasm.mjs)
+/public/vendor/

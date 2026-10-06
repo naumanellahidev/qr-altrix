@@ -6,6 +6,10 @@ describe('URL and text', () => {
     expect(buildStaticPayload('URL', { url: 'https://example.com/a?b=c' })).toBe('https://example.com/a?b=c');
   });
 
+  it('adds https:// to a bare domain so phones open it instead of showing text', () => {
+    expect(buildStaticPayload('URL', { url: ' example.com/menu ' })).toBe('https://example.com/menu');
+  });
+
   it('encodes text verbatim, including newlines', () => {
     expect(buildStaticPayload('TEXT', { text: 'line one\nline two' })).toBe('line one\nline two');
   });
@@ -66,11 +70,9 @@ describe('vCard', () => {
 });
 
 describe('contact actions', () => {
-  it('builds a mailto with subject and body', () => {
+  it('builds a mailto with subject and body, spaces as %20 so mail apps do not show "+"', () => {
     const payload = buildStaticPayload('EMAIL', { to: 'hi@example.com', subject: 'Hello there', body: 'A & B' });
-    expect(payload.startsWith('mailto:hi@example.com?')).toBe(true);
-    expect(payload).toContain('subject=Hello+there');
-    expect(payload).toContain('body=A+%26+B');
+    expect(payload).toBe('mailto:hi@example.com?subject=Hello%20there&body=A%20%26%20B');
   });
 
   it('builds an SMSTO string with the message', () => {
@@ -88,15 +90,10 @@ describe('contact actions', () => {
 });
 
 describe('location', () => {
-  it('builds a geo URI from coordinates', () => {
-    expect(buildStaticPayload('LOCATION', { latitude: '31.5204', longitude: '74.3587' })).toBe(
-      'geo:31.5204,74.3587',
+  it('builds a maps link from coordinates (the iPhone camera ignores geo: URIs)', () => {
+    expect(buildStaticPayload('LOCATION', { latitude: '31.5204', longitude: '74.3587', label: 'Our shop' })).toBe(
+      'https://www.google.com/maps/search/?api=1&query=31.5204%2C74.3587',
     );
-  });
-
-  it('includes a label when one is given', () => {
-    const payload = buildStaticPayload('LOCATION', { latitude: '31.5', longitude: '74.3', label: 'Our shop' });
-    expect(payload).toContain('(Our%20shop)');
   });
 
   it('falls back to a maps search when only an address is given', () => {
@@ -120,9 +117,24 @@ describe('calendar', () => {
     expect(payload).toContain('LOCATION:Alhamra\\, Lahore');
   });
 
-  it('uses date-only values for all-day events', () => {
+  it('uses date-only values for all-day events, with the exclusive end date', () => {
     const payload = buildStaticPayload('EVENT', { title: 'Holiday', start: '2026-07-01T00:00:00.000Z', allDay: true });
     expect(payload).toContain('DTSTART;VALUE=DATE:20260701');
+    expect(payload).toContain('DTEND;VALUE=DATE:20260702');
+  });
+
+  it('keeps the wall-clock time from a datetime-local input, wherever the code is built', () => {
+    const payload = buildStaticPayload('EVENT', { title: 'Party', start: '2026-11-01T18:00', end: '2026-11-01T21:30' });
+    expect(payload).toContain('DTSTART:20261101T180000');
+    expect(payload).toContain('DTEND:20261101T213000');
+    expect(payload).not.toContain('Z\r');
+  });
+
+  it('is a bare VEVENT, the form phone cameras recognise', () => {
+    const payload = buildStaticPayload('CALENDAR', { title: 'Sync', start: '2026-11-03T10:00' });
+    expect(payload.startsWith('BEGIN:VEVENT\r\n')).toBe(true);
+    expect(payload.endsWith('END:VEVENT')).toBe(true);
+    expect(payload).not.toContain('VCALENDAR');
   });
 
   it('skips unparseable dates rather than emitting rubbish', () => {
@@ -135,6 +147,12 @@ describe('crypto', () => {
   it('maps a coin name to its URI scheme and appends the amount', () => {
     expect(buildStaticPayload('CRYPTO', { coin: 'btc', address: '1A1zP1', amount: '0.5' })).toBe(
       'bitcoin:1A1zP1?amount=0.5',
+    );
+  });
+
+  it('encodes label and message with %20', () => {
+    expect(buildStaticPayload('CRYPTO', { coin: 'bitcoin', address: 'bc1q', label: 'My Shop', message: 'Thank you' })).toBe(
+      'bitcoin:bc1q?label=My%20Shop&message=Thank%20you',
     );
   });
 

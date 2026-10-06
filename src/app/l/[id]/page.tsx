@@ -137,6 +137,15 @@ export default async function LandingPage({ params }: PageProps) {
   if (access.kind === 'password') redirect(`/p/${qr.shortCode ?? id}`);
   if (access.kind === 'inactive') redirect(`/inactive/${qr.shortCode ?? id}?reason=${access.reason}`);
 
+  const content = (qr.content ?? {}) as Record<string, unknown>;
+
+  // "Skip the viewer and open the PDF directly": straight to the file, opened by the phone's own viewer.
+  if (qr.type === 'PDF' && content.directOpen === true) {
+    const file = content.file as { url?: unknown } | string | undefined;
+    const fileUrl = typeof file === 'string' ? file : typeof file?.url === 'string' ? file.url : '';
+    if (fileUrl) redirect(fileUrl);
+  }
+
   const tracking = (qr.workspace.tracking ?? {}) as TrackingConfig;
 
   return (
@@ -146,7 +155,7 @@ export default async function LandingPage({ params }: PageProps) {
         qrId={qr.id}
         type={qr.type}
         name={qr.name}
-        content={(qr.content ?? {}) as Record<string, unknown>}
+        content={content}
       />
     </>
   );
