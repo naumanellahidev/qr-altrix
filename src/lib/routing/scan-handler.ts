@@ -195,11 +195,13 @@ export async function handleScan(request: Request, code: string): Promise<NextRe
   }
 
   if (hosted) {
-    const target = new URL(`/l/${qr.id}`, env.appUrl);
-    target.search = url.search;
-    const response = NextResponse.rewrite(target);
-    response.headers.set('cache-control', 'no-store');
-    return response;
+    // A redirect, not a rewrite: NextResponse.rewrite() is not supported in route handlers
+    // and answered every hosted code with a 500. The Location is relative, so the visitor
+    // stays on the host they scanned — the platform domain or the owner's custom domain.
+    return new NextResponse(null, {
+      status: 302,
+      headers: { location: `/l/${qr.id}${url.search}`, 'cache-control': 'no-store, no-cache, must-revalidate' },
+    });
   }
 
   const response = NextResponse.redirect(destination as string, 302);
