@@ -98,6 +98,9 @@ function OptionGrid<T extends string>({
   );
 }
 
+const TAB =
+  'min-w-0 flex-1 flex-col gap-1 px-1 py-1.5 text-[11.5px] sm:flex-none sm:flex-row sm:gap-2 sm:px-3 sm:text-[13.5px]';
+
 export function DesignEditor({ design, onChange, uploadLogo, brandColors, className, compact }: DesignEditorProps) {
   const { copy, t } = useGeneratorCopy();
   const c = copy.design;
@@ -155,19 +158,20 @@ export function DesignEditor({ design, onChange, uploadLogo, brandColors, classN
     <div className={cn('space-y-4', className)}>
       <Tabs defaultValue="shape">
         <TabsList className="w-full justify-start overflow-x-auto">
-          <TabsTrigger value="shape" aria-label={c.shape}>
+          {/* On a phone each tab stacks its icon over its label, so all five fit in one row. */}
+          <TabsTrigger value="shape" aria-label={c.shape} className={TAB}>
             <Shapes /> {compact ? null : c.shape}
           </TabsTrigger>
-          <TabsTrigger value="colour" aria-label={c.colour}>
+          <TabsTrigger value="colour" aria-label={c.colour} className={TAB}>
             <Palette /> {compact ? null : c.colour}
           </TabsTrigger>
-          <TabsTrigger value="logo" aria-label={c.logo}>
+          <TabsTrigger value="logo" aria-label={c.logo} className={TAB}>
             <ImagePlus /> {compact ? null : c.logo}
           </TabsTrigger>
-          <TabsTrigger value="frame" aria-label={c.frame}>
+          <TabsTrigger value="frame" aria-label={c.frame} className={TAB}>
             <Frame /> {compact ? null : c.frame}
           </TabsTrigger>
-          <TabsTrigger value="advanced" aria-label={c.advanced}>
+          <TabsTrigger value="advanced" aria-label={c.advanced} className={TAB}>
             <Settings2 /> {compact ? null : c.advanced}
           </TabsTrigger>
         </TabsList>

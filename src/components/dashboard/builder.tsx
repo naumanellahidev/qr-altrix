@@ -385,6 +385,25 @@ export function Builder({
         </Card>
   );
 
+  /** Phones only: the code itself, kept in view while designing. A tap opens it full size. */
+  const phonePreview = (
+    <button
+      type="button"
+      onClick={() => setPreviewOpen(true)}
+      className="sticky top-16 z-20 flex w-full items-center gap-3 rounded-2xl border border-border bg-card/95 p-2.5 text-left shadow-card backdrop-blur lg:hidden"
+    >
+      <span className="flex size-[88px] shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white">
+        {payload ? <QrPreview data={payload} design={design} size={88} bare /> : <QrCode className="size-8 text-muted-foreground" />}
+      </span>
+      <span className="min-w-0">
+        <span className="block text-[14px] font-semibold">Your QR code</span>
+        <span className="mt-0.5 block text-[12.5px] leading-5 text-muted-foreground">
+          Every change shows here straight away. Tap to see it full size.
+        </span>
+      </span>
+    </button>
+  );
+
   // Each step starts at its top. On a phone the previous step leaves the page scrolled far
   // down, and the user would otherwise land in the middle of the next one.
   const topRef = React.useRef<HTMLDivElement>(null);
@@ -417,7 +436,7 @@ export function Builder({
             : null;
   const primary: { label: string; onClick: () => void; disabled?: boolean; loading?: boolean } | null =
     step === 'type'
-      ? { label: 'Continue', onClick: () => setStep('content') }
+      ? { label: `Continue with ${def?.label ?? 'this type'}`, onClick: () => setStep('content') }
       : step === 'content'
         ? { label: 'Continue', onClick: goNext }
         : step === 'behaviour'
@@ -509,7 +528,7 @@ export function Builder({
                 <p className="text-[13px] text-muted-foreground">{def?.description}</p>
               </div>
               <Badge variant={kind === 'DYNAMIC' ? 'primary' : 'outline'}>
-                {kind === 'DYNAMIC' ? 'Dynamic · editable' : 'Static · fixed'}
+                {kind === 'DYNAMIC' ? 'Editable any time · scans counted' : 'Fixed once printed · works offline'}
               </Badge>
             </div>
 
@@ -936,6 +955,7 @@ export function Builder({
         ) : null}
 
         {/* ------------------------------------------------------------- design */}
+        {step === 'design' ? phonePreview : null}
         {step === 'design' ? (
           <Card className="p-5">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
@@ -990,6 +1010,10 @@ export function Builder({
             <p className="mb-4 text-[13px] text-muted-foreground">
               Scan the preview with your phone camera. For dynamic codes the real short link is created when you save.
             </p>
+            {/* On a phone the right-hand preview is hidden: show the code itself here, large. */}
+            <div className="mb-4 flex justify-center rounded-2xl bg-surface-muted/60 p-4 lg:hidden">
+              <QrPreview data={payload} design={design} size={240} />
+            </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="rounded-xl border border-border bg-surface-muted/50 p-4">
@@ -1070,27 +1094,13 @@ export function Builder({
         <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur lg:hidden">
           <div className="mx-auto flex max-w-xl items-center gap-2">
             {back ? (
-              <Button variant="outline" size="icon" aria-label="Back" onClick={back}>
-                <ArrowLeft />
+              <Button variant="outline" size="lg" className="shrink-0 px-4" onClick={back}>
+                <ArrowLeft /> Back
               </Button>
             ) : null}
-            <button
-              type="button"
-              onClick={() => setPreviewOpen(true)}
-              aria-label="Show the live preview"
-              className="flex h-10 shrink-0 items-center gap-2 rounded-xl border border-border bg-card pl-1 pr-2.5 text-[12.5px] font-medium"
-            >
-              <span className="flex size-8 items-center justify-center overflow-hidden rounded-md bg-white">
-                {payload ? (
-                  <QrPreview data={payload} design={design} size={32} bare />
-                ) : (
-                  <QrCode className="size-4 text-muted-foreground" />
-                )}
-              </span>
-              Preview
-            </button>
             <Button
               variant="brand"
+              size="lg"
               className="min-w-0 flex-1"
               disabled={primary.disabled}
               loading={primary.loading}
