@@ -80,9 +80,12 @@ export async function GET(request: Request) {
           // Forget ids older than the look-back window: they can no longer come back.
           for (const [id, at] of seen) if (at < now - LOOKBACK_MS * 2) seen.delete(id);
 
-          if (fresh.length > 0) send('scans', fresh);
           if (fresh.length > 0 || now - lastSnapshot >= SNAPSHOT_MS) {
-            send('snapshot', await liveSnapshot(timezone));
+            // Counters first, then both messages back to back: the feed and the numbers
+            // on screen change together and never disagree, even for a moment.
+            const snapshot = await liveSnapshot(timezone);
+            if (fresh.length > 0) send('scans', fresh);
+            send('snapshot', snapshot);
             lastSnapshot = now;
           }
           if (now - lastPing >= PING_MS) {
