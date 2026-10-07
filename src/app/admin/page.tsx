@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import {
-  Building2, Flag, HardDrive, Infinity as InfinityIcon, MousePointerClick, QrCode, Users,
+  Activity, Building2, Flag, HardDrive, Infinity as InfinityIcon, MousePointerClick, QrCode, Users,
 } from 'lucide-react';
 import { prisma } from '@/lib/db';
 import { requirePlatformAdmin } from '@/lib/auth';
@@ -70,6 +70,13 @@ export default async function AdminOverview() {
       <PageHeader
         title="Platform overview"
         description="Everything running on this install. Figures are live, not cached."
+        actions={
+          <Button asChild variant="brand">
+            <Link href="/admin/analytics">
+              <Activity /> Live analytics
+            </Link>
+          </Button>
+        }
       />
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">

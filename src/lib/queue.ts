@@ -1,4 +1,5 @@
 import 'server-only';
+import { randomUUID } from 'node:crypto';
 import type { Queue } from 'bullmq';
 import { getRedis, redisEnabled } from './redis';
 import { logger } from './logger';
@@ -12,6 +13,8 @@ import { logger } from './logger';
 export const QUEUE_NAME = 'qr-altrix';
 
 export interface ScanJobPayload {
+  /** Fixed when the scan is queued, so a retried job can never record the same scan twice. */
+  scanId?: string;
   qrCodeId: string;
   workspaceId: string;
   kind?: 'SCAN' | 'PASSWORD_FAILED' | 'BLOCKED';
@@ -81,6 +84,10 @@ export async function getQueue(): Promise<Queue | null> {
  * failures are logged rather than thrown.
  */
 export async function enqueue<T extends JobName>(name: T, data: JobMap[T]): Promise<void> {
+  if (name === 'scan.record') {
+    const scan = data as ScanJobPayload;
+    scan.scanId ??= randomUUID();
+  }
   try {
     const queue = await getQueue();
     if (queue) {

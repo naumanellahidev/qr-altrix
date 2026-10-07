@@ -15,9 +15,12 @@ export interface AnalyticsRange {
 }
 
 export interface AnalyticsFilter {
-  workspaceId: string;
+  /** Null reads the whole platform (platform administrators only). */
+  workspaceId: string | null;
   qrCodeId?: string | null;
   folderId?: string | null;
+  /** Only codes of this QR type (WIFI, WEBSITE…). */
+  qrType?: string | null;
   range: AnalyticsRange;
   timezone?: string;
 }
@@ -77,13 +80,20 @@ export function suggestGranularity(range: AnalyticsRange): Granularity {
   return 'month';
 }
 
-function whereClause(filter: AnalyticsFilter): Prisma.ScanEventWhereInput {
+export function whereClause(filter: AnalyticsFilter): Prisma.ScanEventWhereInput {
   return {
-    workspaceId: filter.workspaceId,
+    workspaceId: filter.workspaceId ?? undefined,
     qrCodeId: filter.qrCodeId ?? undefined,
     kind: 'SCAN',
     createdAt: { gte: filter.range.from, lte: filter.range.to },
-    ...(filter.folderId ? { qrCode: { folderId: filter.folderId } } : {}),
+    ...(filter.folderId || filter.qrType
+      ? {
+          qrCode: {
+            ...(filter.folderId ? { folderId: filter.folderId } : {}),
+            ...(filter.qrType ? { type: filter.qrType as never } : {}),
+          },
+        }
+      : {}),
   };
 }
 
@@ -156,21 +166,26 @@ export function toWallClock(instant: Date, timezone: string): Date {
  * of what is wanted — so the value is first pinned to UTC, then converted:
  * a scan at 20:30 UTC lands in the 01:00 Karachi bucket, not 15:00.
  */
-function localTimeSql(timezone: string): Prisma.Sql {
+export function localTimeSql(timezone: string): Prisma.Sql {
   return Prisma.sql`((s."createdAt" AT TIME ZONE 'UTC') AT TIME ZONE ${timezone})`;
 }
 
-function sqlConditions(filter: AnalyticsFilter): Prisma.Sql {
+export function sqlConditions(filter: AnalyticsFilter): Prisma.Sql {
   const conditions: Prisma.Sql[] = [
-    Prisma.sql`s."workspaceId" = ${filter.workspaceId}`,
     Prisma.sql`s."kind" = 'SCAN'::"ScanEventKind"`,
     Prisma.sql`s."createdAt" >= ${filter.range.from}`,
     Prisma.sql`s."createdAt" <= ${filter.range.to}`,
   ];
+  if (filter.workspaceId) conditions.push(Prisma.sql`s."workspaceId" = ${filter.workspaceId}`);
   if (filter.qrCodeId) conditions.push(Prisma.sql`s."qrCodeId" = ${filter.qrCodeId}`);
   if (filter.folderId) {
     conditions.push(
       Prisma.sql`s."qrCodeId" IN (SELECT q."id" FROM "QRCode" q WHERE q."folderId" = ${filter.folderId})`,
+    );
+  }
+  if (filter.qrType) {
+    conditions.push(
+      Prisma.sql`s."qrCodeId" IN (SELECT q."id" FROM "QRCode" q WHERE q."type"::text = ${filter.qrType})`,
     );
   }
   return Prisma.join(conditions, ' AND ');
@@ -387,7 +402,13 @@ export async function analyticsExportRows(filter: AnalyticsFilter, limit = 100_0
 export function rowsToCsv(rows: Record<string, string>[]): string {
   if (rows.length === 0) return '';
   const headers = Object.keys(rows[0]);
-  const escape = (value: string) => `"${String(value ?? '').replace(/"/g, '""')}"`;
+  const escape = (value: string) => {
+    let text = String(value ?? '');
+    // A cell that starts with = + - @ (or a tab / carriage return) runs as a formula when the
+    // file is opened in Excel or Sheets; a leading apostrophe keeps it plain text.
+    if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`;
+    return `"${text.replace(/"/g, '""')}"`;
+  };
   return [headers.join(','), ...rows.map((row) => headers.map((h) => escape(row[h])).join(','))].join('\n');
 }
 

@@ -52,6 +52,7 @@ export const NAV_SECTIONS: NavSection[] = [
 
 export const ADMIN_NAV: NavItem[] = [
   { href: '/admin', label: 'Overview', icon: 'Gauge', exact: true },
+  { href: '/admin/analytics', label: 'Live analytics', icon: 'Activity' },
   { href: '/admin/users', label: 'Users', icon: 'Users' },
   { href: '/admin/workspaces', label: 'Workspaces', icon: 'Building2' },
   { href: '/admin/codes', label: 'All QR codes', icon: 'QrCode' },

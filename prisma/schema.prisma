@@ -470,6 +470,8 @@ model ScanEvent {
   @@index([qrCodeId, createdAt])
   @@index([workspaceId, createdAt])
   @@index([country])
+  // Platform-wide analytics (admin) read every workspace's scans by time.
+  @@index([createdAt])
 }
 
 // ---------------------------------------------------------------------------
