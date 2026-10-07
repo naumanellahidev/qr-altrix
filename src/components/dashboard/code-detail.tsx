@@ -26,6 +26,7 @@ import { toast } from 'sonner';
 import { useDateFormat, DATE, DATE_TIME, TIME } from '@/lib/hooks/use-date-format';
 import { useLiveScans } from '@/lib/hooks/use-live-scans';
 import { LiveIndicator } from '@/components/dashboard/live-indicator';
+import { LiveScanPanel } from '@/components/dashboard/live-scan-panel';
 
 export interface CodeDetailProps {
   code: {
@@ -71,7 +72,8 @@ export function CodeDetail({ code, permissions, expiry }: CodeDetailProps) {
   const formatDate = useDateFormat();
   const formatDateTime = (value: string | null) => formatDate(value, DATE_TIME);
   // New scans re-render the server data (counters, first/last scan) without a reload.
-  const liveState = useLiveScans({ qrCodeId: code.id, onChange: () => router.refresh() });
+  const tracked = code.kind === 'DYNAMIC' && permissions.canViewStats;
+  const liveState = useLiveScans({ qrCodeId: code.id, onChange: () => router.refresh(), enabled: tracked });
   const router = useRouter();
   const params = useSearchParams();
   const def = getTypeDef(code.type);
@@ -130,6 +132,7 @@ export function CodeDetail({ code, permissions, expiry }: CodeDetailProps) {
   }
 
   return (
+    <div className="space-y-6">
     <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
       <div className="min-w-0 space-y-5">
         {code.status === 'ADMIN_DISABLED' ? (
@@ -377,20 +380,45 @@ export function CodeDetail({ code, permissions, expiry }: CodeDetailProps) {
             className="w-full"
           />
 
-          <div className="flex items-center justify-between">
-            <p className="text-[12px] font-medium text-muted-foreground">Scans</p>
-            <LiveIndicator live={liveState.live} />
-          </div>
-          <div className="grid grid-cols-2 gap-2 text-center">
-            <div className="rounded-xl border border-border p-2.5">
-              <p className="text-[18px] font-semibold tabular-nums">{compactNumber(code.scanCount)}</p>
-              <p className="text-[11px] text-muted-foreground">total scans</p>
+          {code.kind === 'DYNAMIC' ? (
+            <>
+              <div className="flex items-center justify-between">
+                <p className="text-[12px] font-medium text-muted-foreground">Scans</p>
+                {tracked ? <LiveIndicator live={liveState.live} /> : null}
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-center">
+                {[
+                  { value: liveState.counters?.allTime ?? code.scanCount, label: 'total scans' },
+                  { value: code.uniqueScanCount, label: 'unique visitors' },
+                ].map((item) => (
+                  <Link
+                    key={item.label}
+                    href={tracked ? '#code-live-minutes' : `/dashboard/stats?qr=${code.id}`}
+                    onClick={(event) => {
+                      if (!tracked) return;
+                      event.preventDefault();
+                      document.getElementById('code-live-minutes')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }}
+                    className="rounded-xl border border-border p-2.5 transition-colors hover:border-primary/40 hover:bg-surface-muted"
+                  >
+                    <p className="text-[18px] font-semibold tabular-nums">{compactNumber(item.value)}</p>
+                    <p className="text-[11px] text-muted-foreground">{item.label}</p>
+                  </Link>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="rounded-xl border border-warning/30 bg-warning/10 p-3 text-[12.5px] leading-5">
+              <p className="font-semibold">Scans of this code are not counted</p>
+              <p className="mt-1 text-muted-foreground">
+                It is a static code: the phone reads the {def?.label.toLowerCase() ?? 'content'} straight from the
+                pattern and never reaches QR ALTRIX. To count scans, make a dynamic code instead — it is free.
+              </p>
+              <Button asChild size="sm" variant="outline" className="mt-2.5 w-full">
+                <Link href="/dashboard/new?type=WEBSITE">Create a trackable code</Link>
+              </Button>
             </div>
-            <div className="rounded-xl border border-border p-2.5">
-              <p className="text-[18px] font-semibold tabular-nums">{compactNumber(code.uniqueScanCount)}</p>
-              <p className="text-[11px] text-muted-foreground">unique visitors</p>
-            </div>
-          </div>
+          )}
 
           <ScanSafety design={code.design} compact />
         </Card>
@@ -434,6 +462,23 @@ export function CodeDetail({ code, permissions, expiry }: CodeDetailProps) {
           }
         }}
       />
+    </div>
+
+    {tracked ? (
+      <LiveScanPanel
+        live={liveState.live}
+        counters={liveState.counters}
+        feed={liveState.feed}
+        fresh={liveState.fresh}
+        codeHref={() => `/dashboard/stats?qr=${code.id}`}
+        singleCode
+        allTimeHref={`/dashboard/stats?qr=${code.id}`}
+        allTimeHint="Every scan of this code"
+        subtitle="Scans of this code, a second or two after they happen."
+        emptyText="No scans yet. Scan the code with your phone — it shows up here within two seconds."
+        idPrefix="code-live"
+      />
+    ) : null}
     </div>
   );
 }

@@ -86,12 +86,14 @@ export default async function AdminOverview() {
           hint={`${newUsers} joined in the last 30 days`}
           icon={<Users />}
           tone="primary"
+          href="/admin/users"
         />
         <StatCard
           label="Workspaces"
           value={formatNumber(workspaces)}
           hint={`${formatNumber(totalCodes)} QR codes (${formatNumber(dynamicCodes)} dynamic)`}
           icon={<Building2 />}
+          href="/admin/workspaces"
         />
         <StatCard
           label="Scans (30 days)"
@@ -99,12 +101,14 @@ export default async function AdminOverview() {
           hint={`${compactNumber(scansTotal)} recorded in total`}
           icon={<MousePointerClick />}
           tone="accent"
+          href="/admin/analytics"
         />
         <StatCard
           label="Needs attention"
           value={formatNumber(openReports)}
           hint={`${disabledCodes} code(s) disabled for abuse`}
           icon={<Flag />}
+          href="/admin/abuse"
         />
       </div>
 
@@ -120,12 +124,17 @@ export default async function AdminOverview() {
           />
           <ul className="divide-y divide-border">
             {recentUsers.map((user) => (
-              <li key={user.id} className="flex items-center gap-3 py-2.5">
+              <li key={user.id} className="relative -mx-2 flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-surface-muted">
                 <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-surface-muted text-[11.5px] font-semibold">
                   {(user.name ?? user.email).slice(0, 2).toUpperCase()}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[13.5px] font-medium">{user.name ?? user.email.split('@')[0]}</span>
+                  <Link
+                    href={`/admin/users?q=${encodeURIComponent(user.email)}`}
+                    className="block truncate text-[13.5px] font-medium after:absolute after:inset-0 after:content-['']"
+                  >
+                    {user.name ?? user.email.split('@')[0]}
+                  </Link>
                   <span className="block truncate text-[12px] text-muted-foreground">{user.email}</span>
                 </span>
                 <span className="flex shrink-0 items-center gap-1.5">
@@ -151,9 +160,14 @@ export default async function AdminOverview() {
           />
           <ul className="divide-y divide-border">
             {topWorkspaces.map((workspace) => (
-              <li key={workspace.id} className="flex items-center gap-3 py-2.5">
+              <li key={workspace.id} className="relative -mx-2 flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-surface-muted">
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[13.5px] font-medium">{workspace.name}</span>
+                  <Link
+                    href={`/admin/workspaces?q=${encodeURIComponent(workspace.name)}`}
+                    className="block truncate text-[13.5px] font-medium after:absolute after:inset-0 after:content-['']"
+                  >
+                    {workspace.name}
+                  </Link>
                   <span className="block truncate text-[12px] text-muted-foreground">
                     {workspace.owner?.email} · {workspace._count.members} member(s)
                   </span>

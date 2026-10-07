@@ -16,7 +16,7 @@ export default async function StatsPage({ searchParams }: { searchParams: Promis
 
   const selectedCodeId = query.qr ?? null;
 
-  const [overview, codes, folders] = await Promise.all([
+  const [overview, codes, folders, staticCodes] = await Promise.all([
     analyticsOverview({
       workspaceId: auth.workspace.id,
       qrCodeId: selectedCodeId,
@@ -30,6 +30,7 @@ export default async function StatsPage({ searchParams }: { searchParams: Promis
       take: 500,
     }),
     prisma.folder.findMany({ where: { workspaceId: auth.workspace.id }, orderBy: { name: 'asc' } }),
+    prisma.qRCode.count({ where: { workspaceId: auth.workspace.id, kind: 'STATIC', status: { not: 'DELETED' } } }),
   ]);
 
   const empty: AnalyticsPayload = {
@@ -76,7 +77,7 @@ export default async function StatsPage({ searchParams }: { searchParams: Promis
     <>
       <PageHeader
         title="Analytics"
-        description="Scan data for your dynamic QR codes. Static codes cannot be tracked — their content never reaches a server."
+        description="Every scan of your dynamic QR codes, live as it happens, with reports for any period."
         breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Analytics' }]}
       />
 
@@ -89,6 +90,7 @@ export default async function StatsPage({ searchParams }: { searchParams: Promis
         canExport={can(auth.role, 'stats.export')}
         canReset={can(auth.role, 'stats.reset')}
         timezone={auth.user.timezone}
+        staticCodes={staticCodes}
       />
     </>
   );

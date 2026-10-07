@@ -2,104 +2,183 @@
 
 import * as React from 'react';
 
+/** One scan as the live stream sends it (mirrors LiveScan in lib/admin-analytics). */
+export interface LiveScanItem {
+  id: string;
+  at: string;
+  codeId: string;
+  codeName: string;
+  codeType: string;
+  codeTypeLabel: string;
+  workspaceId: string;
+  workspaceName: string;
+  country: string | null;
+  city: string | null;
+  device: string | null;
+  browser: string | null;
+  os: string | null;
+  unique: boolean;
+}
+
+/** Live counters (mirrors LiveSnapshot in lib/admin-analytics). */
+export interface LiveCounters {
+  now: string;
+  last5m: number;
+  last60m: number;
+  today: number;
+  todayUnique: number;
+  allTime: number;
+  lastScanAt: string | null;
+  perMinute: number[];
+}
+
 export interface LiveScansOptions {
   qrCodeId?: string;
   folderId?: string;
-  /** Called when a new scan has been recorded since the last check. */
-  onChange: () => void;
-  intervalMs?: number;
+  /** Called (at most every couple of seconds) when new scans have been recorded. */
+  onChange?: () => void;
   enabled?: boolean;
+  /** How many recent scans to keep for a feed. */
+  feedLimit?: number;
+  /** The SSE endpoint (the platform admin view uses its own). */
+  endpoint?: string;
 }
 
 export interface LiveScansState {
-  /** True while polling is running and the last check succeeded. */
+  /** True while the live connection is open. */
   live: boolean;
   lastScanAt: string | null;
+  counters: LiveCounters | null;
+  /** Most recent scans, newest first. */
+  feed: LiveScanItem[];
+  /** Ids of scans that arrived in the last few seconds (for a highlight). */
+  fresh: Set<string>;
 }
 
+const CHANGE_THROTTLE_MS = 2000;
+const HIGHLIGHT_MS = 4000;
+
 /**
- * Keeps a dashboard in step with scans as they happen. It polls the cheap
- * /api/v1/stats/pulse counter while the tab is visible, pauses when it is hidden, checks
- * at once when the tab comes back, and calls `onChange` only when the counter moves.
- * Polling rather than a socket: it survives Cloudflare and Nginx buffering without any
- * extra infrastructure, and the counter read is a single aggregate.
+ * Keeps a dashboard in step with scans as they happen, over Server-Sent Events from
+ * /api/v1/stats/stream: a new scan reaches the screen about a second and a half after it
+ * is made. The connection closes while the tab is hidden (no server work for nobody) and
+ * reopens, with a catch-up refresh, when it comes back. EventSource reconnects by itself
+ * after a network drop.
  */
 export function useLiveScans({
   qrCodeId,
   folderId,
   onChange,
-  intervalMs = 5000,
   enabled = true,
-}: LiveScansOptions): LiveScansState {
-  const [state, setState] = React.useState<LiveScansState>({ live: false, lastScanAt: null });
+  feedLimit = 30,
+  endpoint = '/api/v1/stats/stream',
+}: LiveScansOptions = {}): LiveScansState {
+  const [live, setLive] = React.useState(false);
+  const [counters, setCounters] = React.useState<LiveCounters | null>(null);
+  const [feed, setFeed] = React.useState<LiveScanItem[]>([]);
+  const [fresh, setFresh] = React.useState<Set<string>>(() => new Set());
   const onChangeRef = React.useRef(onChange);
   onChangeRef.current = onChange;
 
   React.useEffect(() => {
-    if (!enabled) return;
-    let version: string | null = null;
-    let timer: ReturnType<typeof setTimeout> | null = null;
-    let controller: AbortController | null = null;
-    let failures = 0;
-    let stopped = false;
+    if (!enabled || typeof window === 'undefined' || typeof EventSource === 'undefined') return;
 
     const params = new URLSearchParams();
     if (qrCodeId) params.set('qr_code_id', qrCodeId);
     if (folderId) params.set('folder_id', folderId);
-    const url = `/api/v1/stats/pulse${params.size ? `?${params}` : ''}`;
-
-    const schedule = () => {
-      if (stopped) return;
-      if (timer) clearTimeout(timer);
-      // Back off gently after failures so a server hiccup is not hammered.
-      timer = setTimeout(tick, intervalMs * Math.min(6, 1 + failures));
-    };
-
-    async function tick() {
-      if (stopped) return;
-      if (document.visibilityState !== 'visible') {
-        schedule();
-        return;
-      }
-      controller?.abort();
-      controller = new AbortController();
-      try {
-        const response = await fetch(url, { cache: 'no-store', signal: controller.signal });
-        if (response.status === 401 || response.status === 403) {
-          stopped = true;
-          setState((current) => ({ ...current, live: false }));
-          return;
-        }
-        const payload = (await response.json()) as {
-          ok?: boolean;
-          data?: { version: string; lastScanAt: string | null };
-        };
-        if (!payload.ok || !payload.data) throw new Error('pulse failed');
-        failures = 0;
-        if (version !== null && payload.data.version !== version) onChangeRef.current();
-        version = payload.data.version;
-        setState({ live: true, lastScanAt: payload.data.lastScanAt });
-      } catch (error) {
-        if ((error as Error).name === 'AbortError') return;
-        failures += 1;
-        setState((current) => ({ ...current, live: false }));
-      }
-      schedule();
+    try {
+      params.set('timezone', Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC');
+    } catch {
+      params.set('timezone', 'UTC');
     }
+    const url = `${endpoint}?${params.toString()}`;
 
-    const onVisible = () => {
-      if (document.visibilityState === 'visible') void tick();
+    let source: EventSource | null = null;
+    let lastChange = 0;
+    let changeTimer: ReturnType<typeof setTimeout> | null = null;
+    let seenTotal: number | null = null;
+    const timers = new Set<ReturnType<typeof setTimeout>>();
+
+    // Throttled, trailing: a burst of scans causes one refresh, never a storm of them.
+    const notifyChange = () => {
+      if (!onChangeRef.current) return;
+      const wait = CHANGE_THROTTLE_MS - (Date.now() - lastChange);
+      if (changeTimer) return;
+      changeTimer = setTimeout(() => {
+        changeTimer = null;
+        lastChange = Date.now();
+        onChangeRef.current?.();
+      }, Math.max(0, wait));
     };
-    document.addEventListener('visibilitychange', onVisible);
-    void tick();
+
+    const open = () => {
+      if (source) return;
+      source = new EventSource(url);
+      source.onopen = () => setLive(true);
+      source.onerror = () => {
+        setLive(false);
+        // 401/403 or a closed stream that will not come back: stop retrying.
+        if (source?.readyState === EventSource.CLOSED) {
+          source.close();
+          source = null;
+        }
+      };
+      source.addEventListener('init', (event) => {
+        const scans = JSON.parse((event as MessageEvent).data) as LiveScanItem[];
+        setFeed(scans.slice(0, feedLimit));
+        setLive(true);
+      });
+      source.addEventListener('snapshot', (event) => {
+        const snapshot = JSON.parse((event as MessageEvent).data) as LiveCounters;
+        setCounters(snapshot);
+        setLive(true);
+        // The counter moved without a scan event (a reset, or scans while the tab was
+        // hidden): the page's own figures are stale too.
+        if (seenTotal !== null && snapshot.allTime !== seenTotal) notifyChange();
+        seenTotal = snapshot.allTime;
+      });
+      source.addEventListener('scans', (event) => {
+        const scans = JSON.parse((event as MessageEvent).data) as LiveScanItem[];
+        setFeed((current) => {
+          const known = new Set(current.map((scan) => scan.id));
+          const added = scans.filter((scan) => !known.has(scan.id)).reverse();
+          return [...added, ...current].slice(0, feedLimit);
+        });
+        const ids = scans.map((scan) => scan.id);
+        setFresh((current) => new Set([...current, ...ids]));
+        const timer = setTimeout(() => {
+          timers.delete(timer);
+          setFresh((current) => {
+            const next = new Set(current);
+            for (const id of ids) next.delete(id);
+            return next;
+          });
+        }, HIGHLIGHT_MS);
+        timers.add(timer);
+      });
+    };
+
+    const shut = () => {
+      source?.close();
+      source = null;
+      setLive(false);
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') open();
+      else shut();
+    };
+
+    if (document.visibilityState === 'visible') open();
+    document.addEventListener('visibilitychange', onVisibility);
 
     return () => {
-      stopped = true;
-      if (timer) clearTimeout(timer);
-      controller?.abort();
-      document.removeEventListener('visibilitychange', onVisible);
+      document.removeEventListener('visibilitychange', onVisibility);
+      shut();
+      if (changeTimer) clearTimeout(changeTimer);
+      for (const timer of timers) clearTimeout(timer);
     };
-  }, [qrCodeId, folderId, intervalMs, enabled]);
+  }, [qrCodeId, folderId, enabled, feedLimit, endpoint]);
 
-  return state;
+  return { live, lastScanAt: counters?.lastScanAt ?? null, counters, feed, fresh };
 }

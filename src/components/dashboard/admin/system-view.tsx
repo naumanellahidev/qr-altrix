@@ -45,6 +45,10 @@ export interface HealthPayload {
   };
 }
 
+function jump(id: string) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 export function SystemView({ initial }: { initial: HealthPayload }) {
   const [health, setHealth] = React.useState(initial);
   const [loading, setLoading] = React.useState(false);
@@ -101,6 +105,7 @@ export function SystemView({ initial }: { initial: HealthPayload }) {
           hint={health.database.latencyMs !== null ? `${health.database.latencyMs} ms round trip` : 'No response'}
           icon={<Database />}
           tone={health.database.ok ? 'primary' : undefined}
+          onClick={() => jump('system-config')}
         />
         <StatCard
           label="Redis / queue"
@@ -111,12 +116,14 @@ export function SystemView({ initial }: { initial: HealthPayload }) {
               : 'Jobs run inline in the web process — fine for small installs'
           }
           icon={<Server />}
+          onClick={() => jump('system-queue')}
         />
         <StatCard
           label="Storage used"
           value={bytesToSize(health.storage.bytes)}
           hint={`${formatNumber(health.storage.files)} files on ${health.config.storageDriver === 's3' ? 'object storage' : 'local disk'}`}
           icon={<HardDrive />}
+          onClick={() => jump('system-backups')}
         />
         <StatCard
           label="Jobs waiting"
@@ -124,6 +131,7 @@ export function SystemView({ initial }: { initial: HealthPayload }) {
           hint={queue?.enabled ? `${queue.active} running · ${queue.failed} failed` : 'Inline processing'}
           icon={<Layers />}
           tone="accent"
+          onClick={() => jump('system-queue')}
         />
       </div>
 
@@ -142,7 +150,7 @@ export function SystemView({ initial }: { initial: HealthPayload }) {
       ) : null}
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <Card className="p-5">
+        <Card className="scroll-mt-20 p-5" id="system-queue">
           <SectionHeader title="Background queue" description="Scan logging, bulk imports, webhooks and housekeeping." />
           {queue?.enabled ? (
             <ul className="space-y-2 text-[13px]">
@@ -167,7 +175,7 @@ export function SystemView({ initial }: { initial: HealthPayload }) {
           )}
         </Card>
 
-        <Card className="p-5">
+        <Card className="scroll-mt-20 p-5" id="system-config">
           <SectionHeader title="Configuration" description="Read from the environment at runtime." />
           <ul className="space-y-2 text-[13px]">
             <li className="flex items-center justify-between gap-3">
@@ -212,7 +220,7 @@ export function SystemView({ initial }: { initial: HealthPayload }) {
         </Card>
       </div>
 
-      <Card className="p-5">
+      <Card className="scroll-mt-20 p-5" id="system-backups">
         <SectionHeader
           title="Backups"
           description="Taken on the host by scripts/backup.sh — the app only reads the directory."

@@ -24,7 +24,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { useDateFormat, DATE, DATE_TIME, TIME } from '@/lib/hooks/use-date-format';
 import { useLiveScans } from '@/lib/hooks/use-live-scans';
-import { LiveIndicator } from '@/components/dashboard/live-indicator';
+import { LiveScanPanel } from '@/components/dashboard/live-scan-panel';
 
 export interface Breakdown {
   label: string;
@@ -60,6 +60,8 @@ export interface AnalyticsViewProps {
   canExport: boolean;
   canReset: boolean;
   timezone: string;
+  /** Static codes in the workspace: their scans cannot be counted, which the page says. */
+  staticCodes?: number;
 }
 
 const RANGES = [
@@ -166,6 +168,10 @@ function BreakdownList({
   );
 }
 
+function jump(id: string) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 export function AnalyticsView({
   initial,
   deferredProcessing,
@@ -175,6 +181,7 @@ export function AnalyticsView({
   canExport,
   canReset,
   timezone: initialTimezone,
+  staticCodes = 0,
 }: AnalyticsViewProps) {
   const formatDate = useDateFormat();
   const palette = useVizPalette();
@@ -213,6 +220,7 @@ export function AnalyticsView({
     qrCodeId: codeId !== 'all' ? codeId : undefined,
     folderId: folderId !== 'all' ? folderId : undefined,
     onChange: () => void load(true),
+    feedLimit: 40,
   });
 
   React.useEffect(() => {
@@ -335,8 +343,6 @@ export function AnalyticsView({
           </SelectContent>
         </Select>
 
-        <LiveIndicator live={liveState.live} />
-
         <div className="ml-auto flex items-center gap-1.5">
           {canExport ? (
             <>
@@ -365,6 +371,22 @@ export function AnalyticsView({
         </Alert>
       ) : null}
 
+      {/* -------------------------------------------------------------- live */}
+      <LiveScanPanel
+        live={liveState.live}
+        counters={liveState.counters}
+        feed={liveState.feed}
+        fresh={liveState.fresh}
+        codeHref={(scan) => `/dashboard/codes/${scan.codeId}`}
+        rowContext={codeId === 'all' ? (scan) => scan.codeTypeLabel : undefined}
+        singleCode={codeId !== 'all'}
+        allTimeHint={codeId === 'all' ? 'Every scan of your codes' : 'Every scan of this code'}
+        subtitle="Updates a second or two after each scan."
+        staticCodes={codeId === 'all' && folderId === 'all' ? staticCodes : 0}
+        staticCodesHref="/dashboard/codes?filter=static"
+        idPrefix="stats-live"
+      />
+
       {/* ------------------------------------------------------------- tiles */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
@@ -374,6 +396,7 @@ export function AnalyticsView({
           changeLabel="versus the previous period"
           icon={<MousePointerClick />}
           tone="primary"
+          onClick={() => jump('stats-series')}
         />
         <StatCard
           label="Unique visitors"
@@ -384,12 +407,14 @@ export function AnalyticsView({
               : 'No scans yet'
           }
           icon={<Users />}
+          onClick={() => jump('stats-series')}
         />
         <StatCard
           label="Busiest hour"
           value={hasScans ? `${String(peakHour.hour).padStart(2, '0')}:00` : '—'}
           hint={hasScans ? `${formatNumber(peakHour.scans)} scans in that hour (${timezone})` : undefined}
           icon={<Clock />}
+          onClick={() => jump('stats-hours')}
         />
         <StatCard
           label="Last scan"
@@ -399,11 +424,12 @@ export function AnalyticsView({
           hint={data.lastScanAt ? formatDate(data.lastScanAt, TIME) : 'Waiting for the first scan'}
           icon={<Globe2 />}
           tone="accent"
+          onClick={() => jump('stats-live-feed')}
         />
       </div>
 
       {/* -------------------------------------------------------- time series */}
-      <Card className="p-5">
+      <Card className="scroll-mt-20 p-5" id="stats-series">
         <SectionHeader
           title="Scans over time"
           description={`Totals and unique visitors, bucketed by ${granularity}.`}
@@ -582,7 +608,7 @@ export function AnalyticsView({
       </div>
 
       {/* ------------------------------------------------------- hour of day */}
-      <Card className="p-5">
+      <Card className="scroll-mt-20 p-5" id="stats-hours">
         <SectionHeader
           title="Scans by time of day"
           description={`Hour of the day in ${timezone}. Useful for deciding when to refresh a campaign.`}

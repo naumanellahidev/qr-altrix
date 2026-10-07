@@ -3,52 +3,24 @@
 import * as React from 'react';
 import Link from 'next/link';
 import {
-  Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis,
+  Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts';
 import {
-  Activity, Building2, CalendarDays, Clock, Download, Globe2, MonitorSmartphone, QrCode, RefreshCw, Repeat, Users,
+  Activity, Building2, Download, Globe2, MonitorSmartphone, QrCode, RefreshCw, Repeat, Users,
 } from 'lucide-react';
 import { countryFlag, countryName, deviceLabel } from '@/lib/viz/labels';
 import { useVizPalette } from '@/lib/viz/palette';
-import { cn, compactNumber, formatNumber } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
+import { cn, formatNumber } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { StatCard } from '@/components/ui/stat-card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { EmptyState, InlineLoader } from '@/components/ui/feedback';
 import { SectionHeader } from '@/components/ui/page-header';
-import { LiveIndicator } from '@/components/dashboard/live-indicator';
+import { LiveScanPanel } from '@/components/dashboard/live-scan-panel';
+import { useLiveScans } from '@/lib/hooks/use-live-scans';
 
 // ------------------------------------------------------------------ types (API payloads)
-
-interface LiveScan {
-  id: string;
-  at: string;
-  codeId: string;
-  codeName: string;
-  codeType: string;
-  codeTypeLabel: string;
-  workspaceId: string;
-  workspaceName: string;
-  country: string | null;
-  city: string | null;
-  device: string | null;
-  browser: string | null;
-  os: string | null;
-  unique: boolean;
-}
-
-interface LiveSnapshot {
-  now: string;
-  last5m: number;
-  last60m: number;
-  today: number;
-  todayUnique: number;
-  allTime: number;
-  lastScanAt: string | null;
-  perMinute: number[];
-}
 
 interface Breakdown {
   label: string;
@@ -98,24 +70,11 @@ const FEED_LIMIT = 60;
 /** A burst of scans refreshes the report at most this often. */
 const REPORT_REFRESH_MS = 15_000;
 
-function timeAgo(iso: string | null, now: number): string {
-  if (!iso) return 'never';
-  const seconds = Math.max(0, Math.round((now - Date.parse(iso)) / 1000));
-  if (seconds < 5) return 'just now';
-  if (seconds < 60) return `${seconds}s ago`;
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes} min ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} h ago`;
-  return `${Math.floor(hours / 24)} d ago`;
-}
-
-function place(scan: Pick<LiveScan, 'country' | 'city'>): string {
-  if (!scan.country) return 'Unknown location';
-  return scan.city ? `${scan.city}, ${countryName(scan.country)}` : countryName(scan.country);
-}
-
 // ------------------------------------------------------------------ view
+
+function jump(id: string) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 
 export function AdminLiveAnalytics() {
   const palette = useVizPalette();
@@ -128,50 +87,12 @@ export function AdminLiveAnalytics() {
   }, []);
 
   // ---------------------------------------------------------------- live stream
-  const [live, setLive] = React.useState(false);
-  const [snapshot, setSnapshot] = React.useState<LiveSnapshot | null>(null);
-  const [feed, setFeed] = React.useState<LiveScan[]>([]);
-  const [fresh, setFresh] = React.useState<Set<string>>(new Set());
-  const [now, setNow] = React.useState(() => Date.now());
   const onNewScans = React.useRef<() => void>(() => undefined);
-
-  React.useEffect(() => {
-    const timer = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  React.useEffect(() => {
-    const source = new EventSource(`/api/admin/analytics/stream?timezone=${encodeURIComponent(timezone)}`);
-    source.onopen = () => setLive(true);
-    source.onerror = () => setLive(false); // EventSource reconnects on its own
-    source.addEventListener('init', (event) => {
-      setFeed((JSON.parse((event as MessageEvent).data) as LiveScan[]).slice(0, FEED_LIMIT));
-      setLive(true);
-    });
-    source.addEventListener('snapshot', (event) => {
-      setSnapshot(JSON.parse((event as MessageEvent).data) as LiveSnapshot);
-      setLive(true);
-    });
-    source.addEventListener('scans', (event) => {
-      const scans = JSON.parse((event as MessageEvent).data) as LiveScan[];
-      setFeed((current) => {
-        const known = new Set(current.map((scan) => scan.id));
-        const added = scans.filter((scan) => !known.has(scan.id)).reverse();
-        return [...added, ...current].slice(0, FEED_LIMIT);
-      });
-      const ids = scans.map((scan) => scan.id);
-      setFresh((current) => new Set([...current, ...ids]));
-      setTimeout(() => {
-        setFresh((current) => {
-          const next = new Set(current);
-          for (const id of ids) next.delete(id);
-          return next;
-        });
-      }, 4000);
-      onNewScans.current();
-    });
-    return () => source.close();
-  }, [timezone]);
+  const { live, counters: snapshot, feed, fresh } = useLiveScans({
+    endpoint: '/api/admin/analytics/stream',
+    feedLimit: FEED_LIMIT,
+    onChange: () => onNewScans.current(),
+  });
 
   // ---------------------------------------------------------------- range report
   const [rangeKey, setRangeKey] = React.useState<RangeKey>('7d');
@@ -229,20 +150,6 @@ export function AdminLiveAnalytics() {
     if (pending.current) clearTimeout(pending.current);
   }, []);
 
-  const perMinute = React.useMemo(() => {
-    if (!snapshot) return [];
-    const end = Date.parse(snapshot.now);
-    return snapshot.perMinute.map((scans, index) => {
-      const minutesAgo = 59 - index;
-      const time = new Date(end - minutesAgo * 60_000);
-      return {
-        label: minutesAgo === 0 ? 'now' : `-${minutesAgo}m`,
-        time: time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        scans,
-      };
-    });
-  }, [snapshot]);
-
   const series = React.useMemo(() => {
     if (!report) return [];
     const hourly = rangeKey === '24h';
@@ -262,102 +169,19 @@ export function AdminLiveAnalytics() {
   return (
     <div className="space-y-6">
       {/* ------------------------------------------------------------ live */}
-      <section className="space-y-3" aria-label="Live">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <LiveIndicator live={live} />
-            <p className="text-[12.5px] text-muted-foreground">
-              Last scan: <span className="font-medium text-foreground">{timeAgo(snapshot?.lastScanAt ?? null, now)}</span>
-            </p>
-          </div>
-          <p className="text-[12px] text-muted-foreground">Every scan on every QR code, as it happens.</p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-          <StatCard label="Right now" value={formatNumber(snapshot?.last5m ?? 0)} hint="Scans in the last 5 minutes" icon={<Activity />} />
-          <StatCard label="Last hour" value={formatNumber(snapshot?.last60m ?? 0)} hint="Scans in the last 60 minutes" icon={<Clock />} />
-          <StatCard label="Today" value={formatNumber(snapshot?.today ?? 0)} hint="Since midnight, your time" icon={<CalendarDays />} />
-          <StatCard label="Unique today" value={formatNumber(snapshot?.todayUnique ?? 0)} hint="First-time visitors today" icon={<Users />} />
-          <StatCard
-            label="All time"
-            value={compactNumber(snapshot?.allTime ?? 0)}
-            hint="Scans of every code"
-            icon={<QrCode />}
-            className="col-span-2 lg:col-span-1"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_420px]">
-          <Card className="p-4 sm:p-5">
-            <SectionHeader title="Scans per minute" description="The last 60 minutes, updated as scans arrive." />
-            <div className="h-48 sm:h-56">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={perMinute} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
-                  <CartesianGrid stroke={palette.grid} strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="label" tickLine={false} axisLine={false} interval={14} tick={{ fill: palette.axis, fontSize: 11 }} />
-                  <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={40} tick={{ fill: palette.axis, fontSize: 11 }} />
-                  <Tooltip
-                    cursor={{ fill: palette.grid, opacity: 0.4 }}
-                    formatter={(value: number) => [formatNumber(value), 'Scans']}
-                    labelFormatter={(_, items) => (items?.[0]?.payload as { time?: string } | undefined)?.time ?? ''}
-                    contentStyle={{ background: palette.surface, border: `1px solid ${palette.grid}`, borderRadius: 10, fontSize: 12 }}
-                  />
-                  <Bar dataKey="scans" fill={palette.categorical[0]} radius={[3, 3, 0, 0]} isAnimationActive={false} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
-
-          <Card className="flex max-h-[420px] flex-col p-0">
-            <div className="flex items-center justify-between border-b border-border px-4 py-3">
-              <p className="text-[13.5px] font-semibold">Live feed</p>
-              <Badge variant="outline">{feed.length ? `${feed.length} latest` : 'Waiting'}</Badge>
-            </div>
-            {feed.length === 0 ? (
-              <p className="px-4 py-10 text-center text-[13px] text-muted-foreground">
-                No scans yet. They appear here the moment someone scans any QR code.
-              </p>
-            ) : (
-              <ol className="min-h-0 flex-1 divide-y divide-border overflow-y-auto" aria-live="polite">
-                {feed.map((scan) => (
-                  <li
-                    key={scan.id}
-                    className={cn('flex items-start gap-3 px-4 py-2.5 transition-colors duration-700', fresh.has(scan.id) && 'bg-success/10')}
-                  >
-                    <span className="mt-0.5 text-[18px] leading-none" aria-hidden>
-                      {scan.country ? countryFlag(scan.country) : '🌐'}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="flex items-center gap-1.5">
-                        <Link
-                          href={`/admin/codes?q=${encodeURIComponent(scan.codeName)}`}
-                          className="truncate text-[13px] font-semibold hover:underline"
-                        >
-                          {scan.codeName}
-                        </Link>
-                        <Badge variant={scan.unique ? 'success' : 'outline'} className="shrink-0">
-                          {scan.unique ? 'New' : 'Repeat'}
-                        </Badge>
-                      </span>
-                      <span className="block truncate text-[12px] text-muted-foreground">
-                        {scan.workspaceName} · {scan.codeTypeLabel}
-                      </span>
-                      <span className="block truncate text-[12px] text-muted-foreground">
-                        {place(scan)}
-                        {scan.device ? ` · ${deviceLabel(scan.device)}` : ''}
-                        {scan.browser ? ` · ${scan.browser}` : ''}
-                      </span>
-                    </span>
-                    <time dateTime={scan.at} className="shrink-0 text-[11.5px] tabular-nums text-muted-foreground" title={new Date(scan.at).toLocaleString()}>
-                      {timeAgo(scan.at, now)}
-                    </time>
-                  </li>
-                ))}
-              </ol>
-            )}
-          </Card>
-        </div>
-      </section>
+      <LiveScanPanel
+        live={live}
+        counters={snapshot}
+        feed={feed}
+        fresh={fresh}
+        codeHref={(scan) => `/admin/codes?q=${encodeURIComponent(scan.codeName)}`}
+        rowContext={(scan) => `${scan.workspaceName} · ${scan.codeTypeLabel}`}
+        allTimeHref="/admin/codes"
+        allTimeHint="Scans of every code"
+        subtitle="Every scan on every QR code, as it happens."
+        emptyText="No scans yet. They appear here the moment someone scans any QR code."
+        idPrefix="admin-live"
+      />
 
       {/* ------------------------------------------------------------ filters */}
       <section className="space-y-4" aria-label="Report">
@@ -432,16 +256,18 @@ export function AdminLiveAnalytics() {
                 change={report.changePercent}
                 changeLabel="vs previous period"
                 icon={<Activity />}
+                onClick={() => jump('admin-report-series')}
               />
-              <StatCard label="Unique visitors" value={formatNumber(report.uniqueScans)} hint="Counted once per code" icon={<Users />} />
-              <StatCard label="Repeat scans" value={formatNumber(report.returningScans)} hint="Visitors who came back" icon={<Repeat />} />
-              <StatCard label="Codes scanned" value={formatNumber(report.activeCodes)} hint="At least one scan" icon={<QrCode />} />
+              <StatCard label="Unique visitors" value={formatNumber(report.uniqueScans)} hint="Counted once per code" icon={<Users />} onClick={() => jump('admin-report-series')} />
+              <StatCard label="Repeat scans" value={formatNumber(report.returningScans)} hint="Visitors who came back" icon={<Repeat />} onClick={() => jump('admin-report-heatmap')} />
+              <StatCard label="Codes scanned" value={formatNumber(report.activeCodes)} hint="At least one scan" icon={<QrCode />} onClick={() => jump('admin-report-codes')} />
               <StatCard
                 label="Active workspaces"
                 value={formatNumber(report.activeWorkspaces)}
                 hint="With at least one scan"
                 icon={<Building2 />}
                 className="col-span-2 lg:col-span-1"
+                onClick={() => jump('admin-report-workspaces')}
               />
             </div>
 
@@ -453,7 +279,7 @@ export function AdminLiveAnalytics() {
               />
             ) : (
               <>
-                <Card className="p-4 sm:p-5">
+                <Card className="scroll-mt-20 p-4 sm:p-5" id="admin-report-series">
                   <SectionHeader title="Scans over time" description={`Total and unique scans · ${rangeLabel}`} />
                   <div className="h-56 sm:h-72">
                     <ResponsiveContainer width="100%" height="100%">
@@ -479,7 +305,7 @@ export function AdminLiveAnalytics() {
                 </Card>
 
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                  <Card className="p-4 sm:p-5">
+                  <Card className="scroll-mt-20 p-4 sm:p-5" id="admin-report-codes">
                     <SectionHeader title="Top QR codes" description="Most scanned across the platform" />
                     <ol className="space-y-2">
                       {report.topCodesDetailed.map((code, index) => (
@@ -502,7 +328,7 @@ export function AdminLiveAnalytics() {
                     </ol>
                   </Card>
 
-                  <Card className="p-4 sm:p-5">
+                  <Card className="scroll-mt-20 p-4 sm:p-5" id="admin-report-workspaces">
                     <SectionHeader title="Top workspaces" description="Where the scans come from" />
                     <ol className="space-y-2">
                       {report.topWorkspaces.map((workspace, index) => (
@@ -521,7 +347,7 @@ export function AdminLiveAnalytics() {
                   </Card>
                 </div>
 
-                <Card className="p-4 sm:p-5">
+                <Card className="scroll-mt-20 p-4 sm:p-5" id="admin-report-heatmap">
                   <SectionHeader title="Busiest days and hours" description="Scans by weekday and hour, in your time zone" />
                   <Heatmap data={report.heatmap} color={palette.categorical[0]} empty={palette.grid} />
                 </Card>

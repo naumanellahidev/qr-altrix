@@ -21,6 +21,7 @@ import { EmptyState } from '@/components/ui/feedback';
 import { QrThumb } from '@/components/qr/qr-preview';
 import { ClaimDraft } from '@/components/dashboard/claim-draft';
 import { CopyButton } from '@/components/ui/copy-button';
+import { DashboardLive } from '@/components/dashboard/dashboard-live';
 
 export const dynamic = 'force-dynamic';
 
@@ -93,6 +94,7 @@ export default async function DashboardHome() {
           hint={`${dynamicCodes} dynamic · ${totalCodes - dynamicCodes} static`}
           icon={<QrCode />}
           tone="primary"
+          href="/dashboard/codes"
         />
         <StatCard
           label="Scans (30 days)"
@@ -100,12 +102,14 @@ export default async function DashboardHome() {
           change={overview?.changePercent ?? null}
           changeLabel="versus the previous 30 days"
           icon={<MousePointerClick />}
+          href="/dashboard/stats"
         />
         <StatCard
           label="Unique visitors"
           value={overview ? compactNumber(overview.uniqueScans) : '—'}
           hint="Counted from a salted, hashed fingerprint"
           icon={<Users />}
+          href="/dashboard/stats"
         />
         <StatCard
           label="Lifetime scans"
@@ -113,8 +117,15 @@ export default async function DashboardHome() {
           hint={`${folderCount} folders · ${domainCount} verified domains`}
           icon={<BarChart3 />}
           tone="accent"
+          href="/dashboard/stats"
         />
       </div>
+
+      {can(auth.role, 'stats.read') ? (
+        <div className="mt-6">
+          <DashboardLive staticCodes={totalCodes - dynamicCodes} />
+        </div>
+      ) : null}
 
       {/* ------------------------------------------------------- quick actions */}
       <section className="mt-8">
@@ -173,12 +184,12 @@ export default async function DashboardHome() {
                   const payload = encodedPayloadFor(qr);
                   const link = qr.kind === 'DYNAMIC' ? shortLinkFor(qr) : null;
                   return (
-                    <li key={qr.id} className="flex items-center gap-3 p-3.5">
+                    <li key={qr.id} className="relative flex items-center gap-3 p-3.5 transition-colors hover:bg-surface-muted">
                       <QrThumb data={payload} design={designFromRow(qr.design)} size={44} />
                       <div className="min-w-0 flex-1">
                         <Link
                           href={`/dashboard/codes/${qr.id}`}
-                          className="-my-2 block truncate py-2 text-[13.5px] font-medium hover:text-primary"
+                          className="-my-2 block truncate py-2 text-[13.5px] font-medium after:absolute after:inset-0 after:content-[''] hover:text-primary"
                         >
                           {qr.name}
                         </Link>
@@ -196,7 +207,11 @@ export default async function DashboardHome() {
                           </span>
                           <span className="block text-[11px] text-muted-foreground">scans</span>
                         </span>
-                        {link ? <CopyButton value={link} size="icon-sm" variant="ghost" /> : null}
+                        {link ? (
+                          <span className="relative z-10">
+                            <CopyButton value={link} size="icon-sm" variant="ghost" />
+                          </span>
+                        ) : null}
                       </div>
                     </li>
                   );
@@ -209,7 +224,17 @@ export default async function DashboardHome() {
         <div className="space-y-5">
           {overview && overview.countries.length > 0 ? (
             <Card className="p-5">
-              <SectionHeader title="Top countries" description="Last 30 days" />
+              <SectionHeader
+                title="Top countries"
+                description="Last 30 days"
+                actions={
+                  <Button asChild variant="ghost" size="sm">
+                    <Link href="/dashboard/stats">
+                      Details <ArrowRight />
+                    </Link>
+                  </Button>
+                }
+              />
               <ul className="space-y-2.5">
                 {overview.countries.slice(0, 5).map((country) => (
                   <li key={country.label} className="space-y-1">

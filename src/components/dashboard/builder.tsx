@@ -103,6 +103,12 @@ const STEPS = [
 
 type StepId = (typeof STEPS)[number]['id'];
 
+/** Static types whose content is a web link, so they can be saved as a counted redirect. */
+const TRACKABLE_STATIC = new Set(['URL', 'WHATSAPP', 'LOCATION']);
+
+/** Static types with a hosted, counted equivalent worth suggesting. */
+const TRACKED_ALTERNATIVE: Record<string, string> = { VCARD: 'VCARD_PLUS', EVENT: 'EVENT_PAGE', TEXT: 'LANDING_PAGE' };
+
 const DEVICE_OPTIONS = [
   { value: 'mobile', label: 'Mobile phones' },
   { value: 'tablet', label: 'Tablets' },
@@ -126,6 +132,7 @@ export function Builder({
   const [step, setStep] = React.useState<StepId>(editing ? 'content' : 'type');
   const [type, setType] = React.useState(initial?.type ?? 'WEBSITE');
   const [kind, setKind] = React.useState<'STATIC' | 'DYNAMIC'>(initial?.kind ?? 'DYNAMIC');
+  const [trackScans, setTrackScans] = React.useState(true);
   const [name, setName] = React.useState(initial?.name ?? '');
   const [content, setContent] = React.useState<Record<string, unknown>>(initial?.content ?? {});
   const [design, setDesign] = React.useState<QrDesign>({
@@ -158,10 +165,16 @@ export function Builder({
 
   const def = getTypeDef(type);
 
+  // Website, WhatsApp and map codes are links already. Saved as a Website redirect they
+  // open exactly the same thing and every scan is counted — so that is the default.
+  const canTrack = !editing && kind === 'STATIC' && TRACKABLE_STATIC.has(type);
+  const tracking = canTrack && trackScans;
+  const effectiveKind: 'STATIC' | 'DYNAMIC' = tracking ? 'DYNAMIC' : kind;
+
   // The preview encodes the real payload for static codes, and the live short link
   // (or a representative placeholder before saving) for dynamic ones.
   const payload = React.useMemo(() => {
-    if (kind === 'STATIC') return buildStaticPayload(type, content);
+    if (effectiveKind === 'STATIC') return buildStaticPayload(type, content);
     if (savedLink) return savedLink;
     const domain = domains.find((item) => item.id === customDomainId);
     const base = domain ? `https://${domain.host}` : `${shortUrlBase.replace(/\/$/, '')}/q`;
@@ -170,7 +183,7 @@ export function Builder({
     );
     if (!hasContent) return '';
     return `${base}/${slug ? slugify(slug) : 'PREVIEW'}`;
-  }, [kind, type, content, savedLink, domains, customDomainId, shortUrlBase, slug]);
+  }, [effectiveKind, type, content, savedLink, domains, customDomainId, shortUrlBase, slug]);
 
   function patchContent(patch: Record<string, unknown>) {
     setContent((current) => ({ ...current, ...patch }));
@@ -234,17 +247,18 @@ export function Builder({
       Array.isArray(value) ? value.length > 0 : Boolean(value),
     );
 
+    const trackedUrl = tracking ? buildStaticPayload(type, content) : null;
     return {
       name: name.trim() || `${def?.label ?? 'QR'} code`,
-      kind,
-      type,
-      content,
+      kind: effectiveKind,
+      type: trackedUrl ? 'WEBSITE' : type,
+      content: trackedUrl ? { url: trackedUrl } : content,
       design,
       folderId: folderId || null,
       customDomainId: customDomainId || null,
       slug: slug ? slugify(slug) : null,
       utm: hasUtm ? utmPayload : null,
-      smartRules: kind === 'DYNAMIC' ? smartRules.filter((rule) => rule.matchValue && rule.url) : undefined,
+      smartRules: effectiveKind === 'DYNAMIC' ? smartRules.filter((rule) => rule.matchValue && rule.url) : undefined,
       gates: {
         // An empty string clears the password; undefined leaves it untouched.
         password: passwordEnabled ? (password || undefined) : null,
@@ -282,6 +296,12 @@ export function Builder({
 
       setSavedId(result.data.id);
       setSavedLink(result.data.shortLink);
+      if (tracking) {
+        // From here on it is what was saved: a Website redirect.
+        setType(body.type);
+        setKind('DYNAMIC');
+        setContent(body.content);
+      }
       toast.success(editing ? 'Changes saved' : 'QR code saved');
 
       if (thenGoTo === 'list') {
@@ -319,7 +339,7 @@ export function Builder({
     }
     let next = STEPS[Math.min(stepIndex + 1, STEPS.length - 1)];
     // Static codes have nothing on the options step but a folder: go straight to design.
-    if (next.id === 'behaviour' && kind === 'STATIC') next = STEPS[stepIndex + 2];
+    if (next.id === 'behaviour' && effectiveKind === 'STATIC') next = STEPS[stepIndex + 2];
     if (next.id === 'save' && !savedId) {
       void save('stay');
       return;
@@ -371,7 +391,7 @@ export function Builder({
             ) : null}
           </div>
 
-          {kind === 'DYNAMIC' ? (
+          {effectiveKind === 'DYNAMIC' ? (
             <p className="flex items-start gap-1.5 text-[11.5px] leading-5 text-muted-foreground">
               <Globe className="mt-0.5 size-3 shrink-0" />
               Dynamic codes encode a short link, so the pattern stays simple and you keep control of the destination.
@@ -430,7 +450,7 @@ export function Builder({
       : step === 'behaviour'
         ? () => setStep('content')
         : step === 'design'
-          ? () => setStep(kind === 'STATIC' ? 'content' : 'behaviour')
+          ? () => setStep(effectiveKind === 'STATIC' ? 'content' : 'behaviour')
           : step === 'test'
             ? () => setStep('design')
             : null;
@@ -527,10 +547,60 @@ export function Builder({
                 <h2 className="font-display text-[16px] font-semibold">{def?.label} content</h2>
                 <p className="text-[13px] text-muted-foreground">{def?.description}</p>
               </div>
-              <Badge variant={kind === 'DYNAMIC' ? 'primary' : 'outline'}>
-                {kind === 'DYNAMIC' ? 'Editable any time · scans counted' : 'Fixed once printed · works offline'}
+              <Badge variant={effectiveKind === 'DYNAMIC' ? 'primary' : 'outline'}>
+                {effectiveKind === 'DYNAMIC' ? 'Editable any time · scans counted' : 'Fixed once printed · works offline'}
               </Badge>
             </div>
+
+            {canTrack ? (
+              <div
+                className={cn(
+                  'mb-5 rounded-xl border p-3.5',
+                  trackScans ? 'border-success/30 bg-success/8' : 'border-warning/30 bg-warning/10',
+                )}
+              >
+                <SwitchRow
+                  label="Count every scan (recommended)"
+                  description={
+                    trackScans
+                      ? 'The code opens the same thing, through a short QR ALTRIX link — so you see every scan, live, and can change the link later.'
+                      : 'Off: the link goes straight into the pattern. It works offline, but nobody can count its scans — not even you.'
+                  }
+                  checked={trackScans}
+                  onCheckedChange={setTrackScans}
+                />
+              </div>
+            ) : !editing && kind === 'STATIC' ? (
+              <div className="mb-5 rounded-xl border border-warning/30 bg-warning/10 p-3.5 text-[12.5px] leading-5">
+                <p className="font-semibold">Scans of a {def?.label.toLowerCase()} code cannot be counted</p>
+                <p className="mt-0.5 text-muted-foreground">
+                  The phone reads it straight from the pattern, without going online, so no one can see when it is
+                  scanned.
+                  {TRACKED_ALTERNATIVE[type] && getTypeDef(TRACKED_ALTERNATIVE[type]) ? (
+                    <>
+                      {' '}
+                      To count scans, use{' '}
+                      <button
+                        type="button"
+                        className="font-medium text-primary underline-offset-2 hover:underline"
+                        onClick={() => {
+                          const next = TRACKED_ALTERNATIVE[type];
+                          const nextDef = getTypeDef(next);
+                          if (!nextDef) return;
+                          setType(next);
+                          setKind(nextDef.kind);
+                          setContent({});
+                          setErrors({});
+                        }}
+                      >
+                        {getTypeDef(TRACKED_ALTERNATIVE[type])?.label}
+                      </button>{' '}
+                      instead.
+                    </>
+                  ) : null}
+                </p>
+              </div>
+            ) : null}
 
             <Field
               label="Name this code"
@@ -597,7 +667,7 @@ export function Builder({
                   </Select>
                 </Field>
 
-                {kind === 'DYNAMIC' ? (
+                {effectiveKind === 'DYNAMIC' ? (
                   <Field
                     label="Short domain"
                     help={
@@ -627,7 +697,7 @@ export function Builder({
                   </Field>
                 ) : null}
 
-                {kind === 'DYNAMIC' ? (
+                {effectiveKind === 'DYNAMIC' ? (
                   <Field
                     label="Custom short link"
                     help="Letters, numbers, hyphen and underscore. Leave empty for a generated code."
@@ -652,7 +722,7 @@ export function Builder({
               </div>
             </Card>
 
-            {kind === 'DYNAMIC' ? (
+            {effectiveKind === 'DYNAMIC' ? (
               <>
                 <Card className="p-5">
                   <h2 className="mb-1 flex items-center gap-2 font-display text-[16px] font-semibold">
@@ -993,7 +1063,7 @@ export function Builder({
             <DesignEditor design={design} onChange={patchDesign} uploadLogo={uploadLogo} brandColors={brandColors} />
 
             <div className="mt-5 hidden items-center justify-between gap-2 lg:flex">
-              <Button variant="ghost" onClick={() => setStep(kind === 'STATIC' ? 'content' : 'behaviour')}>
+              <Button variant="ghost" onClick={() => setStep(effectiveKind === 'STATIC' ? 'content' : 'behaviour')}>
                 <ArrowLeft /> Back
               </Button>
               <Button variant="brand" onClick={() => setStep('test')}>
@@ -1025,7 +1095,7 @@ export function Builder({
 
               <div className="space-y-2.5">
                 <ScanSafety design={design} moduleCount={moduleCount} />
-                {kind === 'DYNAMIC' && savedLink ? (
+                {effectiveKind === 'DYNAMIC' && savedLink ? (
                   <Button asChild variant="outline" className="w-full">
                     <a href={`${savedLink}?preview=1`} target="_blank" rel="noopener noreferrer">
                       <ExternalLink /> Open the destination (not counted as a scan)
@@ -1063,7 +1133,7 @@ export function Builder({
                 {editing ? 'Changes saved' : 'Your QR code is live'}
               </h2>
               <p className="mt-1.5 max-w-md text-[13.5px] leading-6 text-muted-foreground">
-                {kind === 'DYNAMIC'
+                {effectiveKind === 'DYNAMIC'
                   ? 'The short link below is what the pattern points at. You can change the destination any time without reprinting — and it will not expire.'
                   : 'This static code holds its content directly, so it works offline and forever.'}
               </p>

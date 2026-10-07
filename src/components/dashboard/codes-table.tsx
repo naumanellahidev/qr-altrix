@@ -453,7 +453,18 @@ export function CodesTable({
               {rows.map((row) => {
                 const def = getTypeDef(row.type);
                 return (
-                  <TableRow key={row.id} data-state={selected.has(row.id) ? 'selected' : undefined}>
+                  <TableRow
+                    key={row.id}
+                    data-state={selected.has(row.id) ? 'selected' : undefined}
+                    className="cursor-pointer"
+                    onClick={(event) => {
+                      // The whole row opens the code; its own controls keep their job.
+                      const target = event.target as HTMLElement;
+                      if (target.closest('a, button, input, label, [role="checkbox"], [role="menuitem"], [role="dialog"]')) return;
+                      if (!event.currentTarget.contains(target)) return;
+                      router.push(`/dashboard/codes/${row.id}`);
+                    }}
+                  >
                     <TableCell>
                       <Checkbox
                         checked={selected.has(row.id)}
@@ -521,10 +532,20 @@ export function CodesTable({
                     </TableCell>
 
                     <TableCell className="text-right">
-                      <span className="block text-[13px] font-semibold tabular-nums">{compactNumber(row.scanCount)}</span>
-                      <span className="block text-[11px] text-muted-foreground">
-                        {compactNumber(row.uniqueScanCount)} unique
-                      </span>
+                      {row.kind === 'DYNAMIC' ? (
+                        <Link href={`/dashboard/stats?qr=${row.id}`} className="-m-1.5 block rounded-lg p-1.5 hover:bg-surface-muted">
+                          <span className="block text-[13px] font-semibold tabular-nums">{compactNumber(row.scanCount)}</span>
+                          <span className="block text-[11px] text-muted-foreground">
+                            {compactNumber(row.uniqueScanCount)} unique
+                          </span>
+                        </Link>
+                      ) : (
+                        <span className="block text-[11px] leading-4 text-muted-foreground" title="Static codes are read straight from the pattern, so their scans cannot be counted">
+                          not
+                          <br />
+                          counted
+                        </span>
+                      )}
                     </TableCell>
 
                     <TableCell>

@@ -82,10 +82,47 @@ function toLiveScan(row: LiveRow): LiveScan {
   };
 }
 
-/** The most recent scans across the platform, newest first. */
-export async function recentScans(limit = 30): Promise<LiveScan[]> {
+/**
+ * Which scans a live view follows. Empty = the whole platform (administrators); a
+ * workspace dashboard always passes its workspace, and may narrow to one code or folder.
+ */
+export interface LiveScope {
+  workspaceId?: string | null;
+  qrCodeId?: string | null;
+  folderId?: string | null;
+}
+
+function scopeWhere(scope: LiveScope): Prisma.ScanEventWhereInput {
+  return {
+    kind: 'SCAN',
+    ...(scope.workspaceId ? { workspaceId: scope.workspaceId } : {}),
+    ...(scope.qrCodeId ? { qrCodeId: scope.qrCodeId } : {}),
+    ...(scope.folderId ? { qrCode: { folderId: scope.folderId } } : {}),
+  };
+}
+
+function scopeSql(scope: LiveScope): Prisma.Sql {
+  const parts: Prisma.Sql[] = [Prisma.sql`s."kind" = 'SCAN'::"ScanEventKind"`];
+  if (scope.workspaceId) parts.push(Prisma.sql`s."workspaceId" = ${scope.workspaceId}`);
+  if (scope.qrCodeId) parts.push(Prisma.sql`s."qrCodeId" = ${scope.qrCodeId}`);
+  if (scope.folderId) {
+    parts.push(Prisma.sql`s."qrCodeId" IN (SELECT q."id" FROM "QRCode" q WHERE q."folderId" = ${scope.folderId})`);
+  }
+  return Prisma.join(parts, ' AND ');
+}
+
+function scopeCodes(scope: LiveScope): Prisma.QRCodeWhereInput {
+  return {
+    ...(scope.workspaceId ? { workspaceId: scope.workspaceId } : {}),
+    ...(scope.qrCodeId ? { id: scope.qrCodeId } : {}),
+    ...(scope.folderId ? { folderId: scope.folderId } : {}),
+  };
+}
+
+/** The most recent scans in scope (the whole platform by default), newest first. */
+export async function recentScans(limit = 30, scope: LiveScope = {}): Promise<LiveScan[]> {
   const rows = await prisma.scanEvent.findMany({
-    where: { kind: 'SCAN' },
+    where: scopeWhere(scope),
     orderBy: { createdAt: 'desc' },
     take: limit,
     select: LIVE_SELECT,
@@ -98,11 +135,11 @@ export async function recentScans(limit = 30): Promise<LiveScan[]> {
  * happened (with the time it happened), so the stream asks for a window that reaches back
  * further than its last poll and drops the ids it has already sent.
  */
-export async function scansSince(since: Date, limit = 200): Promise<LiveScan[]> {
+export async function scansSince(since: Date, limit = 200, scope: LiveScope = {}): Promise<LiveScan[]> {
   // Newest first, so a burst larger than the limit still shows its latest scans (the
   // counters in the snapshot stay exact either way); handed back oldest first.
   const rows = await prisma.scanEvent.findMany({
-    where: { kind: 'SCAN', createdAt: { gte: since } },
+    where: { ...scopeWhere(scope), createdAt: { gte: since } },
     orderBy: { createdAt: 'desc' },
     take: limit,
     select: LIVE_SELECT,
@@ -110,28 +147,29 @@ export async function scansSince(since: Date, limit = 200): Promise<LiveScan[]> 
   return rows.reverse().map(toLiveScan);
 }
 
-export async function liveSnapshot(timezone = 'UTC'): Promise<LiveSnapshot> {
+export async function liveSnapshot(timezone = 'UTC', scope: LiveScope = {}): Promise<LiveSnapshot> {
   const zone = safeTimezone(timezone);
   const now = new Date();
   const fiveMinutesAgo = new Date(now.getTime() - 5 * 60_000);
   const hourAgo = new Date(now.getTime() - 60 * 60_000);
+  const conditions = scopeSql(scope);
 
   const [last5m, minuteRows, todayRows, counters] = await Promise.all([
-    prisma.scanEvent.count({ where: { kind: 'SCAN', createdAt: { gte: fiveMinutesAgo } } }),
+    prisma.scanEvent.count({ where: { ...scopeWhere(scope), createdAt: { gte: fiveMinutesAgo } } }),
     prisma.$queryRaw<{ minute: Date; scans: bigint }[]>(Prisma.sql`
       SELECT date_trunc('minute', s."createdAt") AS minute, COUNT(*)::bigint AS scans
       FROM "ScanEvent" s
-      WHERE s."kind" = 'SCAN'::"ScanEventKind" AND s."createdAt" >= ${hourAgo}
+      WHERE ${conditions} AND s."createdAt" >= ${hourAgo}
       GROUP BY 1
     `),
-    // "Today" starts at midnight where the administrator is, not at midnight UTC.
+    // "Today" starts at midnight where the viewer is, not at midnight UTC.
     prisma.$queryRaw<{ scans: bigint; unique_scans: bigint }[]>(Prisma.sql`
       SELECT COUNT(*)::bigint AS scans, COUNT(*) FILTER (WHERE s."isUnique")::bigint AS unique_scans
       FROM "ScanEvent" s
-      WHERE s."kind" = 'SCAN'::"ScanEventKind"
+      WHERE ${conditions}
         AND s."createdAt" >= (date_trunc('day', now() AT TIME ZONE ${zone}) AT TIME ZONE ${zone}) AT TIME ZONE 'UTC'
     `),
-    prisma.qRCode.aggregate({ _sum: { scanCount: true }, _max: { lastScanAt: true } }),
+    prisma.qRCode.aggregate({ where: scopeCodes(scope), _sum: { scanCount: true }, _max: { lastScanAt: true } }),
   ]);
 
   const byMinute = new Map(minuteRows.map((row) => [new Date(row.minute).getTime(), Number(row.scans)]));
