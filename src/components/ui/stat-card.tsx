@@ -43,7 +43,8 @@ export function StatCard({
         interactive &&
           'transition-all group-hover:-translate-y-0.5 group-hover:border-primary/40 group-hover:shadow-card group-focus-visible:border-primary',
         active && 'border-primary ring-2 ring-primary/25',
-        className,
+        // A clickable card's layout classes (col-span…) belong on the link around it.
+        !interactive && className,
       )}
     >
       {tone !== 'default' ? (
@@ -101,7 +102,7 @@ export function StatCard({
 
   if (href) {
     return (
-      <Link href={href} className="group block rounded-2xl outline-none" prefetch={false}>
+      <Link href={href} className={cn('group block rounded-2xl outline-none', className)} prefetch={false}>
         {card}
       </Link>
     );
@@ -112,7 +113,7 @@ export function StatCard({
         type="button"
         onClick={onClick}
         aria-pressed={active}
-        className="group block w-full rounded-2xl text-left outline-none"
+        className={cn('group block w-full rounded-2xl text-left outline-none', className)}
       >
         {card}
       </button>
