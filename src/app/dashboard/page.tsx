@@ -201,12 +201,23 @@ export default async function DashboardHome() {
                         </p>
                       </div>
                       <div className="flex shrink-0 items-center gap-2">
-                        <span className="text-right">
-                          <span className="block text-[13px] font-semibold tabular-nums">
-                            {compactNumber(qr.scanCount)}
+                        {qr.kind === 'DYNAMIC' ? (
+                          <span className="text-right">
+                            <span className="block text-[13px] font-semibold tabular-nums">
+                              {compactNumber(qr.scanCount)}
+                            </span>
+                            <span className="block text-[11px] text-muted-foreground">scans</span>
                           </span>
-                          <span className="block text-[11px] text-muted-foreground">scans</span>
-                        </span>
+                        ) : (
+                          <span
+                            className="text-right text-[11px] leading-4 text-muted-foreground"
+                            title="Static codes are read straight from the pattern, so their scans cannot be counted"
+                          >
+                            scans not
+                            <br />
+                            counted
+                          </span>
+                        )}
                         {link ? (
                           <span className="relative z-10">
                             <CopyButton value={link} size="icon-sm" variant="ghost" />
