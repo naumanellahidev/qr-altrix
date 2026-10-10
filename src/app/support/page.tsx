@@ -13,7 +13,7 @@ import { pageMeta } from '@/lib/seo/meta';
 import { JsonLd } from '@/components/seo/json-ld';
 import { breadcrumbSchema, graph } from '@/lib/seo/schema';
 import { isDeveloperApiEnabled } from '@/lib/settings';
-import { SUPPORT_EMAIL, SUPPORT_PHONE_DISPLAY, SUPPORT_TEL, supportWhatsApp } from '@/lib/contact';
+import { HELP_EMAIL, INFO_EMAIL, SUPPORT_EMAIL, SUPPORT_PHONE_DISPLAY, SUPPORT_TEL, supportWhatsApp } from '@/lib/contact';
 
 export const metadata: Metadata = pageMeta({
   path: '/support',
@@ -100,8 +100,14 @@ export default async function PublicSupportPage() {
                     <Phone /> Call {SUPPORT_PHONE_DISPLAY}
                   </a>
                 </Button>
-                <p className="px-1 text-[12.5px] text-muted-foreground">
-                  Email: <a className="underline" href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a> · the same number takes SMS.
+                <p className="px-1 text-[12.5px] leading-5 text-muted-foreground">
+                  Support: <a className="underline" href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
+                  <br />
+                  How-to questions: <a className="underline" href={`mailto:${HELP_EMAIL}`}>{HELP_EMAIL}</a>
+                  <br />
+                  Anything else: <a className="underline" href={`mailto:${INFO_EMAIL}`}>{INFO_EMAIL}</a>
+                  <br />
+                  The same number takes SMS.
                 </p>
                 <Button asChild variant="outline" className="w-full justify-start">
                   <Link href="/report-abuse">

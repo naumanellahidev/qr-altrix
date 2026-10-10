@@ -1,7 +1,7 @@
 import 'server-only';
 import { env } from './env';
 import { logger } from './logger';
-import { SUPPORT_EMAIL, SUPPORT_PHONE_DISPLAY, supportWhatsApp } from './contact';
+import { HELP_EMAIL, SUPPORT_EMAIL, SUPPORT_PHONE_DISPLAY, supportWhatsApp } from './contact';
 
 /**
  * Transactional email. With no SMTP host configured the message is logged instead of
@@ -94,7 +94,7 @@ function layout(options: { heading: string; body: string; cta?: { label: string;
         </td></tr>
         <tr><td style="padding:24px 32px 28px;border-top:1px solid #E2E8F0;margin-top:16px;color:#94A3B8;font-size:12px;line-height:18px">
           Sent by ${escapeHtml(env.appName)} · <a href="${env.appUrl}" style="color:#64748B">${escapeHtml(env.appUrl.replace(/^https?:\/\//, ''))}</a><br>
-          Need help? <a href="mailto:${SUPPORT_EMAIL}" style="color:#64748B">${SUPPORT_EMAIL}</a> · call / WhatsApp <a href="${supportWhatsApp()}" style="color:#64748B">${SUPPORT_PHONE_DISPLAY}</a>
+          Need help? <a href="mailto:${HELP_EMAIL}" style="color:#64748B">${HELP_EMAIL}</a> · call / WhatsApp <a href="${supportWhatsApp()}" style="color:#64748B">${SUPPORT_PHONE_DISPLAY}</a>
         </td></tr>
       </table>
     </td></tr>
