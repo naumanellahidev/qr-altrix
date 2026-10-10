@@ -4,6 +4,7 @@ import { BrandLogo } from '@/components/brand';
 import { getSettings } from '@/lib/settings';
 import { getContent, PUBLISHED_LOCALES } from '@/content';
 import { DEFAULT_LOCALE, localeInfo, localePath, type Locale } from '@/i18n/locales';
+import { SUPPORT_EMAIL, SUPPORT_PHONE_DISPLAY, SUPPORT_TEL, supportWhatsApp } from '@/lib/contact';
 
 /**
  * Site footer, in the page's language. Links to translated pages keep the language
@@ -134,6 +135,13 @@ export async function SiteFooter({ locale = DEFAULT_LOCALE, path = '/' }: { loca
               <span className="sr-only">(naumanellahi.com)</span>
             </a>
           </div>
+          <p className="mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[12.5px] sm:justify-start" dir="ltr">
+            <a href={SUPPORT_TEL} className="inline-block py-1 font-medium text-foreground hover:underline">{SUPPORT_PHONE_DISPLAY}</a>
+            <span aria-hidden>·</span>
+            <a href={supportWhatsApp()} target="_blank" rel="noopener noreferrer" className="inline-block py-1 font-medium text-success-text hover:underline">WhatsApp</a>
+            <span aria-hidden>·</span>
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-block py-1 hover:text-foreground hover:underline">{SUPPORT_EMAIL}</a>
+          </p>
           <p className="mt-4 text-center text-[11.5px] leading-5 text-muted-foreground sm:text-start">{f.trademark}</p>
         </div>
       </div>

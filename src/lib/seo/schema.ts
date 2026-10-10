@@ -1,4 +1,5 @@
 import type { FaqItem } from '@/lib/seo/faq';
+import { SUPPORT_EMAIL } from '@/lib/contact';
 
 /**
  * schema.org structured data. Everything stated here is visible on the site and true for
@@ -15,6 +16,13 @@ export function organizationSchema(base: string) {
     logo: { '@type': 'ImageObject', url: `${base}/icon-512.png`, width: 512, height: 512 },
     founder: CREATOR,
     sameAs: ['https://github.com/naumanellahidev/qr-altrix'],
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer support',
+      email: SUPPORT_EMAIL,
+      telephone: '+92-337-2606337',
+      availableLanguage: ['English', 'Urdu'],
+    },
   };
 }
 

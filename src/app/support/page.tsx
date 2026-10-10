@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { BookOpen, Flag, LifeBuoy, Mail, MessageCircle } from 'lucide-react';
+import { BookOpen, Flag, LifeBuoy, Mail, MessageCircle, Phone } from 'lucide-react';
 import { env } from '@/lib/env';
 import { getAuthContext } from '@/lib/auth';
 import { SiteHeader } from '@/components/marketing/site-header';
@@ -13,6 +13,7 @@ import { pageMeta } from '@/lib/seo/meta';
 import { JsonLd } from '@/components/seo/json-ld';
 import { breadcrumbSchema, graph } from '@/lib/seo/schema';
 import { isDeveloperApiEnabled } from '@/lib/settings';
+import { SUPPORT_EMAIL, SUPPORT_PHONE_DISPLAY, SUPPORT_TEL, supportWhatsApp } from '@/lib/contact';
 
 export const metadata: Metadata = pageMeta({
   path: '/support',
@@ -52,7 +53,6 @@ const FAQ = [
 
 export default async function PublicSupportPage() {
   const auth = await getAuthContext().catch(() => null);
-  const host = new URL(env.appUrl).hostname;
   const developerApiEnabled = await isDeveloperApiEnabled();
   const faq = developerApiEnabled
     ? FAQ
@@ -86,10 +86,23 @@ export default async function PublicSupportPage() {
               <SectionHeader title="Get in touch" />
               <div className="space-y-2">
                 <Button asChild variant="brand" className="w-full justify-start">
-                  <a href={`mailto:support@${host}?subject=QR%20ALTRIX%20support`}>
+                  <a href={`mailto:${SUPPORT_EMAIL}?subject=QR%20ALTRIX%20support`}>
                     <Mail /> Email support
                   </a>
                 </Button>
+                <Button asChild variant="outline" className="w-full justify-start">
+                  <a href={supportWhatsApp('Hi, I need help with QR ALTRIX.')} target="_blank" rel="noopener noreferrer">
+                    <MessageCircle /> WhatsApp {SUPPORT_PHONE_DISPLAY}
+                  </a>
+                </Button>
+                <Button asChild variant="outline" className="w-full justify-start">
+                  <a href={SUPPORT_TEL}>
+                    <Phone /> Call {SUPPORT_PHONE_DISPLAY}
+                  </a>
+                </Button>
+                <p className="px-1 text-[12.5px] text-muted-foreground">
+                  Email: <a className="underline" href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a> · the same number takes SMS.
+                </p>
                 <Button asChild variant="outline" className="w-full justify-start">
                   <Link href="/report-abuse">
                     <Flag /> Report a harmful QR code

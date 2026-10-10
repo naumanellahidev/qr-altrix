@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import {
-  BookOpen, Bug, ExternalLink, Flag, Infinity as InfinityIcon, LifeBuoy, Mail, Server, ShieldCheck,
+  BookOpen, Bug, ExternalLink, Flag, Infinity as InfinityIcon, LifeBuoy, Mail, MessageCircle, Phone, Server, ShieldCheck,
 } from 'lucide-react';
 import { env } from '@/lib/env';
 import { requireAuth } from '@/lib/auth';
@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/misc';
 import { CopyField } from '@/components/ui/copy-button';
 import { isDeveloperApiEnabled } from '@/lib/settings';
+import { SUPPORT_EMAIL, SUPPORT_PHONE_DISPLAY, SUPPORT_TEL, supportWhatsApp } from '@/lib/contact';
 
 export const metadata: Metadata = { title: 'Contact & support' };
 export const dynamic = 'force-dynamic';
@@ -77,13 +78,27 @@ export default async function SupportPage() {
             <div className="flex flex-wrap gap-2">
               <Button asChild variant="brand">
                 <a
-                  href={`mailto:support@${new URL(env.appUrl).hostname}?subject=${encodeURIComponent(
+                  href={`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(
                     'QR ALTRIX support request',
                   )}&body=${encodeURIComponent(
                     `Workspace: ${auth.workspace.name}\nAccount: ${auth.user.email}\n\nWhat happened:\n`,
                   )}`}
                 >
                   <Mail /> Email support
+                </a>
+              </Button>
+              <Button asChild variant="outline">
+                <a
+                  href={supportWhatsApp(`Hi, I need help with QR ALTRIX. Workspace: ${auth.workspace.name}`)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <MessageCircle /> WhatsApp {SUPPORT_PHONE_DISPLAY}
+                </a>
+              </Button>
+              <Button asChild variant="outline">
+                <a href={SUPPORT_TEL}>
+                  <Phone /> Call
                 </a>
               </Button>
               <Button asChild variant="outline">

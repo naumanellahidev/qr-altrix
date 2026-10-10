@@ -8,6 +8,7 @@ import { pageMeta } from '@/lib/seo/meta';
 import { JsonLd } from '@/components/seo/json-ld';
 import { breadcrumbSchema, graph } from '@/lib/seo/schema';
 import { isDeveloperApiEnabled } from '@/lib/settings';
+import { SUPPORT_EMAIL, SUPPORT_PHONE_DISPLAY } from '@/lib/contact';
 
 export const metadata: Metadata = pageMeta({
   path: '/legal/terms',
@@ -92,6 +93,12 @@ export default async function TermsPage() {
               heading: 'Changes',
               body: [
                 'These terms may change as the service changes. Material changes will be announced in the dashboard. Continuing to use the service after a change means you accept it.',
+              ],
+            },
+            {
+              heading: 'Contact',
+              body: [
+                `Questions about these terms, an account or a code: email ${SUPPORT_EMAIL}, or call / WhatsApp ${SUPPORT_PHONE_DISPLAY}.`,
               ],
             },
           ]}

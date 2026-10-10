@@ -9,6 +9,7 @@ import { pageMeta } from '@/lib/seo/meta';
 import { JsonLd } from '@/components/seo/json-ld';
 import { breadcrumbSchema, graph } from '@/lib/seo/schema';
 import { isDeveloperApiEnabled } from '@/lib/settings';
+import { SUPPORT_EMAIL, SUPPORT_PHONE_DISPLAY } from '@/lib/contact';
 
 export const metadata: Metadata = pageMeta({
   path: '/legal/privacy',
@@ -86,7 +87,7 @@ export default async function PrivacyPage() {
               heading: 'Your rights',
               body: [
                 'You can see and correct your own data in Settings, export analytics to CSV or XLSX, and delete your account at any time.',
-                'If you scanned a code and want the record removed, contact the operator of this install; because IPs are hashed, you will need to describe the scan (code, approximate time) so they can locate it.',
+                `If you scanned a code and want the record removed, contact the operator of this install (${SUPPORT_EMAIL}, or call / WhatsApp ${SUPPORT_PHONE_DISPLAY}); because IPs are hashed, you will need to describe the scan (code, approximate time) so they can locate it.`,
               ],
             },
             {
