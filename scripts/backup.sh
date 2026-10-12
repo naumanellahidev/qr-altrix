@@ -11,6 +11,8 @@
 # A dynamic QR code is only as permanent as its database row — take these seriously.
 # ---------------------------------------------------------------------------
 set -euo pipefail
+# Dumps hold user data and password hashes: only the owner may read them.
+umask 077
 
 cd "$(dirname "$0")/.."
 
