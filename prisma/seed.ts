@@ -16,6 +16,11 @@ import { createHmac, randomBytes } from 'node:crypto';
 const prisma = new PrismaClient();
 
 const DEMO_EMAIL = process.env.SEED_ADMIN_EMAIL ?? 'admin@qraltrix.local';
+// The seed makes a platform admin. A default password is only for local development;
+// in production it must be given, or the seed refuses (security audit, 12 Oct 2026).
+if (process.env.NODE_ENV === 'production' && !process.env.SEED_ADMIN_PASSWORD) {
+  throw new Error('SEED_ADMIN_PASSWORD is required to seed in production (no default admin password).');
+}
 const DEMO_PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? 'altrix1234';
 const SHORT_BASE = (process.env.SHORT_URL_BASE ?? process.env.APP_URL ?? 'http://localhost:3000').replace(/\/+$/, '');
 
