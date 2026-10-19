@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Building2 } from 'lucide-react';
+import { Building2 } from "@/components/admin-icons";
 import { prisma } from '@/lib/db';
 import { requirePlatformAdmin } from '@/lib/auth';
 import { bytesToSize, compactNumber } from '@/lib/utils';

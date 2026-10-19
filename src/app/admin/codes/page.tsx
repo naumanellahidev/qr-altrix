@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { QrCode } from 'lucide-react';
+import { QrCode } from "@/components/admin-icons";
 import { prisma } from '@/lib/db';
 import { requirePlatformAdmin } from '@/lib/auth';
 import { encodedPayloadFor } from '@/lib/qr/service';

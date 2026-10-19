@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { Ban, Check, MoreHorizontal, Power, ShieldAlert, ShieldCheck, Undo2 } from 'lucide-react';
+import { Ban, Check, MoreHorizontal, Power, ShieldAlert, ShieldCheck, Undo2 } from "@/components/admin-icons";
 import { Button } from '@/components/ui/button';
 import { Input, Textarea } from '@/components/ui/input';
 import { Field } from '@/components/ui/label';

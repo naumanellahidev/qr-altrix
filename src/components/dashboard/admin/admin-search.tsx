@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Search } from 'lucide-react';
+import { Search } from "@/components/admin-icons";
 import { Input } from '@/components/ui/input';
 
 /** Debounced search box that drives admin list pages through the URL. */

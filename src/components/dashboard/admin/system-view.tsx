@@ -3,7 +3,7 @@
 import * as React from 'react';
 import {
   Activity, CheckCircle2, Database, HardDrive, Layers, Mail, PlayCircle, RefreshCw, Server, XCircle,
-} from 'lucide-react';
+} from "@/components/admin-icons";
 import { bytesToSize, formatNumber } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -88,7 +88,7 @@ export function SystemView({ initial }: { initial: HealthPayload }) {
   const queue = health.queue;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-3">
       <div className="flex flex-wrap justify-end gap-2">
         <Button variant="outline" loading={loading} onClick={() => void refresh()}>
           <RefreshCw /> Refresh
@@ -149,8 +149,8 @@ export function SystemView({ initial }: { initial: HealthPayload }) {
         </Alert>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <Card className="scroll-mt-20 p-5" id="system-queue">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+        <Card className="scroll-mt-20 p-4" id="system-queue">
           <SectionHeader title="Background queue" description="Scan logging, bulk imports, webhooks and housekeeping." />
           {queue?.enabled ? (
             <ul className="space-y-2 text-[13px]">
@@ -175,7 +175,7 @@ export function SystemView({ initial }: { initial: HealthPayload }) {
           )}
         </Card>
 
-        <Card className="scroll-mt-20 p-5" id="system-config">
+        <Card className="scroll-mt-20 p-4" id="system-config">
           <SectionHeader title="Configuration" description="Read from the environment at runtime." />
           <ul className="space-y-2 text-[13px]">
             <li className="flex items-center justify-between gap-3">
@@ -220,7 +220,7 @@ export function SystemView({ initial }: { initial: HealthPayload }) {
         </Card>
       </div>
 
-      <Card className="scroll-mt-20 p-5" id="system-backups">
+      <Card className="scroll-mt-20 p-4" id="system-backups">
         <SectionHeader
           title="Backups"
           description="Taken on the host by scripts/backup.sh — the app only reads the directory."
@@ -291,7 +291,7 @@ export function SystemView({ initial }: { initial: HealthPayload }) {
         </p>
       </Card>
 
-      <Card className="p-5">
+      <Card className="p-4">
         <SectionHeader
           title="What housekeeping does"
           description="Safe to run at any time; it never touches QR codes."

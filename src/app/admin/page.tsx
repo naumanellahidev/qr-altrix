@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import {
   Activity, Building2, Flag, HardDrive, Infinity as InfinityIcon, MousePointerClick, QrCode, Users,
-} from 'lucide-react';
+} from "@/components/admin-icons";
 import { prisma } from '@/lib/db';
 import { requirePlatformAdmin } from '@/lib/auth';
 import { compactNumber, formatNumber } from '@/lib/utils';
@@ -112,8 +112,8 @@ export default async function AdminOverview() {
         />
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <Card className="p-5">
+      <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
+        <Card className="p-4">
           <SectionHeader
             title="Newest accounts"
             actions={
@@ -149,7 +149,7 @@ export default async function AdminOverview() {
           </ul>
         </Card>
 
-        <Card className="p-5">
+        <Card className="p-4">
           <SectionHeader
             title="Busiest workspaces"
             actions={
@@ -182,7 +182,7 @@ export default async function AdminOverview() {
         </Card>
       </div>
 
-      <Card className="mt-5 border-success/25 bg-success/8 p-5">
+      <Card className="mt-5 border-success/25 bg-success/8 p-4">
         <p className="flex items-center gap-2 text-[13.5px] font-semibold text-success-text">
           <InfinityIcon className="size-4" /> Expiry is not a lever you have
         </p>

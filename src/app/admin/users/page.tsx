@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Search } from 'lucide-react';
+import { Search } from "@/components/admin-icons";
 import { prisma } from '@/lib/db';
 import { requirePlatformAdmin } from '@/lib/auth';
 import { PageHeader } from '@/components/ui/page-header';

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ADMIN_NAV } from '@/components/dashboard/nav';
-import { NavIcon } from '@/components/dashboard/nav-icon';
+import { AdminIcon } from '@/components/dashboard/admin/admin-rail';
 import { cn } from '@/lib/utils';
 
 export function AdminNav() {
@@ -26,7 +26,7 @@ export function AdminNav() {
                     : 'text-muted-foreground hover:bg-surface-muted hover:text-foreground',
                 )}
               >
-                <NavIcon name={item.icon} className="size-4" />
+                <AdminIcon name={item.icon} className="size-4" />
                 {item.label}
               </Link>
             </li>

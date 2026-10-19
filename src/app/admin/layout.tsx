@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowLeft, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, ShieldAlert } from '@/components/admin-icons';
 import { requirePlatformAdmin } from '@/lib/auth';
 import { BrandLogo } from '@/components/brand';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Badge } from '@/components/ui/badge';
 import { AdminNav } from '@/components/dashboard/admin/admin-nav';
+import { AdminRail } from '@/components/dashboard/admin/admin-rail';
 
 export const metadata: Metadata = {
   title: { default: 'Admin', template: '%s · QR ALTRIX admin' },
@@ -20,7 +21,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="min-h-dvh bg-background">
       <header className="sticky top-0 z-30 border-b border-destructive/20 bg-destructive/5 backdrop-blur-md">
-        <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-3 px-4 sm:px-6">
+        <div className="flex h-14 items-center gap-3 px-3 sm:px-5">
           <BrandLogo href="/dashboard" compact size={26} />
           <Badge variant="destructive">
             <ShieldAlert className="size-3" /> Platform admin
@@ -40,10 +41,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
       </header>
 
-      <div className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6">
-        <AdminNav />
-        <main className="mt-5">{children}</main>
-      </div>
+      {/* Desktop: the side rail navigates (AdminRail); phones keep the pills under the header. */}
+      <AdminRail>
+        <div className="mx-auto max-w-[1600px] px-3 py-4 sm:px-4 lg:pl-0 lg:pr-5">
+          <div className="lg:hidden">
+            <AdminNav />
+          </div>
+          <main className="mt-3 lg:mt-0">{children}</main>
+        </div>
+      </AdminRail>
     </div>
   );
 }

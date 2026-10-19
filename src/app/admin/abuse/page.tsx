@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Flag, ShieldCheck } from 'lucide-react';
+import { Flag, ShieldCheck } from "@/components/admin-icons";
 import { Prisma, type AbuseStatus } from '@prisma/client';
 import { prisma } from '@/lib/db';
 import { requirePlatformAdmin } from '@/lib/auth';
@@ -91,7 +91,7 @@ export default async function AdminAbusePage({
           {reports.map((report) => {
             const destination = (report.qrCode?.content as Record<string, unknown> | undefined)?.url;
             return (
-              <Card key={report.id} className="p-5">
+              <Card key={report.id} className="p-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="flex flex-wrap items-center gap-2">

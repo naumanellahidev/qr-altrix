@@ -7,7 +7,7 @@ import {
 } from 'recharts';
 import {
   Activity, Building2, Download, Globe2, MonitorSmartphone, QrCode, RefreshCw, Repeat, Users,
-} from 'lucide-react';
+} from "@/components/admin-icons";
 import { countryFlag, countryName, deviceLabel } from '@/lib/viz/labels';
 import { useVizPalette } from '@/lib/viz/palette';
 import { cn, formatNumber } from '@/lib/utils';
@@ -167,7 +167,7 @@ export function AdminLiveAnalytics() {
   const rangeLabel = RANGES.find((item) => item.key === rangeKey)?.label ?? '';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* ------------------------------------------------------------ live */}
       <LiveScanPanel
         live={live}
@@ -242,9 +242,9 @@ export function AdminLiveAnalytics() {
         </Card>
 
         {error ? (
-          <Card className="p-5 text-[13px] text-destructive">{error}</Card>
+          <Card className="p-4 text-[13px] text-destructive">{error}</Card>
         ) : !report ? (
-          <Card className="p-10">
+          <Card className="p-6">
             <InlineLoader label="Loading the report" />
           </Card>
         ) : (
@@ -279,7 +279,7 @@ export function AdminLiveAnalytics() {
               />
             ) : (
               <>
-                <Card className="scroll-mt-20 p-4 sm:p-5" id="admin-report-series">
+                <Card className="scroll-mt-20 p-4 sm:p-4" id="admin-report-series">
                   <SectionHeader title="Scans over time" description={`Total and unique scans · ${rangeLabel}`} />
                   <div className="h-56 sm:h-72">
                     <ResponsiveContainer width="100%" height="100%">
@@ -305,7 +305,7 @@ export function AdminLiveAnalytics() {
                 </Card>
 
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                  <Card className="scroll-mt-20 p-4 sm:p-5" id="admin-report-codes">
+                  <Card className="scroll-mt-20 p-4 sm:p-4" id="admin-report-codes">
                     <SectionHeader title="Top QR codes" description="Most scanned across the platform" />
                     <ol className="space-y-2">
                       {report.topCodesDetailed.map((code, index) => (
@@ -328,7 +328,7 @@ export function AdminLiveAnalytics() {
                     </ol>
                   </Card>
 
-                  <Card className="scroll-mt-20 p-4 sm:p-5" id="admin-report-workspaces">
+                  <Card className="scroll-mt-20 p-4 sm:p-4" id="admin-report-workspaces">
                     <SectionHeader title="Top workspaces" description="Where the scans come from" />
                     <ol className="space-y-2">
                       {report.topWorkspaces.map((workspace, index) => (
@@ -347,7 +347,7 @@ export function AdminLiveAnalytics() {
                   </Card>
                 </div>
 
-                <Card className="scroll-mt-20 p-4 sm:p-5" id="admin-report-heatmap">
+                <Card className="scroll-mt-20 p-4 sm:p-4" id="admin-report-heatmap">
                   <SectionHeader title="Busiest days and hours" description="Scans by weekday and hour, in your time zone" />
                   <Heatmap data={report.heatmap} color={palette.categorical[0]} empty={palette.grid} />
                 </Card>
@@ -396,7 +396,7 @@ function BreakdownCard({
   color: string;
 }) {
   return (
-    <Card className="p-4 sm:p-5">
+    <Card className="p-4 sm:p-4">
       <p className="mb-3 flex items-center gap-2 text-[13.5px] font-semibold [&_svg]:size-4 [&_svg]:text-muted-foreground">
         {icon}
         {title}

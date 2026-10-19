@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import {
   CalendarClock, Infinity as InfinityIcon, KeyRound, Plus, Save, ShieldAlert, ShieldCheck, X,
-} from 'lucide-react';
+} from "@/components/admin-icons";
 import type { PlatformSettings } from '@/lib/settings';
 import { summarizeExpiryPolicy } from '@/lib/qr/expiry';
 import { Button } from '@/components/ui/button';
@@ -52,7 +52,7 @@ export function PlatformSettingsForm({ initial }: { initial: PlatformSettings })
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-3">
       {form.expiryEnabled ? (
         <Alert tone="warning" title="Expiry is switched ON for this install">
           <span className="flex items-start gap-2">
@@ -77,12 +77,12 @@ export function PlatformSettingsForm({ initial }: { initial: PlatformSettings })
         </Alert>
       )}
 
-      <Card className="p-5">
+      <Card className="p-4">
         <SectionHeader
           title="Credit line on QR codes"
           description="A short line printed under every code this install renders — previews and every download format. It sits outside the code's quiet zone, so it never affects scanning."
         />
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-[minmax(0,1fr)_200px] md:items-start">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_200px] md:items-start">
           <div className="space-y-4">
             <SwitchRow
               label="Print the credit line"
@@ -107,7 +107,7 @@ export function PlatformSettingsForm({ initial }: { initial: PlatformSettings })
         </div>
       </Card>
 
-      <Card className="p-5">
+      <Card className="p-4">
         <SectionHeader title="Sign-ups and access" />
         <div className="space-y-4">
           <SwitchRow
@@ -131,7 +131,7 @@ export function PlatformSettingsForm({ initial }: { initial: PlatformSettings })
         </div>
       </Card>
 
-      <Card className="p-5">
+      <Card className="p-4">
         <SectionHeader
           title="Developer API"
           description="API keys, webhooks and the public API docs. Off by default."
@@ -149,7 +149,7 @@ export function PlatformSettingsForm({ initial }: { initial: PlatformSettings })
       </Card>
 
       {/* ------------------------------------------------------------- expiry */}
-      <Card className={form.expiryEnabled ? 'border-warning/35 p-5' : 'p-5'}>
+      <Card className={form.expiryEnabled ? 'border-warning/35 p-4' : 'p-4'}>
         <SectionHeader
           title="Expiry policy"
           description="You decide whether QR codes on this install have a lifetime. Off by default."
@@ -229,7 +229,7 @@ export function PlatformSettingsForm({ initial }: { initial: PlatformSettings })
       </Card>
 
       {/* ----------------------------------------------------------- security */}
-      <Card className="p-5">
+      <Card className="p-4">
         <SectionHeader
           title="Login and admin security"
           description="Applies to every account on this install, including yours."
@@ -283,7 +283,7 @@ export function PlatformSettingsForm({ initial }: { initial: PlatformSettings })
         </div>
       </Card>
 
-      <Card className="p-5">
+      <Card className="p-4">
         <SectionHeader title="Privacy and retention" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field
@@ -319,7 +319,7 @@ export function PlatformSettingsForm({ initial }: { initial: PlatformSettings })
         </div>
       </Card>
 
-      <Card className="p-5">
+      <Card className="p-4">
         <SectionHeader title="Abuse protection" description="Limits are per minute, per key or per IP address." />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Field label="API requests / minute">
@@ -413,7 +413,7 @@ export function PlatformSettingsForm({ initial }: { initial: PlatformSettings })
         </div>
       </Card>
 
-      <Card className="p-5">
+      <Card className="p-4">
         <SectionHeader
           title="Dashboard notice"
           description="Shown as a banner to every signed-in user. Leave empty for none."
