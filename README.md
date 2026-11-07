@@ -434,3 +434,22 @@ Self-hosted software; adapt it for your own deployment. “QR Code” is a regis
 trademark of Denso Wave Incorporated. QR ALTRIX is an independent project with its own
 branding, copy, assets and implementation, and is not affiliated with any other QR
 service.
+
+---
+
+## Search content (English) and AdSense
+
+- **Pages:** `/answers/*` (quick answers), `/guides/*` (long guides, next to the 4 translated
+  ones) and `/qr-code-for/*` (long-tail pages with the generator open on the right type).
+  Content lives in `src/content/seo/*.ts`; paragraphs may contain `[words](/path)` internal links.
+- **Check after editing:** `npx tsx --tsconfig tsconfig.json scripts/seo/check-content.ts`
+  (broken links, duplicate slugs, title/description lengths).
+- **SEO/AEO:** every page has a Quick answer box, Article (with `abstract` and `speakable`),
+  FAQPage and BreadcrumbList schema, is in the sitemap, and appears in `/llms.txt`
+  (links) and `/llms-full.txt` (full answers). Bump `SEO_UPDATED` in `src/content/seo/index.ts`
+  when the words change.
+- **Honest claims:** pages that say dynamic codes do not expire or that downloads need no
+  sign-up are withdrawn automatically if the operator changes those settings (`docAllowed`).
+- **Keyword research:** `node scripts/seo/suggest.mjs` (Google Autocomplete; `GL=gb` for the UK).
+- **AdSense:** set `ADSENSE_CLIENT` (and optionally `ADSENSE_SLOT_TOP/MID/END`) in the server
+  `.env` and restart; `/ads.txt` updates automatically. Slots reserve their height, so no layout shift.

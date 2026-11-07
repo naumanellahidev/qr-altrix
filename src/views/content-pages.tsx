@@ -22,7 +22,7 @@ function firstSentence(text: string): string {
   return (match ? match[0] : text).trim();
 }
 
-function PageIntro({ h1, intro }: { h1: string; intro: string }) {
+export function PageIntro({ h1, intro }: { h1: string; intro: string }) {
   return (
     <div className="max-w-3xl">
       <h1 className="font-display text-[30px] font-bold leading-[1.1] tracking-[-0.03em] sm:text-[42px]">{h1}</h1>
@@ -31,7 +31,7 @@ function PageIntro({ h1, intro }: { h1: string; intro: string }) {
   );
 }
 
-function TypeLinkCard({ locale, typeKey }: { locale: Locale; typeKey: TypeKey }) {
+export function TypeLinkCard({ locale, typeKey }: { locale: Locale; typeKey: TypeKey }) {
   const def = getTypeDef(typeKey);
   const copy = getContent(locale).types[typeKey];
   return (
@@ -196,7 +196,7 @@ export function guidesHubMeta(locale: Locale): Metadata {
   return meta(locale, '/guides', hubs.guidesTitle, hubs.guidesDescription);
 }
 
-export function GuidesHub({ locale }: { locale: Locale }) {
+export function GuidesHub({ locale, children }: { locale: Locale; children?: React.ReactNode }) {
   const content = getContent(locale);
   const { ui } = content;
   return (
@@ -225,6 +225,7 @@ export function GuidesHub({ locale }: { locale: Locale }) {
             );
           })}
         </div>
+        {children}
       </div>
     </MarketingShell>
   );

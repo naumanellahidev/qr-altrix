@@ -3,6 +3,23 @@ import { ENGLISH_ROUTES } from '@/lib/seo/routes';
 import { TYPE_KEYS, TYPE_SLUGS, USE_CASES, GUIDES } from '@/content/registry';
 import en from '@/content/locales/en';
 import { LOCALES } from '@/i18n/locales';
+import { SEO_KINDS, seoDocs, seoPath } from '@/content/seo';
+import type { SeoKind } from '@/content/seo/types';
+
+const plainText = (text: string) => text.replace(/\[([^\]]+)\]\((\/[^)\s]*)\)/g, '$1');
+
+/** The English answers, guides and QR-code-for pages: links (llms.txt) or full answers (llms-full.txt). */
+function seoSections(f: LlmsFacts, full: boolean): string[] {
+  return (['answers', 'guides', 'for'] as SeoKind[]).flatMap((kind) => [
+    `## ${SEO_KINDS[kind].name}`,
+    ``,
+    ...seoDocs(kind, { expiryEnabled: f.expiryEnabled, guestDownload: f.guestStaticDownload }).flatMap((doc) => {
+      const url = `${f.baseUrl}${seoPath(kind, doc.slug)}`;
+      return full ? [`### ${doc.h1}`, ``, `${plainText(doc.answer)} Source: ${url}`, ``] : [`- [${doc.h1}](${url}): ${doc.description}`];
+    }),
+    ``,
+  ]);
+}
 
 /**
  * /llms.txt and /llms-full.txt: a plain-text briefing for AI assistants and answer
@@ -123,7 +140,7 @@ const MAIN_PAGES = [
 
 function pageLinks(f: LlmsFacts): string[] {
   const routes = [...MAIN_PAGES.map((path) => ({ path })), ...ENGLISH_ROUTES].filter(
-    (route) => f.developerApi || route.path !== '/developers',
+    (route) => (f.developerApi || route.path !== '/developers') && (MAIN_PAGES.includes(route.path) || route.path in PAGE_NOTES),
   );
   return routes.map((route) => {
     const info = PAGE_NOTES[route.path] ?? { title: route.path, note: '' };
@@ -158,6 +175,7 @@ export function buildLlmsTxt(f: LlmsFacts): string {
     ``,
     ...pageLinks(f),
     ``,
+    ...seoSections(f, false),
     ...(f.developerApi
       ? [
           `## API`,
@@ -244,5 +262,6 @@ export function buildLlmsFullTxt(f: LlmsFacts): string {
     `## Frequently asked questions`,
     ``,
     ...faqs.flatMap(([q, a]) => [`### ${q}`, ``, a, ``]),
+    ...seoSections(f, true),
   ].join('\n');
 }

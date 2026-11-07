@@ -36,6 +36,8 @@ export async function SiteFooter({ locale = DEFAULT_LOCALE, path = '/' }: { loca
       title: f.resources,
       links: [
         { href: lp('/guides'), label: ui.nav.guides },
+        { href: '/answers', label: 'QR code answers' },
+        { href: '/qr-code-for', label: 'QR code ideas' },
         { href: lp('/best-free-qr-code-generator'), label: f.compare },
         { href: `${lp('/')}#faq`, label: ui.nav.faq },
         ...(developerApiEnabled ? [{ href: '/developers', label: f.developers }] : []),

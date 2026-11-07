@@ -9,6 +9,7 @@ import { breadcrumbSchema, graph } from '@/lib/seo/schema';
 import { env } from '@/lib/env';
 import type { Faq } from '@/content/schema';
 import { isDeveloperApiEnabled } from '@/lib/settings';
+import { AdsenseScript } from '@/components/ads/ads';
 
 /** Header + footer for a translated marketing page, with the language switcher wired to `path`. */
 export async function MarketingShell({
@@ -34,6 +35,7 @@ export async function MarketingShell({
       <SiteHeader signedIn={Boolean(auth)} nav={ui.nav} home={localePath(locale, '/')} languages={languages} showApi={showApi} />
       <main className="flex-1">{children}</main>
       <SiteFooter locale={locale} path={path} />
+      <AdsenseScript />
     </div>
   );
 }

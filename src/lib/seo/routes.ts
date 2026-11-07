@@ -1,3 +1,4 @@
+import { SEO_KINDS, SEO_UPDATED, allSeoDocs, seoPath } from '@/content/seo';
 import { CONTENT_UPDATED, GUIDES, TYPE_KEYS, TYPE_SLUGS, USE_CASES } from '@/content/registry';
 
 /**
@@ -24,6 +25,10 @@ export const ENGLISH_ROUTES: PublicRoute[] = [
   { path: '/report-abuse', updated: '2026-10-03' },
   { path: '/legal/terms', updated: '2026-10-03' },
   { path: '/legal/privacy', updated: '2026-10-03' },
+  // English-only search content: hubs and every answer, long guide and QR-code-for page.
+  { path: SEO_KINDS.answers.path, updated: SEO_UPDATED },
+  { path: SEO_KINDS.for.path, updated: SEO_UPDATED },
+  ...allSeoDocs().map((doc) => ({ path: seoPath(doc.kind, doc.slug), updated: SEO_UPDATED })),
 ];
 
 export function localizedRoutes(): PublicRoute[] {

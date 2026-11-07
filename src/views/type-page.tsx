@@ -10,6 +10,32 @@ import { MaskIcon } from '@/components/ui/mask-icon';
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumbs, FaqSection, MarketingShell } from '@/views/marketing-shell';
 import { GeneratorSection } from '@/views/generator-section';
+import { Ad } from '@/components/ads/ads';
+import { allSeoDocs, seoPath } from '@/content/seo';
+import { seoGate } from '@/lib/seo/gate';
+import type { TypeKey } from '@/content/schema';
+
+/** English answers, guides and "QR code for" pages about this type (internal links into the search content). */
+async function RelatedSeoLinks({ typeKey }: { typeKey: TypeKey }) {
+  const docs = allSeoDocs(await seoGate()).filter((doc) => doc.type === typeKey).slice(0, 10);
+  if (docs.length === 0) return null;
+  return (
+    <section>
+      <h2 className="mb-4 font-display text-[20px] font-bold tracking-[-0.02em]">Ideas and guides</h2>
+      <div className="grid gap-2 sm:grid-cols-2">
+        {docs.map((doc) => (
+          <Link
+            key={`${doc.kind}-${doc.slug}`}
+            href={seoPath(doc.kind, doc.slug)}
+            className="flex min-h-11 items-center rounded-xl border border-border bg-card px-4 py-2.5 text-[14px] font-medium transition-colors hover:border-primary/40 hover:text-primary"
+          >
+            {doc.kind === 'for' ? `QR code for ${doc.name}` : doc.name}
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
 
 export function typePageParams() {
   return TYPE_KEYS.map((key) => ({ type: TYPE_SLUGS[key] }));
@@ -111,6 +137,8 @@ export async function TypePage({ locale, slug }: { locale: Locale; slug: string 
           </section>
 
           <FaqSection heading={ui.common.faqHeading} faqs={copy.faqs} />
+          <Ad position="end" />
+          {locale === 'en' && <RelatedSeoLinks typeKey={key} />}
         </div>
 
         <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
