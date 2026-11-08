@@ -6,6 +6,7 @@ import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
 import { LazyToaster } from '@/components/ui/lazy-toaster';
 import { env } from '@/lib/env';
+import { adsenseClient } from '@/components/ads/ads';
 
 // Fonts are downloaded at build time and served from this domain (the Google Fonts
 // stylesheet they replace was a render-blocking request to another host). They are
@@ -46,6 +47,8 @@ export const metadata: Metadata = {
     other: {
       ...(siteToken(process.env.BING_SITE_VERIFICATION) ? { 'msvalidate.01': siteToken(process.env.BING_SITE_VERIFICATION)! } : {}),
       ...(siteToken(process.env.YANDEX_SITE_VERIFICATION) ? { 'yandex-verification': siteToken(process.env.YANDEX_SITE_VERIFICATION)! } : {}),
+      // AdSense site ownership (the script loads lazily, so the tag is the reliable signal).
+      ...(adsenseClient() ? { 'google-adsense-account': adsenseClient() } : {}),
     },
   },
   authors: [{ name: 'QR ALTRIX' }],
