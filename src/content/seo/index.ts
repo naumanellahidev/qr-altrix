@@ -5,15 +5,23 @@ import { GUIDE_ARTICLES } from '@/content/seo/guides';
 import { GUIDE_ARTICLES_2 } from '@/content/seo/guides-2';
 import { FOR_PAGES } from '@/content/seo/for-pages';
 import { FOR_PAGES_2 } from '@/content/seo/for-pages-2';
+import { FOR_EXTRA } from '@/content/seo/for-extra';
+import { FOR_EXTRA_2 } from '@/content/seo/for-extra-2';
 
 /** Date the words of the English search content last changed (sitemap <lastmod>, Article dates). */
-export const SEO_UPDATED = '2026-11-07';
+export const SEO_UPDATED = '2026-11-09';
 
 const DOCS: Record<SeoKind, SeoDoc[]> = {
   answers: [...ANSWERS, ...ANSWERS_2],
   guides: [...GUIDE_ARTICLES, ...GUIDE_ARTICLES_2],
-  for: [...FOR_PAGES, ...FOR_PAGES_2],
+  for: [...FOR_PAGES, ...FOR_PAGES_2].map(withExtra),
 };
+
+/** Adds each "QR code for" page's own setup steps, placement advice and FAQs. */
+function withExtra(doc: SeoDoc): SeoDoc {
+  const extra = FOR_EXTRA[doc.slug] ?? FOR_EXTRA_2[doc.slug];
+  return extra ? { ...doc, sections: [...doc.sections, ...extra.sections], faqs: [...doc.faqs, ...extra.faqs] } : doc;
+}
 
 export const SEO_KINDS: Record<SeoKind, { path: string; name: string; h1: string; title: string; description: string; intro: string }> = {
   answers: {

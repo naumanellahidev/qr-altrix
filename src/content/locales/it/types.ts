@@ -725,9 +725,9 @@ export const types: Record<TypeKey, TypePageCopy> = {
   },
   FEEDBACK: {
     title: 'Generatore di codici QR feedback gratis – Raccogli recensioni e voti',
-    description: 'Crea gratis un codice QR feedback che apre un breve modulo di valutazione. Ascolta i clienti sul momento e manda i più soddisfatti alla tua pagina di recensioni.',
+    description: 'Crea gratis un QR code per il feedback che apre un breve modulo di valutazione. Ascolta i clienti sul momento e invita tutti a lasciare una recensione pubblica.',
     h1: 'Generatore di codici QR modulo di feedback',
-    intro: 'Un codice QR feedback apre un breve modulo in cui i clienti valutano l’esperienza e lasciano un commento. Scopri i problemi quando puoi ancora risolverli, e i clienti soddisfatti possono proseguire lasciando una recensione pubblica.',
+    intro: 'Un QR code per il feedback apre un breve modulo in cui i clienti valutano la loro esperienza e lasciano un commento. Scopri i problemi quando puoi ancora risolverli, e ogni cliente riceve lo stesso link per lasciare una recensione pubblica.',
     uses: [
       'Tavoli di ristoranti, camere d’albergo e reception.',
       'Scontrini, bolle di consegna e confezioni.',
@@ -735,7 +735,7 @@ export const types: Record<TypeKey, TypePageCopy> = {
     ],
     steps: [
       'Scegli «Modulo di feedback» e scrivi la tua domanda.',
-      'Aggiungi il link alle recensioni pubbliche: le valutazioni da 4–5 stelle vengono inviate lì automaticamente.',
+      'Aggiungi il link alle recensioni pubbliche: tutti lo vedono, qualunque sia il voto.',
       'Scarica il codice e posizionalo dove avviene l’esperienza.',
     ],
     tips: [
@@ -745,7 +745,7 @@ export const types: Record<TypeKey, TypePageCopy> = {
     ],
     faqs: [
       { q: 'Dove vedo le risposte?', a: 'Nella pagina del codice nella dashboard, e tramite webhook se colleghi un altro strumento.' },
-      { q: 'Posso mandare i clienti soddisfatti alle recensioni Google?', a: 'Sì. Le valutazioni da 4 o 5 stelle vengono inoltrate al link di recensione che imposti.' },
+      { q: 'Posso mandare i clienti alle recensioni Google?', a: 'Sì. Chiunque risponda vede il tuo link alle recensioni. Google non consente di mandare alle recensioni solo i clienti soddisfatti, perciò il link non viene mai filtrato in base al voto.' },
       { q: 'È anonimo?', a: 'Sì, a meno che tu non scelga di chiedere un’e-mail. Non serve alcun account.' },
     ],
   },

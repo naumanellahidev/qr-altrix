@@ -51,20 +51,20 @@ export const useCases: Record<UseCaseSlug, UseCaseCopy> = {
   },
   'google-reviews': {
     title: 'Código QR para reseñas de Google – Consigue más reseñas gratis',
-    description: 'Crea gratis un código QR que lleva a tus clientes a tu página de reseñas de Google en un escaneo. O pide opinión primero y envía a los satisfechos a reseñar.',
+    description: 'Crea gratis un código QR que lleva a tus clientes a tu página de reseñas de Google con un escaneo, o pide primero su opinión y ofrece a todos el enlace de reseñas.',
     h1: 'Códigos QR para reseñas de Google',
     name: 'Reseñas de Google',
     intro: 'La mayoría de los clientes contentos dejarían una reseña si les llevara diez segundos. Un código QR de reseñas abre tu formulario al instante, en el momento en que están más satisfechos: en caja, en el tique o cuando llega su pedido.',
     benefits: [
       'Un escaneo hasta tu formulario de reseñas, sin buscar tu negocio.',
-      'Los códigos de opinión detectan problemas en privado y envían las valoraciones de 4–5 estrellas a reseñar.',
-      'Mide qué locales y qué personas generan más reseñas.',
+      'Los códigos de opiniones detectan problemas en privado y ofrecen a cada cliente el enlace de reseñas públicas.',
+      'Mide qué ubicaciones y emplazamientos generan más reseñas.',
       'Cambia el destino más adelante, por ejemplo a otra web de reseñas.',
     ],
     steps: [
       'Copia tu enlace de reseñas desde tu Perfil de Empresa de Google.',
-      'Crea con él un código dinámico de Redirección web, o un Formulario de opinión que reenvíe ahí las valoraciones de 4–5 estrellas.',
-      'Añade un marco «¿Te ha gustado? Déjanos una reseña».',
+      'Crea con él un código dinámico de redirección web, o un formulario de opiniones que muestre el enlace de reseñas a todos.',
+      'Añade un marco «¿Qué tal lo hicimos? Déjanos una reseña».',
       'Colócalo en mostradores, tiques, envases y tarjetas de agradecimiento.',
     ],
     faqs: [

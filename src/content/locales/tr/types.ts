@@ -725,9 +725,9 @@ export const types: Record<TypeKey, TypePageCopy> = {
   },
   FEEDBACK: {
     title: 'Ücretsiz Geri Bildirim QR Kod Oluşturucu – Yorum ve Puan Toplayın',
-    description: 'Kısa bir puanlama formu açan ücretsiz bir geri bildirim QR kodu oluşturun. Müşterilerinizi anında dinleyin ve memnun olanları yorum sayfanıza yönlendirin.',
+    description: 'Kısa bir puanlama formu açan ücretsiz bir geri bildirim QR kodu oluşturun. Müşterileri yerinde dinleyin ve tüm müşterileri herkese açık yorum bırakmaya davet edin.',
     h1: 'Geri bildirim formu QR kod oluşturucu',
-    intro: 'Geri bildirim QR kodu, müşterilerin deneyimlerini puanladığı ve yorum bıraktığı kısa bir form açar. Sorunları hâlâ düzeltebilecekken öğrenirsiniz ve memnun müşteriler herkese açık bir yorum bırakmaya yönlendirilebilir.',
+    intro: 'Geri bildirim QR kodu, müşterilerin deneyimlerini puanlayıp yorum bıraktığı kısa bir form açar. Sorunları hâlâ düzeltebilecekken öğrenirsiniz ve her müşteriye herkese açık yorum için aynı bağlantı sunulur.',
     uses: [
       'Restoran masaları, otel odaları ve resepsiyon masaları.',
       'Fişler, irsaliyeler ve ambalajlar.',
@@ -735,7 +735,7 @@ export const types: Record<TypeKey, TypePageCopy> = {
     ],
     steps: [
       '“Geri bildirim formu”nu seçin ve sorunuzu yazın.',
-      'Herkese açık yorum bağlantınızı ekleyin: 4–5 yıldızlı puanlar otomatik olarak oraya gönderilir.',
+      'Herkese açık yorum bağlantınızı ekleyin: verilen puan ne olursa olsun herkes görür.',
       'Kodu indirin ve deneyimin yaşandığı yere koyun.',
     ],
     tips: [
@@ -745,7 +745,7 @@ export const types: Record<TypeKey, TypePageCopy> = {
     ],
     faqs: [
       { q: 'Yanıtları nerede görürüm?', a: 'Panelinizdeki kod sayfasında ve başka bir araç bağlarsanız webhook’lar aracılığıyla.' },
-      { q: 'Memnun müşterileri Google yorumlarına gönderebilir miyim?', a: 'Evet. 4 ya da 5 yıldızlı puanlar belirlediğiniz yorum bağlantısına iletilir.' },
+      { q: 'Müşterileri Google yorumlarına yönlendirebilir miyim?', a: 'Evet. Yanıt veren herkes yorum bağlantınızı görür. Google yalnızca memnun müşterilerin yorumlara yönlendirilmesine izin vermez; bu yüzden bağlantı asla puana göre filtrelenmez.' },
       { q: 'Anonim mi?', a: 'Evet, e-posta adresi istemeyi seçmediğiniz sürece. Hesap gerekmez.' },
     ],
   },

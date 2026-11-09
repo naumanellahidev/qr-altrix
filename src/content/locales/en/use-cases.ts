@@ -51,20 +51,20 @@ export const useCases: Record<UseCaseSlug, UseCaseCopy> = {
   },
   'google-reviews': {
     title: 'Google Review QR Code – Get More Reviews for Free',
-    description: 'Create a free QR code that takes customers to your Google review page in one scan. Or ask for feedback first and send happy customers on to review.',
+    description: 'Create a free QR code that takes customers to your Google review page in one scan, or ask for feedback first and offer everyone the review link.',
     h1: 'QR codes for Google reviews',
     name: 'Google reviews',
     intro: 'Most happy customers would leave a review — if it took ten seconds. A review QR code opens your review form straight away, at the moment they are happiest: at the till, on the receipt, or when their order arrives.',
     benefits: [
       'One scan to your review form — no searching for your business.',
-      'Feedback codes catch problems privately and send 4–5 star ratings on to review.',
-      'Measure which locations and staff bring the most reviews.',
+      'Feedback codes catch problems privately and offer every customer the public review link.',
+      'Measure which locations and placements bring the most reviews.',
       'Change the destination later, e.g. to a different review site.',
     ],
     steps: [
       'Copy your review link from your Google Business Profile.',
-      'Create a dynamic Website redirect code with it — or a Feedback form that forwards 4–5 star ratings there.',
-      'Add a “Loved it? Leave us a review” frame.',
+      'Create a dynamic Website redirect code with it — or a Feedback form that shows the review link to everyone.',
+      'Add a “How did we do? Leave us a review” frame.',
       'Place it on counters, receipts, packaging and thank-you cards.',
     ],
     faqs: [

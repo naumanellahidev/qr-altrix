@@ -253,7 +253,7 @@ export const phrases: Record<string, string> = {
   'Section name': 'Nama bagian',
   'Sections, dishes, prices and allergen notes — editable from your phone in seconds.': 'Bagian, hidangan, harga, dan info alergen — bisa diubah dari ponsel dalam hitungan detik.',
   'Security': 'Keamanan',
-  'Send 4–5 star ratings to': 'Kirim rating bintang 4–5 ke',
+  'Public review link (shown to everyone)': 'Tautan ulasan publik (terlihat oleh semua)',
   'Serial (21)': 'Nomor seri (21)',
   'Service': 'Layanan',
   'Services': 'Layanan',

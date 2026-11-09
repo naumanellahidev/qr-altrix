@@ -253,7 +253,7 @@ export const phrases: Record<string, string> = {
   'Section name': 'Bölüm adı',
   'Sections, dishes, prices and allergen notes — editable from your phone in seconds.': 'Bölümler, yemekler, fiyatlar ve alerjen notları — telefonunuzdan saniyeler içinde düzenlenebilir.',
   'Security': 'Güvenlik',
-  'Send 4–5 star ratings to': '4–5 yıldızlı puanları şuraya gönder',
+  'Public review link (shown to everyone)': 'Herkese açık yorum bağlantısı (herkes görür)',
   'Serial (21)': 'Seri no (21)',
   'Service': 'Hizmet',
   'Services': 'Hizmetler',

@@ -51,20 +51,20 @@ export const useCases: Record<UseCaseSlug, UseCaseCopy> = {
   },
   'google-reviews': {
     title: 'QR Code para avaliações no Google – Mais avaliações, grátis',
-    description: 'Crie grátis um QR code que leva o cliente à sua página de avaliações do Google em uma leitura. Ou peça a opinião antes e mande os satisfeitos avaliar.',
+    description: 'Crie grátis um QR code que leva os clientes à sua página de avaliações do Google com um escaneamento, ou peça feedback primeiro e ofereça o link de avaliação a todos.',
     h1: 'QR codes para avaliações no Google',
     name: 'Avaliações no Google',
     intro: 'A maioria dos clientes satisfeitos deixaria uma avaliação — se levasse dez segundos. Um QR code de avaliação abre seu formulário na hora, no momento em que estão mais felizes: no caixa, no recibo ou quando o pedido chega.',
     benefits: [
       'Uma leitura até seu formulário de avaliação — sem procurar sua empresa.',
-      'Códigos de opinião pegam problemas no privado e mandam notas 4–5 estrelas para avaliar.',
-      'Meça quais unidades e quais atendentes trazem mais avaliações.',
+      'Códigos de feedback captam problemas em particular e oferecem a todos os clientes o link de avaliações públicas.',
+      'Meça quais locais e posições trazem mais avaliações.',
       'Mude o destino depois, por exemplo para outro site de avaliações.',
     ],
     steps: [
       'Copie seu link de avaliação no Perfil da Empresa no Google.',
-      'Crie com ele um código dinâmico de Redirecionamento de site — ou um Formulário de opinião que encaminhe notas 4–5 estrelas para lá.',
-      'Adicione uma moldura “Gostou? Deixe sua avaliação”.',
+      'Crie com ele um código dinâmico de redirecionamento de site, ou um formulário de feedback que mostra o link de avaliações a todos.',
+      'Adicione uma moldura “Como nos saímos? Deixe uma avaliação”.',
       'Coloque em balcões, recibos, embalagens e cartões de agradecimento.',
     ],
     faqs: [

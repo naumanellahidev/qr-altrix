@@ -51,20 +51,20 @@ export const useCases: Record<UseCaseSlug, UseCaseCopy> = {
   },
   'google-reviews': {
     title: 'Kode QR Ulasan Google – Dapatkan Lebih Banyak Ulasan Gratis',
-    description: 'Buat kode QR gratis yang membawa pelanggan ke halaman ulasan Google Anda dengan sekali pindai. Atau minta masukan dulu dan arahkan yang puas untuk mengulas.',
+    description: 'Buat kode QR gratis yang membawa pelanggan ke halaman ulasan Google Anda dengan sekali pindai, atau minta masukan dulu lalu tawarkan tautan ulasan kepada semua orang.',
     h1: 'Kode QR untuk ulasan Google',
     name: 'Ulasan Google',
     intro: 'Sebagian besar pelanggan yang puas mau menulis ulasan — jika hanya butuh sepuluh detik. Kode QR ulasan langsung membuka formulir ulasan Anda, tepat saat mereka paling senang: di kasir, di struk, atau saat pesanan tiba.',
     benefits: [
       'Sekali pindai ke formulir ulasan — tanpa mencari nama usaha Anda.',
-      'Kode masukan menangkap masalah secara pribadi dan meneruskan rating 4–5 bintang ke ulasan.',
-      'Ukur cabang dan staf mana yang paling banyak mendatangkan ulasan.',
+      'Kode masukan menangkap masalah secara pribadi dan menawarkan tautan ulasan publik kepada setiap pelanggan.',
+      'Ukur lokasi dan penempatan mana yang menghasilkan ulasan terbanyak.',
       'Ubah tujuannya nanti, misalnya ke situs ulasan lain.',
     ],
     steps: [
       'Salin tautan ulasan dari Profil Bisnis Google Anda.',
-      'Buat kode Pengalihan situs web dinamis dengannya — atau Formulir masukan yang meneruskan rating 4–5 bintang ke sana.',
-      'Tambahkan bingkai “Suka? Beri kami ulasan”.',
+      'Buat kode Pengalihan situs web dinamis dengannya — atau formulir masukan yang menampilkan tautan ulasan kepada semua orang.',
+      'Tambahkan bingkai “Bagaimana layanan kami? Tulis ulasan”.',
       'Pasang di meja kasir, struk, kemasan, dan kartu terima kasih.',
     ],
     faqs: [

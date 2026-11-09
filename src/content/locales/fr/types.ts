@@ -725,9 +725,9 @@ export const types: Record<TypeKey, TypePageCopy> = {
   },
   FEEDBACK: {
     title: 'Générateur de QR code avis gratuit – Récoltez avis et notes',
-    description: 'Créez gratuitement un QR code avis qui ouvre un court formulaire de notation. Écoutez vos clients sur le moment et envoyez les plus satisfaits vers votre page d’avis.',
+    description: 'Créez gratuitement un QR code d’avis qui ouvre un court formulaire de notation. Recueillez l’avis des clients sur place et invitez chacun à laisser un avis public.',
     h1: 'Générateur de QR code formulaire d’avis',
-    intro: 'Un QR code avis ouvre un court formulaire où les clients notent leur expérience et laissent un commentaire. Vous découvrez les problèmes quand vous pouvez encore les régler, et les clients ravis peuvent ensuite laisser un avis public.',
+    intro: 'Un QR code d’avis ouvre un court formulaire où les clients notent leur expérience et laissent un commentaire. Vous découvrez les problèmes tant qu’il est encore temps de les régler, et chaque client reçoit le même lien pour laisser un avis public.',
     uses: [
       'Tables de restaurant, chambres d’hôtel et accueils.',
       'Tickets, bons de livraison et emballages.',
@@ -735,7 +735,7 @@ export const types: Record<TypeKey, TypePageCopy> = {
     ],
     steps: [
       'Choisissez « Formulaire d’avis » et rédigez votre question.',
-      'Ajoutez votre lien d’avis public : les notes de 4–5 étoiles y sont envoyées automatiquement.',
+      'Ajoutez votre lien d’avis publics : tout le monde le voit, quelle que soit la note.',
       'Téléchargez le code et placez-le là où se vit l’expérience.',
     ],
     tips: [
@@ -745,7 +745,7 @@ export const types: Record<TypeKey, TypePageCopy> = {
     ],
     faqs: [
       { q: 'Où voir les réponses ?', a: 'Sur la page du code dans votre tableau de bord, et via des webhooks si vous connectez un autre outil.' },
-      { q: 'Puis-je envoyer les clients ravis vers les avis Google ?', a: 'Oui. Les notes de 4 ou 5 étoiles sont redirigées vers le lien d’avis que vous définissez.' },
+      { q: 'Puis-je envoyer les clients vers les avis Google ?', a: 'Oui. Toute personne qui répond voit votre lien d’avis. Google n’autorise pas à n’envoyer que les clients satisfaits vers les avis : le lien n’est donc jamais filtré selon la note.' },
       { q: 'Est-ce anonyme ?', a: 'Oui, sauf si vous choisissez de demander une adresse e-mail. Aucun compte n’est nécessaire.' },
     ],
   },

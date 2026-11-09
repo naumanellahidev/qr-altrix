@@ -158,7 +158,7 @@ export const GUIDE_ARTICLES: SeoDoc[] = [
       },
       {
         h: 'Reviews and feedback',
-        list: ['Loved it? Scan to review us', 'Rate your visit in 30 seconds', 'Scan to leave a Google review', 'Help us improve: 3 quick questions'],
+        list: ['How did we do? Scan to review us', 'Rate your visit in 30 seconds', 'Scan to leave a Google review', 'Help us improve: 3 quick questions'],
         p: ['More in [how to get more Google reviews with QR codes](/guides/how-to-get-more-google-reviews-with-qr-codes).'],
       },
       {
@@ -199,10 +199,10 @@ export const GUIDE_ARTICLES: SeoDoc[] = [
     cat: 'business',
     type: 'WEBSITE',
     title: 'How to Get More Google Reviews With a QR Code',
-    description: 'Get your Google review link, turn it into a QR code, and place it where happy customers will scan it: counters, receipts, tables. Rules and examples.',
+    description: 'Get your Google review link, turn it into a QR code, and place it where customers will scan it: counters, receipts, tables. Rules and examples.',
     h1: 'How to get more Google reviews with a QR code',
     name: 'Google reviews with QR codes',
-    answer: 'Copy your review link from your Google Business Profile (“Ask for reviews” or “Get more reviews”), turn it into a dynamic QR code and print it where customers are happy and waiting: on the counter, the receipt, the table or the delivery bag. Scanning opens the review box directly, which removes the effort that stops most people from leaving a review.',
+    answer: 'Copy your review link from your Google Business Profile (“Ask for reviews” or “Get more reviews”), turn it into a dynamic QR code and print it where customers pause and wait: on the counter, the receipt, the table or the delivery bag. Scanning opens the review box directly, which removes the effort that stops most people from leaving a review.',
     sections: [
       {
         h: 'Step 1: get your Google review link',
@@ -216,13 +216,13 @@ export const GUIDE_ARTICLES: SeoDoc[] = [
         h: 'Step 2: make the QR code',
         steps: [
           'Paste the link into a [dynamic URL QR code](/qr-code-generator/dynamic-url). Dynamic means you can point the same print to a different page later and count scans.',
-          'Add a frame with “Loved it? Review us on Google”.',
+          'Add a frame with “How did we do? Review us on Google”.',
           'Download PDF or SVG for print.',
         ],
         p: ['Prefer a short survey first? Use a [feedback form QR code](/qr-code-generator/feedback-form) and link to Google from the thank-you message.'],
       },
       {
-        h: 'Step 3: put it where happy customers pause',
+        h: 'Step 3: put it where customers pause',
         list: [
           'Counter or till: a small acrylic stand at eye level.',
           'Receipts and invoices: printed at the bottom.',

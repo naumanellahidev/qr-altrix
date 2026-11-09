@@ -725,9 +725,9 @@ export const types: Record<TypeKey, TypePageCopy> = {
   },
   FEEDBACK: {
     title: 'Generador de códigos QR de opinión gratis – Reúne reseñas y valoraciones',
-    description: 'Crea gratis un código QR de opinión que abre un formulario breve de valoración. Escucha a tus clientes en el momento y envía a los satisfechos a tu página de reseñas.',
+    description: 'Crea gratis un código QR de opiniones que abre un breve formulario de valoración. Escucha a tus clientes al momento e invita a todos a dejar una reseña pública.',
     h1: 'Generador de códigos QR de formulario de opinión',
-    intro: 'Un código QR de opinión abre un formulario breve donde los clientes valoran su experiencia y dejan un comentario. Te enteras de los problemas cuando aún puedes arreglarlos, y los clientes contentos pueden pasar a dejar una reseña pública.',
+    intro: 'Un código QR de opiniones abre un breve formulario donde los clientes valoran su experiencia y dejan un comentario. Te enteras de los problemas cuando aún puedes solucionarlos, y todos los clientes reciben el mismo enlace para dejar una reseña pública.',
     uses: [
       'Mesas de restaurante, habitaciones de hotel y recepciones.',
       'Tiques, albaranes y envases.',
@@ -735,7 +735,7 @@ export const types: Record<TypeKey, TypePageCopy> = {
     ],
     steps: [
       'Elige «Formulario de opinión» y escribe tu pregunta.',
-      'Añade tu enlace de reseñas públicas: las valoraciones de 4–5 estrellas se envían ahí automáticamente.',
+      'Añade tu enlace de reseñas públicas: todos lo ven, sea cual sea su valoración.',
       'Descarga el código y colócalo donde ocurre la experiencia.',
     ],
     tips: [
@@ -745,7 +745,7 @@ export const types: Record<TypeKey, TypePageCopy> = {
     ],
     faqs: [
       { q: '¿Dónde veo las respuestas?', a: 'En la página del código en tu panel, y mediante webhooks si conectas otra herramienta.' },
-      { q: '¿Puedo enviar a los clientes contentos a las reseñas de Google?', a: 'Sí. Las valoraciones de 4 o 5 estrellas se reenvían al enlace de reseñas que definas.' },
+      { q: '¿Puedo enviar a los clientes a las reseñas de Google?', a: 'Sí. Todos los que responden ven tu enlace de reseñas. Google no permite enviar solo a los clientes satisfechos a dejar reseñas, por eso el enlace nunca se filtra por valoración.' },
       { q: '¿Es anónimo?', a: 'Sí, salvo que decidas pedir un correo electrónico. No hace falta cuenta.' },
     ],
   },

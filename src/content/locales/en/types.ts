@@ -725,9 +725,9 @@ export const types: Record<TypeKey, TypePageCopy> = {
   },
   FEEDBACK: {
     title: 'Free Feedback QR Code Generator – Collect Reviews and Ratings',
-    description: 'Create a free feedback QR code that opens a short rating form. Hear from customers on the spot and send happy ones on to your review page.',
+    description: 'Create a free feedback QR code that opens a short rating form. Hear from customers on the spot and invite every customer to leave a public review.',
     h1: 'Feedback form QR code generator',
-    intro: 'A feedback QR code opens a short form where customers rate their experience and leave a comment. You hear about problems while you can still fix them, and happy customers can be sent on to leave a public review.',
+    intro: 'A feedback QR code opens a short form where customers rate their experience and leave a comment. You hear about problems while you can still fix them, and every customer is offered the same link to leave a public review.',
     uses: [
       'Restaurant tables, hotel rooms and reception desks.',
       'Receipts, delivery notes and packaging.',
@@ -735,7 +735,7 @@ export const types: Record<TypeKey, TypePageCopy> = {
     ],
     steps: [
       'Choose “Feedback form” and write your question.',
-      'Add your public review link: 4–5 star ratings are sent there automatically.',
+      'Add your public review link: everyone sees it, whatever rating they give.',
       'Download and place the code where the experience happens.',
     ],
     tips: [
@@ -745,7 +745,7 @@ export const types: Record<TypeKey, TypePageCopy> = {
     ],
     faqs: [
       { q: 'Where do I see the responses?', a: 'On the code’s page in your dashboard, and through webhooks if you connect another tool.' },
-      { q: 'Can I send happy customers to Google reviews?', a: 'Yes. Ratings of 4 or 5 stars are forwarded to the review link you set.' },
+      { q: 'Can I send customers to Google reviews?', a: 'Yes. Everyone who answers sees your review link. Google does not allow sending only happy customers to reviews, so the link is never filtered by rating.' },
       { q: 'Is it anonymous?', a: 'Yes, unless you choose to ask for an email address. No account is needed.' },
     ],
   },

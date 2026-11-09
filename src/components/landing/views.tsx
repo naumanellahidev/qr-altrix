@@ -1058,7 +1058,9 @@ function FeedbackView({ content, qrId }: LandingProps) {
   const [sent, setSent] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const askEmail = content.askEmail === true;
-  const positiveRedirect = str(content.positiveRedirectUrl);
+  // Shown to everyone, whatever their rating: review sites (Google included) do not allow
+  // sending only happy customers to a public review (review gating). Nobody is redirected.
+  const reviewUrl = str(content.positiveRedirectUrl);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -1079,9 +1081,6 @@ function FeedbackView({ content, qrId }: LandingProps) {
         return;
       }
       setSent(true);
-      if (rating >= 4 && positiveRedirect) {
-        window.setTimeout(() => window.location.assign(positiveRedirect), 1200);
-      }
     } finally {
       setLoading(false);
     }
@@ -1112,8 +1111,15 @@ function FeedbackView({ content, qrId }: LandingProps) {
             <p className="mt-2 text-[13.5px] leading-6 text-muted-foreground">
               {str(content.thanksMessage, 'Thank you — your feedback helps us improve.')}
             </p>
-            {rating >= 4 && positiveRedirect ? (
-              <p className="mt-3 text-[12.5px] text-muted-foreground">Taking you to our review page…</p>
+            {reviewUrl ? (
+              <a
+                href={reviewUrl}
+                rel="noopener"
+                className="mt-4 inline-block text-[13.5px] font-medium underline underline-offset-4"
+                style={{ color: 'var(--landing-accent)' }}
+              >
+                Leave a public review
+              </a>
             ) : null}
           </div>
         ) : (
@@ -1163,6 +1169,14 @@ function FeedbackView({ content, qrId }: LandingProps) {
             <AccentButton type="submit" onClick={undefined}>
               {loading ? 'Sending…' : 'Send feedback'}
             </AccentButton>
+            {reviewUrl ? (
+              <p className="text-[12.5px] text-muted-foreground">
+                Prefer to post publicly?{' '}
+                <a href={reviewUrl} rel="noopener" className="font-medium underline underline-offset-4">
+                  Leave a public review
+                </a>
+              </p>
+            ) : null}
           </form>
         )}
       </Card>

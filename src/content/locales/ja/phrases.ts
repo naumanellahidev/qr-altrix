@@ -253,7 +253,7 @@ export const phrases: Record<string, string> = {
   'Section name': 'カテゴリ名',
   'Sections, dishes, prices and allergen notes — editable from your phone in seconds.': 'カテゴリ、料理、価格、アレルゲン表示をスマホから数秒で編集。',
   'Security': 'セキュリティ',
-  'Send 4–5 star ratings to': '星4〜5の評価の転送先',
+  'Public review link (shown to everyone)': '公開レビューのリンク（全員に表示）',
   'Serial (21)': 'シリアル番号 (21)',
   'Service': 'サービス',
   'Services': 'サービス内容',

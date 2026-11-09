@@ -253,7 +253,7 @@ export const phrases: Record<string, string> = {
   'Section name': 'حصے کا نام',
   'Sections, dishes, prices and allergen notes — editable from your phone in seconds.': 'حصے، کھانے، قیمتیں اور الرجی کی معلومات — فون سے سیکنڈوں میں بدلیں۔',
   'Security': 'سیکیورٹی',
-  'Send 4–5 star ratings to': '4–5 اسٹار ریٹنگ یہاں بھیجیں',
+  'Public review link (shown to everyone)': 'عوامی ریویو لنک (سب کو نظر آتا ہے)',
   'Serial (21)': 'سیریل (21)',
   'Service': 'سروس',
   'Services': 'خدمات',

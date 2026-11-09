@@ -692,7 +692,7 @@ export const QR_TYPES: QrTypeDef[] = [
       { name: 'accentColor', label: 'Accent colour', type: 'color', defaultValue: '#F59E0B' },
       { name: 'askEmail', label: 'Ask for an email address', type: 'switch' },
       { name: 'thanksMessage', label: 'Thank-you message', type: 'textarea', defaultValue: 'Thank you — your feedback helps us improve.' },
-      { name: 'positiveRedirectUrl', label: 'Send 4–5 star ratings to', type: 'url', help: 'For example your Google review page.' },
+      { name: 'positiveRedirectUrl', label: 'Public review link (shown to everyone)', type: 'url', help: 'For example your Google review page.' },
     ],
   },
   {

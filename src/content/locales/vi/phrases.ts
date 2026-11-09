@@ -253,7 +253,7 @@ export const phrases: Record<string, string> = {
   'Section name': 'Tên mục',
   'Sections, dishes, prices and allergen notes — editable from your phone in seconds.': 'Mục, món ăn, giá và ghi chú dị ứng — sửa từ điện thoại trong vài giây.',
   'Security': 'Bảo mật',
-  'Send 4–5 star ratings to': 'Gửi đánh giá 4–5 sao đến',
+  'Public review link (shown to everyone)': 'Liên kết đánh giá công khai (mọi người đều thấy)',
   'Serial (21)': 'Số sê-ri (21)',
   'Service': 'Dịch vụ',
   'Services': 'Dịch vụ',

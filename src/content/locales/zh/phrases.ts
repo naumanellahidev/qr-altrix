@@ -253,7 +253,7 @@ export const phrases: Record<string, string> = {
   'Section name': '分类名称',
   'Sections, dishes, prices and allergen notes — editable from your phone in seconds.': '分类、菜品、价格和过敏原说明——用手机几秒即可修改。',
   'Security': '加密方式',
-  'Send 4–5 star ratings to': '把 4–5 星评分引导至',
+  'Public review link (shown to everyone)': '公开评价链接（所有人可见）',
   'Serial (21)': '序列号 (21)',
   'Service': '服务',
   'Services': '服务项目',

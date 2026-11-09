@@ -274,7 +274,7 @@ export const CATALOG_PHRASES: readonly string[] = [
   "Section name",
   "Sections, dishes, prices and allergen notes — editable from your phone in seconds.",
   "Security",
-  "Send 4–5 star ratings to",
+  "Public review link (shown to everyone)",
   "Serial (21)",
   "Service",
   "Services",

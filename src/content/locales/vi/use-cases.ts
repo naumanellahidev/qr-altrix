@@ -51,20 +51,20 @@ export const useCases: Record<UseCaseSlug, UseCaseCopy> = {
   },
   'google-reviews': {
     title: 'Mã QR đánh giá Google – Nhận thêm đánh giá miễn phí',
-    description: 'Tạo mã QR miễn phí đưa khách đến trang đánh giá Google của bạn chỉ với một lần quét. Hoặc hỏi góp ý trước rồi chuyển khách hài lòng sang đánh giá.',
+    description: 'Tạo miễn phí mã QR đưa khách hàng đến trang đánh giá Google của bạn chỉ bằng một lần quét, hoặc xin góp ý trước rồi gửi liên kết đánh giá cho mọi người.',
     h1: 'Mã QR cho đánh giá Google',
     name: 'Đánh giá Google',
     intro: 'Hầu hết khách hài lòng sẵn sàng để lại đánh giá — nếu chỉ mất mười giây. Mã QR đánh giá mở ngay biểu mẫu đánh giá, đúng lúc họ vui nhất: tại quầy thu ngân, trên hóa đơn hoặc khi nhận hàng.',
     benefits: [
       'Một lần quét đến biểu mẫu đánh giá — không cần tìm tên doanh nghiệp.',
-      'Mã góp ý ghi nhận vấn đề một cách riêng tư và chuyển đánh giá 4–5 sao sang trang đánh giá.',
-      'Đo chi nhánh và nhân viên nào mang lại nhiều đánh giá nhất.',
+      'Mã góp ý nắm bắt vấn đề một cách riêng tư và đưa liên kết đánh giá công khai cho mọi khách hàng.',
+      'Đo xem chi nhánh và vị trí đặt mã nào mang lại nhiều đánh giá nhất.',
       'Đổi đích đến sau này, ví dụ sang trang đánh giá khác.',
     ],
     steps: [
       'Sao chép liên kết đánh giá từ Hồ sơ doanh nghiệp trên Google.',
-      'Tạo mã Chuyển hướng website động với liên kết đó — hoặc Biểu mẫu góp ý chuyển đánh giá 4–5 sao đến đó.',
-      'Thêm khung “Hài lòng? Hãy đánh giá chúng tôi”.',
+      'Tạo mã Chuyển hướng trang web động với liên kết đó — hoặc biểu mẫu góp ý hiển thị liên kết đánh giá cho mọi người.',
+      'Thêm khung “Chúng tôi phục vụ thế nào? Hãy để lại đánh giá”.',
       'Đặt ở quầy, trên hóa đơn, bao bì và thiệp cảm ơn.',
     ],
     faqs: [

@@ -725,9 +725,9 @@ export const types: Record<TypeKey, TypePageCopy> = {
   },
   FEEDBACK: {
     title: 'Generator Kode QR Masukan Gratis – Kumpulkan Ulasan dan Rating',
-    description: 'Buat kode QR masukan gratis yang membuka formulir rating singkat. Dengarkan pelanggan saat itu juga dan arahkan yang puas ke halaman ulasan Anda.',
+    description: 'Buat kode QR masukan gratis yang membuka formulir penilaian singkat. Dengarkan pelanggan di tempat dan ajak semua orang menulis ulasan publik.',
     h1: 'Generator kode QR formulir masukan',
-    intro: 'Kode QR masukan membuka formulir singkat tempat pelanggan menilai pengalaman mereka dan meninggalkan komentar. Anda tahu masalah selagi masih bisa diperbaiki, dan pelanggan yang puas bisa diarahkan untuk menulis ulasan publik.',
+    intro: 'Kode QR masukan membuka formulir singkat tempat pelanggan menilai pengalaman mereka dan meninggalkan komentar. Anda tahu masalahnya selagi masih bisa diperbaiki, dan setiap pelanggan mendapat tautan yang sama untuk menulis ulasan publik.',
     uses: [
       'Meja restoran, kamar hotel, dan meja resepsionis.',
       'Struk, surat jalan, dan kemasan.',
@@ -735,7 +735,7 @@ export const types: Record<TypeKey, TypePageCopy> = {
     ],
     steps: [
       'Pilih “Formulir masukan” dan tulis pertanyaan Anda.',
-      'Tambahkan tautan ulasan publik: rating 4–5 bintang otomatis dikirim ke sana.',
+      'Tambahkan tautan ulasan publik Anda: semua orang melihatnya, apa pun nilai yang diberikan.',
       'Unduh kodenya dan pasang di tempat pengalaman terjadi.',
     ],
     tips: [
@@ -745,7 +745,7 @@ export const types: Record<TypeKey, TypePageCopy> = {
     ],
     faqs: [
       { q: 'Di mana saya melihat tanggapannya?', a: 'Di halaman kode pada dasbor Anda, dan lewat webhook jika Anda menghubungkan alat lain.' },
-      { q: 'Bisakah mengarahkan pelanggan puas ke ulasan Google?', a: 'Bisa. Rating 4 atau 5 bintang diteruskan ke tautan ulasan yang Anda tetapkan.' },
+      { q: 'Bisakah mengarahkan pelanggan ke ulasan Google?', a: 'Bisa. Semua yang menjawab melihat tautan ulasan Anda. Google tidak mengizinkan hanya pelanggan yang puas diarahkan ke ulasan, jadi tautannya tidak pernah disaring berdasarkan nilai.' },
       { q: 'Apakah anonim?', a: 'Ya, kecuali Anda memilih meminta alamat email. Tidak perlu akun.' },
     ],
   },

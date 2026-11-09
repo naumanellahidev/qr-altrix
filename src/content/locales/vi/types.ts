@@ -725,9 +725,9 @@ export const types: Record<TypeKey, TypePageCopy> = {
   },
   FEEDBACK: {
     title: 'Trình tạo mã QR góp ý miễn phí – Thu thập đánh giá và xếp hạng',
-    description: 'Tạo mã QR góp ý miễn phí mở biểu mẫu chấm điểm ngắn. Lắng nghe khách hàng tại chỗ và chuyển khách hài lòng đến trang đánh giá của bạn.',
+    description: 'Tạo miễn phí mã QR góp ý mở một biểu mẫu đánh giá ngắn. Lắng nghe khách hàng ngay tại chỗ và mời mọi khách hàng để lại đánh giá công khai.',
     h1: 'Trình tạo mã QR biểu mẫu góp ý',
-    intro: 'Mã QR góp ý mở một biểu mẫu ngắn để khách chấm điểm trải nghiệm và để lại nhận xét. Bạn biết về vấn đề khi vẫn còn kịp sửa, và khách hài lòng có thể được chuyển tiếp để để lại đánh giá công khai.',
+    intro: 'Mã QR góp ý mở một biểu mẫu ngắn để khách hàng chấm điểm trải nghiệm và để lại nhận xét. Bạn biết vấn đề khi vẫn còn kịp khắc phục, và mọi khách hàng đều nhận cùng một liên kết để để lại đánh giá công khai.',
     uses: [
       'Bàn nhà hàng, phòng khách sạn và quầy lễ tân.',
       'Hóa đơn, phiếu giao hàng và bao bì.',
@@ -735,7 +735,7 @@ export const types: Record<TypeKey, TypePageCopy> = {
     ],
     steps: [
       'Chọn “Biểu mẫu góp ý” và viết câu hỏi.',
-      'Thêm liên kết đánh giá công khai: đánh giá 4–5 sao sẽ tự động được gửi đến đó.',
+      'Thêm liên kết đánh giá công khai: ai cũng thấy, bất kể chấm bao nhiêu sao.',
       'Tải mã về và đặt ở nơi trải nghiệm diễn ra.',
     ],
     tips: [
@@ -745,7 +745,7 @@ export const types: Record<TypeKey, TypePageCopy> = {
     ],
     faqs: [
       { q: 'Tôi xem phản hồi ở đâu?', a: 'Trên trang của mã trong bảng điều khiển, và qua webhook nếu bạn kết nối công cụ khác.' },
-      { q: 'Tôi có chuyển khách hài lòng đến đánh giá Google được không?', a: 'Có. Đánh giá 4 hoặc 5 sao được chuyển đến liên kết đánh giá bạn đặt.' },
+      { q: 'Tôi có chuyển khách hàng đến đánh giá Google được không?', a: 'Có. Mọi người trả lời đều thấy liên kết đánh giá của bạn. Google không cho phép chỉ đưa khách hàng hài lòng đến trang đánh giá, nên liên kết không bao giờ được lọc theo số sao.' },
       { q: 'Có ẩn danh không?', a: 'Có, trừ khi bạn chọn yêu cầu địa chỉ email. Không cần tài khoản.' },
     ],
   },

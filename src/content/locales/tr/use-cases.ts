@@ -51,20 +51,20 @@ export const useCases: Record<UseCaseSlug, UseCaseCopy> = {
   },
   'google-reviews': {
     title: 'Google Yorum QR Kodu – Ücretsiz Olarak Daha Fazla Yorum Alın',
-    description: 'Müşterileri tek taramada Google yorum sayfanıza götüren ücretsiz bir QR kod oluşturun. Ya da önce geri bildirim isteyin ve memnun müşterileri yorum yapmaya yönlendirin.',
+    description: 'Müşterileri tek taramayla Google yorum sayfanıza götüren ücretsiz bir QR kodu oluşturun ya da önce geri bildirim isteyip yorum bağlantısını herkese sunun.',
     h1: 'Google yorumları için QR kodlar',
     name: 'Google yorumları',
     intro: 'Memnun müşterilerin çoğu yorum bırakırdı — on saniye sürseydi. Yorum QR kodu, yorum formunuzu en mutlu oldukları anda hemen açar: kasada, fişte ya da siparişleri geldiğinde.',
     benefits: [
       'Yorum formunuza tek tarama — işletmenizi aramaya gerek yok.',
-      'Geri bildirim kodları sorunları gizlice yakalar ve 4–5 yıldızlı puanları yoruma yönlendirir.',
-      'En çok yorumu hangi şube ve personelin getirdiğini ölçün.',
+      'Geri bildirim kodları sorunları gizlice yakalar ve her müşteriye herkese açık yorum bağlantısını sunar.',
+      'Hangi şubelerin ve yerleşimlerin en çok yorum getirdiğini ölçün.',
       'Hedefi sonradan değiştirin, örneğin başka bir yorum sitesine.',
     ],
     steps: [
       'Google İşletme Profilinizden yorum bağlantınızı kopyalayın.',
-      'Onunla dinamik bir Web sitesi yönlendirme kodu oluşturun — ya da 4–5 yıldızlı puanları oraya ileten bir Geri bildirim formu.',
-      '“Beğendiniz mi? Bize yorum bırakın” çerçevesi ekleyin.',
+      'Onunla dinamik bir Web sitesi yönlendirme kodu oluşturun — ya da yorum bağlantısını herkese gösteren bir geri bildirim formu.',
+      '“Nasıldı? Bize yorum bırakın” çerçevesi ekleyin.',
       'Kasaya, fişlere, ambalaja ve teşekkür kartlarına koyun.',
     ],
     faqs: [

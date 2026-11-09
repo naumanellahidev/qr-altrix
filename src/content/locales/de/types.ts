@@ -725,9 +725,9 @@ export const types: Record<TypeKey, TypePageCopy> = {
   },
   FEEDBACK: {
     title: 'Kostenloser Feedback-QR-Code-Generator – Bewertungen sammeln',
-    description: 'Erstellen Sie kostenlos einen Feedback-QR-Code, der ein kurzes Bewertungsformular öffnet. Hören Sie Kunden direkt vor Ort und leiten Sie zufriedene zu Ihrer Bewertungsseite.',
+    description: 'Erstellen Sie kostenlos einen Feedback-QR-Code, der ein kurzes Bewertungsformular öffnet. Hören Sie Kunden direkt vor Ort und laden Sie alle ein, eine öffentliche Bewertung zu schreiben.',
     h1: 'Feedbackformular-QR-Code-Generator',
-    intro: 'Ein Feedback-QR-Code öffnet ein kurzes Formular, in dem Kunden ihr Erlebnis bewerten und einen Kommentar hinterlassen. Sie erfahren von Problemen, solange Sie sie noch lösen können, und zufriedene Kunden können direkt eine öffentliche Bewertung abgeben.',
+    intro: 'Ein Feedback-QR-Code öffnet ein kurzes Formular, in dem Kunden ihre Erfahrung bewerten und einen Kommentar hinterlassen. Sie erfahren von Problemen, solange Sie sie noch beheben können, und jeder Kunde erhält denselben Link für eine öffentliche Bewertung.',
     uses: [
       'Restauranttische, Hotelzimmer und Empfangstresen.',
       'Kassenbons, Lieferscheine und Verpackungen.',
@@ -735,7 +735,7 @@ export const types: Record<TypeKey, TypePageCopy> = {
     ],
     steps: [
       'Wählen Sie „Feedbackformular“ und formulieren Sie Ihre Frage.',
-      'Fügen Sie Ihren öffentlichen Bewertungslink hinzu: 4–5-Sterne-Bewertungen werden automatisch dorthin geleitet.',
+      'Fügen Sie Ihren öffentlichen Bewertungslink hinzu: Alle sehen ihn, unabhängig von ihrer Bewertung.',
       'Code herunterladen und dort platzieren, wo das Erlebnis stattfindet.',
     ],
     tips: [
@@ -745,7 +745,7 @@ export const types: Record<TypeKey, TypePageCopy> = {
     ],
     faqs: [
       { q: 'Wo sehe ich die Antworten?', a: 'Auf der Seite des Codes in Ihrem Dashboard und per Webhook, wenn Sie ein anderes Tool anbinden.' },
-      { q: 'Kann ich zufriedene Kunden zu Google-Bewertungen schicken?', a: 'Ja. Bewertungen mit 4 oder 5 Sternen werden an den von Ihnen festgelegten Bewertungslink weitergeleitet.' },
+      { q: 'Kann ich Kunden zu Google-Bewertungen schicken?', a: 'Ja. Alle, die antworten, sehen Ihren Bewertungslink. Google erlaubt nicht, nur zufriedene Kunden zu Bewertungen zu schicken, daher wird der Link nie nach Bewertung gefiltert.' },
       { q: 'Ist es anonym?', a: 'Ja, außer Sie fragen nach einer E-Mail-Adresse. Ein Konto ist nicht nötig.' },
     ],
   },

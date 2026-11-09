@@ -270,7 +270,7 @@ export const FOR_PAGES: SeoDoc[] = [
     description: 'Make a QR code that opens your Google review form in one scan. Get your review link, print it on counters, tables and receipts, and track scans.',
     h1: 'QR code for Google reviews',
     name: 'Google reviews',
-    answer: 'In your Google Business Profile, choose “Ask for reviews” (or “Get more reviews”) and copy the review link. Paste it into the generator below as a dynamic URL, add a “Review us on Google” frame and print it where happy customers wait. One scan opens the star-rating box, so far more people actually leave the review.',
+    answer: 'In your Google Business Profile, choose “Ask for reviews” (or “Get more reviews”) and copy the review link. Paste it into the generator below as a dynamic URL, add a “Review us on Google” frame and print it where customers pause, such as the till or the table. One scan opens the star-rating box, so far more people actually leave the review.',
     sections: [
       {
         h: 'Step by step',

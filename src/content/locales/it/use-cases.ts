@@ -51,20 +51,20 @@ export const useCases: Record<UseCaseSlug, UseCaseCopy> = {
   },
   'google-reviews': {
     title: 'Codice QR per recensioni Google – Più recensioni gratis',
-    description: 'Crea gratis un codice QR che porta i clienti alla tua pagina di recensioni Google con una scansione. Oppure chiedi prima un feedback e manda i soddisfatti a recensire.',
+    description: 'Crea gratis un QR code che porta i clienti alla tua pagina di recensioni Google con una scansione, oppure chiedi prima un feedback e offri a tutti il link per recensire.',
     h1: 'Codici QR per recensioni Google',
     name: 'Recensioni Google',
     intro: 'La maggior parte dei clienti soddisfatti lascerebbe una recensione — se ci volessero dieci secondi. Un codice QR per le recensioni apre subito il modulo, nel momento in cui sono più contenti: alla cassa, sullo scontrino o quando arriva l’ordine.',
     benefits: [
       'Una scansione fino al modulo di recensione — senza cercare la tua attività.',
-      'I codici feedback intercettano i problemi in privato e inviano le 4–5 stelle alla recensione pubblica.',
-      'Misura quali sedi e quali persone portano più recensioni.',
+      'I codici di feedback intercettano i problemi in privato e offrono a ogni cliente il link alle recensioni pubbliche.',
+      'Misura quali sedi e posizioni portano più recensioni.',
       'Cambia destinazione in seguito, ad esempio verso un altro sito di recensioni.',
     ],
     steps: [
       'Copia il link per le recensioni dal tuo Profilo dell’attività su Google.',
-      'Crea con esso un codice dinamico di Reindirizzamento web — o un Modulo di feedback che vi inoltri le valutazioni da 4–5 stelle.',
-      'Aggiungi una cornice «Ti è piaciuto? Lasciaci una recensione».',
+      'Crea con esso un codice dinamico di reindirizzamento web, oppure un modulo di feedback che mostra a tutti il link alle recensioni.',
+      'Aggiungi una cornice “Com’è andata? Lasciaci una recensione”.',
       'Posizionalo su banconi, scontrini, confezioni e biglietti di ringraziamento.',
     ],
     faqs: [

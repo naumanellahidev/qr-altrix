@@ -51,20 +51,20 @@ export const useCases: Record<UseCaseSlug, UseCaseCopy> = {
   },
   'google-reviews': {
     title: 'QR code avis Google – Obtenez plus d’avis gratuitement',
-    description: 'Créez gratuitement un QR code qui mène vos clients à votre page d’avis Google en un scan. Ou demandez d’abord leur avis et envoyez les satisfaits laisser une note.',
+    description: 'Créez gratuitement un QR code qui mène vos clients à votre page d’avis Google en un scan, ou demandez d’abord leur avis et proposez à tous le lien d’avis.',
     h1: 'QR codes pour les avis Google',
     name: 'Avis Google',
     intro: 'La plupart des clients satisfaits laisseraient un avis — si cela prenait dix secondes. Un QR code avis ouvre votre formulaire aussitôt, au moment où ils sont le plus contents : en caisse, sur le ticket ou à la livraison.',
     benefits: [
       'Un scan jusqu’à votre formulaire d’avis — sans chercher votre établissement.',
-      'Les codes avis captent les problèmes en privé et redirigent les notes de 4–5 étoiles vers les avis publics.',
-      'Mesurez quels établissements et quelles équipes rapportent le plus d’avis.',
+      'Les codes d’avis repèrent les problèmes en privé et proposent à chaque client le lien d’avis public.',
+      'Mesurez quels lieux et emplacements apportent le plus d’avis.',
       'Changez la destination plus tard, par exemple vers un autre site d’avis.',
     ],
     steps: [
       'Copiez votre lien d’avis depuis votre fiche d’établissement Google.',
-      'Créez avec lui un code dynamique Redirection web — ou un Formulaire d’avis qui y renvoie les notes de 4–5 étoiles.',
-      'Ajoutez un cadre « Vous avez aimé ? Laissez-nous un avis ».',
+      'Créez avec lui un code dynamique de redirection web, ou un formulaire d’avis qui affiche le lien d’avis à tout le monde.',
+      'Ajoutez un cadre « Comment ça s’est passé ? Laissez-nous un avis ».',
       'Placez-le sur comptoirs, tickets, emballages et cartes de remerciement.',
     ],
     faqs: [

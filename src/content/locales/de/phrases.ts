@@ -253,7 +253,7 @@ export const phrases: Record<string, string> = {
   'Section name': 'Bereichsname',
   'Sections, dishes, prices and allergen notes — editable from your phone in seconds.': 'Bereiche, Gerichte, Preise und Allergene – in Sekunden vom Handy aus änderbar.',
   'Security': 'Sicherheit',
-  'Send 4–5 star ratings to': '4–5-Sterne-Bewertungen weiterleiten an',
+  'Public review link (shown to everyone)': 'Öffentlicher Bewertungslink (für alle sichtbar)',
   'Serial (21)': 'Seriennummer (21)',
   'Service': 'Dienstleistung',
   'Services': 'Leistungen',

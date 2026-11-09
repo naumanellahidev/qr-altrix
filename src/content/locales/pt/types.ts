@@ -725,9 +725,9 @@ export const types: Record<TypeKey, TypePageCopy> = {
   },
   FEEDBACK: {
     title: 'Gerador de QR Code de opinião grátis – Colete avaliações e notas',
-    description: 'Crie grátis um QR code de opinião que abre um formulário curto de avaliação. Ouça os clientes na hora e mande os satisfeitos para sua página de avaliações.',
+    description: 'Crie grátis um QR code de feedback que abre um formulário curto de avaliação. Ouça os clientes na hora e convide todos a deixar uma avaliação pública.',
     h1: 'Gerador de QR code de formulário de opinião',
-    intro: 'Um QR code de opinião abre um formulário curto em que os clientes avaliam a experiência e deixam um comentário. Você fica sabendo dos problemas enquanto ainda dá para resolver, e os clientes satisfeitos podem seguir para deixar uma avaliação pública.',
+    intro: 'Um QR code de feedback abre um formulário curto onde os clientes avaliam a experiência e deixam um comentário. Você descobre os problemas enquanto ainda dá para resolvê-los, e todos os clientes recebem o mesmo link para deixar uma avaliação pública.',
     uses: [
       'Mesas de restaurante, quartos de hotel e recepções.',
       'Recibos, notas de entrega e embalagens.',
@@ -735,7 +735,7 @@ export const types: Record<TypeKey, TypePageCopy> = {
     ],
     steps: [
       'Escolha “Formulário de opinião” e escreva sua pergunta.',
-      'Adicione seu link de avaliações públicas: notas de 4–5 estrelas são enviadas para lá automaticamente.',
+      'Adicione seu link de avaliações públicas: todos o veem, qualquer que seja a nota.',
       'Baixe e coloque o código onde a experiência acontece.',
     ],
     tips: [
@@ -745,7 +745,7 @@ export const types: Record<TypeKey, TypePageCopy> = {
     ],
     faqs: [
       { q: 'Onde vejo as respostas?', a: 'Na página do código no seu painel, e por webhooks se você conectar outra ferramenta.' },
-      { q: 'Posso mandar clientes satisfeitos para as avaliações do Google?', a: 'Sim. Notas de 4 ou 5 estrelas são encaminhadas para o link de avaliações que você definir.' },
+      { q: 'Posso enviar clientes para as avaliações do Google?', a: 'Sim. Todos que respondem veem seu link de avaliações. O Google não permite enviar apenas clientes satisfeitos para avaliar, por isso o link nunca é filtrado pela nota.' },
       { q: 'É anônimo?', a: 'Sim, a menos que você peça um e-mail. Não é preciso conta.' },
     ],
   },

@@ -51,20 +51,20 @@ export const useCases: Record<UseCaseSlug, UseCaseCopy> = {
   },
   'google-reviews': {
     title: 'Google-Bewertungs-QR-Code – Kostenlos mehr Bewertungen',
-    description: 'Erstellen Sie kostenlos einen QR-Code, der Kunden mit einem Scan zu Ihrer Google-Bewertungsseite führt. Oder erst Feedback einholen und zufriedene Kunden weiterleiten.',
+    description: 'Erstellen Sie kostenlos einen QR-Code, der Kunden mit einem Scan zu Ihrer Google-Bewertungsseite bringt, oder bitten Sie zuerst um Feedback und bieten Sie allen den Bewertungslink an.',
     h1: 'QR-Codes für Google-Bewertungen',
     name: 'Google-Bewertungen',
     intro: 'Die meisten zufriedenen Kunden würden eine Bewertung schreiben – wenn es zehn Sekunden dauert. Ein Bewertungs-QR-Code öffnet Ihr Formular sofort, im Moment der größten Zufriedenheit: an der Kasse, auf dem Beleg oder bei der Lieferung.',
     benefits: [
       'Ein Scan bis zum Bewertungsformular – ohne Ihr Unternehmen suchen zu müssen.',
-      'Feedback-Codes fangen Probleme privat ab und leiten 4–5 Sterne zur öffentlichen Bewertung.',
-      'Messen Sie, welche Standorte und Mitarbeitenden die meisten Bewertungen bringen.',
+      'Feedback-Codes fangen Probleme privat ab und bieten jedem Kunden den öffentlichen Bewertungslink an.',
+      'Messen Sie, welche Standorte und Platzierungen die meisten Bewertungen bringen.',
       'Ändern Sie das Ziel später, etwa auf eine andere Bewertungsplattform.',
     ],
     steps: [
       'Kopieren Sie Ihren Bewertungslink aus Ihrem Google-Unternehmensprofil.',
-      'Erstellen Sie damit einen dynamischen Website-Weiterleitungs-Code – oder ein Feedbackformular, das 4–5 Sterne dorthin weiterleitet.',
-      'Einen Rahmen „Hat’s geschmeckt? Bewerten Sie uns“ hinzufügen.',
+      'Erstellen Sie damit einen dynamischen Website-Weiterleitungs-Code – oder ein Feedbackformular, das allen den Bewertungslink zeigt.',
+      'Einen Rahmen „Wie war’s? Bewerten Sie uns“ hinzufügen.',
       'Auf Theken, Belegen, Verpackungen und Dankeskarten platzieren.',
     ],
     faqs: [
