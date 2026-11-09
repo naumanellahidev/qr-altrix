@@ -10,6 +10,7 @@ import { JsonLd } from '@/components/seo/json-ld';
 import { breadcrumbSchema, graph } from '@/lib/seo/schema';
 import { isDeveloperApiEnabled } from '@/lib/settings';
 import { SUPPORT_EMAIL, SUPPORT_PHONE_DISPLAY } from '@/lib/contact';
+import { adsenseClient } from '@/components/ads/ads';
 
 export const metadata: Metadata = pageMeta({
   path: '/legal/privacy',
@@ -27,6 +28,8 @@ export default async function PrivacyPage() {
   ]);
   const host = new URL(env.appUrl).hostname;
   const retention = settings?.analyticsRetentionDays ?? 0;
+  // Advertising text appears only while AdSense is configured, so the policy always matches what runs.
+  const ads = Boolean(adsenseClient());
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -34,7 +37,7 @@ export default async function PrivacyPage() {
       <main className="flex-1">
         <LegalDocument
           title="Privacy policy"
-          updated="3 October 2026"
+          updated={ads ? '9 November 2026' : '3 October 2026'}
           intro={`This policy describes what the QR ALTRIX install at ${host} stores, why, and for how long. The server is operated by whoever runs this install; they are the data controller for everything below.`}
           sections={[
             {
@@ -54,7 +57,7 @@ export default async function PrivacyPage() {
                     ? 'On this install IP processing is switched off entirely.'
                     : 'It is salted and hashed with a server-side secret, which lets us count unique visitors without being able to identify you or reverse the value.'
                 }`,
-                'We do not use cookies to track you across sites. A short-lived cookie is set only when you unlock a password-protected code, so you are not asked again on every scan.',
+                'Pages hosted for QR codes carry no advertising, and we do not use cookies there to track you across sites. A short-lived cookie is set only when you unlock a password-protected code, so you are not asked again on every scan.',
                 'Bot and crawler traffic is excluded from analytics rather than recorded.',
               ],
             },
@@ -65,6 +68,21 @@ export default async function PrivacyPage() {
                 'Redirect-type codes do not inject any third-party script: they pass UTM parameters to the owner’s own site.',
               ],
             },
+            ...(ads
+              ? [
+                  {
+                    id: 'advertising',
+                    heading: 'Advertising and cookies',
+                    body: [
+                      'Our public pages (the generator, guides, answers and similar articles) show ads served by Google AdSense. Ads are never shown in your dashboard, on sign-in pages, or on the pages hosted for QR codes.',
+                      'Third-party vendors, including Google, use cookies to serve ads based on your prior visits to this website or other websites. Google’s use of advertising cookies enables it and its partners to serve ads to you based on your visits to this site and/or other sites on the Internet.',
+                      'You can opt out of personalised advertising in Google’s Ads Settings (https://adssettings.google.com). You can also opt out of some other vendors’ use of cookies for personalised advertising at https://www.aboutads.info/choices or https://www.youronlinechoices.eu.',
+                      'Visitors in the UK, the European Economic Area and Switzerland are asked for consent through Google’s consent message before personalised ads or advertising cookies are used, and US visitors can opt out of the sale or sharing of personal information where state law provides it. You can change your choice at any time with the “Cookie settings” link in the footer.',
+                      'How Google uses information from sites that use its services is explained at https://policies.google.com/technologies/partner-sites.',
+                    ],
+                  },
+                ]
+              : []),
             {
               heading: 'How long data is kept',
               body: [
@@ -80,7 +98,9 @@ export default async function PrivacyPage() {
               body: [
                 'Members of a workspace see the codes and analytics in that workspace, according to their role.',
                 'A platform administrator for this install can see accounts, workspaces and codes in order to run the service and handle abuse reports.',
-                'Nothing is sold, and nothing is shared with advertisers. Outbound email goes through the SMTP provider the operator configured.',
+                ads
+                  ? 'We do not sell your account data or your QR code data, and we do not give it to advertisers. Google receives only what its ad code collects on our public pages, as described under Advertising and cookies. Outbound email goes through the SMTP provider the operator configured.'
+                  : 'Nothing is sold, and nothing is shared with advertisers. Outbound email goes through the SMTP provider the operator configured.',
               ],
             },
             {

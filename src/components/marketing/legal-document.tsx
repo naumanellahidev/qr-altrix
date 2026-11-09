@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 export interface LegalSection {
   heading: string;
   body: string[];
+  /** Stable anchor (default section-<n>). */
+  id?: string;
 }
 
 /** Shared layout for the terms and privacy pages: one readable column, generous rhythm. */
@@ -42,7 +44,7 @@ export function LegalDocument({
           {sections.map((section, index) => (
             <li key={section.heading}>
               <a
-                href={`#section-${index}`}
+                href={`#${section.id ?? `section-${index}`}`}
                 className="text-[13px] text-muted-foreground transition-colors hover:text-primary"
               >
                 {index + 1}. {section.heading}
@@ -54,14 +56,14 @@ export function LegalDocument({
 
       <div className="space-y-9">
         {sections.map((section, index) => (
-          <section key={section.heading} id={`section-${index}`} className="scroll-mt-24">
+          <section key={section.heading} id={section.id ?? `section-${index}`} className="scroll-mt-24">
             <h2 className="mb-3 font-display text-[19px] font-semibold tracking-[-0.015em]">
               {index + 1}. {section.heading}
             </h2>
             <div className="space-y-3">
               {section.body.map((paragraph, paragraphIndex) => (
                 <p key={paragraphIndex} className="text-[14.5px] leading-7 text-muted-foreground">
-                  {paragraph}
+                  {linkify(paragraph)}
                 </p>
               ))}
             </div>
@@ -74,5 +76,18 @@ export function LegalDocument({
         review it against the law that applies to them before relying on it.
       </p>
     </article>
+  );
+}
+
+/** Plain https:// URLs in policy text become links (opened in a new tab, no referrer). */
+function linkify(text: string): React.ReactNode[] {
+  return text.split(/(https:\/\/[^\s)]+[^\s).,])/g).map((part, i) =>
+    i % 2 === 1 ? (
+      <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="break-all font-medium text-primary underline-offset-4 hover:underline">
+        {part.replace(/^https:\/\//, '')}
+      </a>
+    ) : (
+      part
+    ),
   );
 }

@@ -4,6 +4,8 @@ import { BrandLogo } from '@/components/brand';
 import { getSettings } from '@/lib/settings';
 import { getContent, PUBLISHED_LOCALES } from '@/content';
 import { DEFAULT_LOCALE, localeInfo, localePath, type Locale } from '@/i18n/locales';
+import { adsenseClient } from '@/components/ads/ads';
+import { CookieSettingsButton } from '@/components/ads/cookie-settings-button';
 import { SUPPORT_EMAIL, SUPPORT_PHONE_DISPLAY, SUPPORT_TEL, supportWhatsApp } from '@/lib/contact';
 
 /**
@@ -85,6 +87,11 @@ export async function SiteFooter({ locale = DEFAULT_LOCALE, path = '/' }: { loca
                     </Link>
                   </li>
                 ))}
+                {column.title === f.trust && adsenseClient() && (
+                  <li>
+                    <CookieSettingsButton label="Cookie settings" />
+                  </li>
+                )}
               </ul>
             </div>
           ))}
