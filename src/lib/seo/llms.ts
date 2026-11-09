@@ -58,6 +58,7 @@ const PAGE_NOTES: Record<string, { title: string; note: string }> = {
   '/tools/qr-code-scanner': { title: 'Online QR code scanner', note: 'Read a QR code from an image in the browser; nothing is uploaded.' },
   '/tools/bulk-qr-code-generator': { title: 'Bulk QR code generator', note: 'Thousands of codes from one CSV, downloaded as a ZIP.' },
   '/developers': { title: 'Developers & API', note: 'REST API with scoped keys, signed webhooks and an OpenAPI description.' },
+  '/about': { title: 'About QR ALTRIX', note: 'Who builds and runs the site, how it is funded, and how guides and answers are written and corrected.' },
   '/support': { title: 'Help & support', note: 'Troubleshooting a code, custom domains, analytics, and how to reach a person.' },
   '/signup': { title: 'Create a free account', note: 'Needed for dynamic codes, analytics, folders, teams and the API.' },
   '/report-abuse': { title: 'Report a QR code', note: 'Report a code that leads somewhere harmful; a person reviews every report.' },

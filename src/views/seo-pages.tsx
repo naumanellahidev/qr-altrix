@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { getContent } from '@/content';
 import { TYPE_SLUGS } from '@/content/registry';
 import type { SeoDoc, SeoKind, SeoSection } from '@/content/seo/types';
-import { SEO_CATS, SEO_UPDATED, SEO_KINDS, findSeoDoc, relatedDocs, seoDocs, seoPath } from '@/content/seo';
+import { MIN_AD_WORDS, SEO_CATS, SEO_UPDATED, SEO_KINDS, docWords, findSeoDoc, relatedDocs, seoDocs, seoPath } from '@/content/seo';
 import { pageMeta } from '@/lib/seo/meta';
 import { env } from '@/lib/env';
 import { JsonLd } from '@/components/seo/json-ld';
@@ -115,6 +115,7 @@ export async function SeoDocPage({ kind, slug }: { kind: SeoKind; slug: string }
   const base = env.appUrl.replace(/\/+$/, '');
   const related = relatedDocs(kind, doc, gate);
   const mid = Math.min(2, doc.sections.length - 1);
+  const ads = docWords(doc) >= MIN_AD_WORDS;
   const article = {
     '@type': 'Article',
     '@id': `${base}${path}#article`,
@@ -146,7 +147,10 @@ export async function SeoDocPage({ kind, slug }: { kind: SeoKind; slug: string }
         <div className="max-w-3xl">
           <h1 className="font-display text-[30px] font-bold leading-[1.1] tracking-[-0.03em] sm:text-[42px]">{doc.h1}</h1>
           <p className="mt-3 text-[12.5px] text-muted-foreground">
-            Updated <time dateTime={SEO_UPDATED}>{new Date(`${SEO_UPDATED}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })}</time> · QR ALTRIX
+            Updated <time dateTime={SEO_UPDATED}>{new Date(`${SEO_UPDATED}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })}</time> · By{' '}
+            <Link href="/about#how-we-write" className="font-medium text-foreground underline-offset-4 hover:underline">
+              QR ALTRIX
+            </Link>
           </p>
         </div>
         <QuickAnswer text={doc.answer} />
@@ -159,15 +163,15 @@ export async function SeoDocPage({ kind, slug }: { kind: SeoKind; slug: string }
 
         <div className="mt-10 grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,1fr)_300px]">
           <div className="min-w-0 max-w-[68ch] space-y-10">
-            <Ad position="top" />
+            {ads && <Ad position="top" />}
             {doc.sections.map((section, index) => (
               <div key={section.h} className="space-y-10">
                 <Section section={section} />
-                {index === mid && doc.sections.length > 3 && <Ad position="mid" />}
+                {ads && index === mid && doc.sections.length > 3 && <Ad position="mid" />}
               </div>
             ))}
             <FaqSection heading={ui.common.faqHeading} faqs={doc.faqs.map((f) => ({ q: f.q, a: plain(f.a) }))} />
-            <Ad position="end" />
+            {ads && <Ad position="end" />}
             {related.length > 0 && (
               <section>
                 <h2 className="mb-4 font-display text-[20px] font-bold tracking-[-0.02em]">Related</h2>
@@ -242,7 +246,6 @@ export function SeoHub({ kind }: { kind: SeoKind }) {
         <div className="mt-10">
           <SeoDocGroups kind={kind} />
         </div>
-        <Ad position="end" />
       </div>
     </MarketingShell>
   );

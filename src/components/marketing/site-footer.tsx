@@ -49,6 +49,7 @@ export async function SiteFooter({ locale = DEFAULT_LOCALE, path = '/' }: { loca
     {
       title: f.trust,
       links: [
+        { href: '/about', label: 'About' },
         { href: '/legal/terms', label: f.terms },
         { href: '/legal/privacy', label: f.privacy },
         { href: '/report-abuse', label: f.report },

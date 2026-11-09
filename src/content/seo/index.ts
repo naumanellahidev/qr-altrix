@@ -84,6 +84,18 @@ export function docAllowed(doc: SeoDoc, gate?: SeoGate): boolean {
   return true;
 }
 
+/** Words of readable text on a doc (answer, sections, FAQs), links reduced to their words. */
+export function docWords(doc: SeoDoc): number {
+  const text = [doc.answer, ...doc.sections.flatMap((x) => [x.h, ...(x.p ?? []), ...(x.list ?? []), ...(x.steps ?? [])]), ...doc.faqs.flatMap((f) => [f.q, f.a])].join(' ');
+  return text.replace(/\[([^\]]+)\]\([^)]*\)/g, '$1').split(/\s+/).filter(Boolean).length;
+}
+
+/**
+ * AdSense does not allow ads on screens with low-value content. Short pages (mostly the
+ * "QR code for" pages, whose value is the embedded generator) are kept ad-free.
+ */
+export const MIN_AD_WORDS = 250;
+
 export function seoDocs(kind: SeoKind, gate?: SeoGate): SeoDoc[] {
   return DOCS[kind].filter((doc) => docAllowed(doc, gate));
 }

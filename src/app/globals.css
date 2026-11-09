@@ -292,3 +292,9 @@
     background: #fff !important;
   }
 }
+
+/* AdSense: hide a unit Google left empty instead of keeping a blank reserved box
+   (documented: support.google.com/adsense/answer/10762946). */
+.ad-slot:has(ins.adsbygoogle[data-ad-status='unfilled']) {
+  display: none !important;
+}

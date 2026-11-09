@@ -20,11 +20,12 @@ export interface PublicRoute {
 
 export const ENGLISH_ROUTES: PublicRoute[] = [
   { path: '/developers', updated: '2026-10-04' },
+  { path: '/about', updated: '2026-11-09' },
   { path: '/support', updated: '2026-10-04' },
   { path: '/signup', updated: '2026-10-03' },
   { path: '/report-abuse', updated: '2026-10-03' },
   { path: '/legal/terms', updated: '2026-10-03' },
-  { path: '/legal/privacy', updated: '2026-10-03' },
+  { path: '/legal/privacy', updated: '2026-11-09' },
   // English-only search content: hubs and every answer, long guide and QR-code-for page.
   { path: SEO_KINDS.answers.path, updated: SEO_UPDATED },
   { path: SEO_KINDS.for.path, updated: SEO_UPDATED },
